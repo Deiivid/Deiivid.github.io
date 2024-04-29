@@ -1,9 +1,7 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    margin: 0;
-    padding: 20px;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 
 header {
@@ -63,6 +61,16 @@ position: relative;
     box-sizing: border-box;
     -webkit-transition: all 0.3s linear;
     transition: all 0.3s linear;
+}
+.footer-bg {
+    width: 100%;
+    height: auto;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    /* Add more styling as needed */
 }
 
 .snip1566:before,
