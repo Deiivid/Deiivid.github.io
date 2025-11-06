@@ -89,6 +89,7 @@
               <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#home">Home</a>
               <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#skills">Skills</a>
               <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#projects">Projects</a>
+              <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#game">Game</a>
               <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#contact">Contact</a>
             </div>
           </div>
@@ -156,46 +157,100 @@
             </div>
           </section>
 
-          <section class="flex flex-col gap-8 px-4" id="skills">
+          <!-- ===================== SKILLS (Cards) ===================== -->
+          <section id="skills" class="flex flex-col gap-6 px-4">
             <div class="flex flex-col gap-2">
-              <h2 class="text-white text-[22px] font-bold tracking-[-0.015em] pt-5">Key Skills &amp; Technologies</h2>
-              <p class="text-white/70 text-base">A selection of my preferred tools and technologies for building high-quality Android applications.</p>
+              <h2 class="text-white text-[22px] font-bold tracking-[-0.015em] pt-5">Key Skills</h2>
+              <p class="text-white/70 text-base">
+                A selection of my preferred tools and technologies for building high-quality Android applications.
+              </p>
             </div>
-            <div class="flex flex-col gap-6">
-              <div>
-                <h3 class="text-primary font-bold text-lg mb-4">Core &amp; UI</h3>
-                <div class="flex flex-wrap gap-3">
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Kotlin</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Java</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Jetpack Compose</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">KMP</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Coroutines &amp; Flow</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Retrofit</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">SQL</span>
+
+            <!-- Grid de tarjetas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <!-- Kotlin & Java -->
+              <article class="group rounded-xl border border-white/10 bg-[#131a2a] p-5 hover:border-primary/60 transition-colors">
+                <div class="flex items-start gap-4">
+                  <span class="material-symbols-outlined text-3xl text-primary">code</span>
+                  <div>
+                    <h3 class="text-white font-bold">Kotlin &amp; Java</h3>
+                    <p class="text-white/70 text-sm">Primary languages for Android development.</p>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <h3 class="text-primary font-bold text-lg mb-4">Architecture &amp; Dependency Injection</h3>
-                <div class="flex flex-wrap gap-3">
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Clean Architecture</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Dagger Hilt</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Koin</span>
+              </article>
+
+              <!-- Jetpack Compose -->
+              <article class="group rounded-xl border border-white/10 bg-[#131a2a] p-5 hover:border-primary/60 transition-colors">
+                <div class="flex items-start gap-4">
+                  <span class="material-symbols-outlined text-3xl text-primary">layers</span>
+                  <div>
+                    <h3 class="text-white font-bold">Jetpack Compose</h3>
+                    <p class="text-white/70 text-sm">Modern declarative UI toolkit.</p>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <h3 class="text-primary font-bold text-lg mb-4">Testing &amp; Tooling</h3>
-                <div class="flex flex-wrap gap-3">
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">JUnit</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Mockito</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Git</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">GitHub Actions</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Firebase</span>
-                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Detekt</span>
+              </article>
+
+              <!-- Coroutines & Flow -->
+              <article class="group rounded-xl border border-white/10 bg-[#131a2a] p-5 hover:border-primary/60 transition-colors">
+                <div class="flex items-start gap-4">
+                  <span class="material-symbols-outlined text-3xl text-primary">sync</span>
+                  <div>
+                    <h3 class="text-white font-bold">Coroutines &amp; Flow</h3>
+                    <p class="text-white/70 text-sm">Asynchronous and reactive programming.</p>
+                  </div>
                 </div>
+              </article>
+
+              <!-- DI: Dagger / Hilt -->
+              <article class="group rounded-xl border border-white/10 bg-[#131a2a] p-5 hover:border-primary/60 transition-colors">
+                <div class="flex items-start gap-4">
+                  <span class="material-symbols-outlined text-3xl text-primary">hub</span>
+                  <div>
+                    <h3 class="text-white font-bold">Koin / Dagger-Hilt </h3>
+                    <p class="text-white/70 text-sm">Dependency injection frameworks.</p>
+                  </div>
+                </div>
+              </article>
+
+              <!-- CI/CD -->
+              <article class="group rounded-xl border border-white/10 bg-[#131a2a] p-5 hover:border-primary/60 transition-colors">
+                <div class="flex items-start gap-4">
+                  <span class="material-symbols-outlined text-3xl text-primary">deployed_code</span>
+                  <div>
+                    <h3 class="text-white font-bold">CI/CD</h3>
+                    <p class="text-white/70 text-sm">Automated build & delivery pipelines.</p>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Unit & UI Testing -->
+              <article class="group rounded-xl border border-white/10 bg-[#131a2a] p-5 hover:border-primary/60 transition-colors">
+                <div class="flex items-start gap-4">
+                  <span class="material-symbols-outlined text-3xl text-primary">science</span>
+                  <div>
+                    <h3 class="text-white font-bold">Unit &amp; UI Testing</h3>
+                    <p class="text-white/70 text-sm">Quality, stability and coverage.</p>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <!-- Chips de tecnologías (opcional, por si quieres mantenerlas) -->
+            <div class="mt-2">
+              <h3 class="text-primary font-bold text-lg mb-3">Also comfortable with</h3>
+              <div class="flex flex-wrap gap-3">
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">KMP</span>
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Retrofit</span>
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">SQL</span>
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Firebase</span>
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Git</span>
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">GitHub Actions</span>
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Detekt</span>
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Koin</span>
+                <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Clean Architecture</span>
               </div>
             </div>
           </section>
-
           <section class="flex flex-col gap-8 px-4" id="projects">
             <h2 class="text-white text-[22px] font-bold tracking-[-0.015em] pb-3 pt-5">My Projects</h2>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -212,34 +267,184 @@
                     <h3 class="text-white text-xl font-bold">PermissionProtect</h3>
                     <p class="text-white/70 text-sm">Android app to review, control and learn about your app permissions. Built with Kotlin & Jetpack Compose.</p>
                   </div>
+                  <div class="flex gap-2 flex-wrap">
+                    <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                      <p class="text-primary text-xs font-medium">Jetpack Compose</p>
+                    </div>
+                    <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                      <p class="text-primary text-xs font-medium">Kotlin / Java</p>
+                    </div>
+                  </div>
                   <div class="flex gap-4">
                     <a class="flex-1 text-center py-2 px-4 rounded-lg bg-[#222f49] text-white text-sm font-bold hover:bg-[#2d3c5b] transition-colors" href="https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es" target="_blank" rel="noopener">Google Play</a>
                     <a class="flex-1 text-center py-2 px-4 rounded-lg border border-[#222f49] text-white text-sm font-bold hover:bg-[#222f49] transition-colors" href="https://deiivid.github.io/PermissionProtectWeb/" target="_blank" rel="noopener">Web</a>
                   </div>
                 </div>
+
               </div>
 
-              <div class="flex flex-col gap-4 rounded-xl bg-[#161d2e] overflow-hidden group">
-                <div class="w-full aspect-video bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAHVM4hjraen5BjYMyhDPjAw19aJRKdz4oyP0DyRbkTQf4maLy6xGVdh0SxDf8R-Rbn3Q_M2x72lcK0bdF9hefL1R1-ZteyBKoveCT9V7nIL8HsuwVwccCGDwjgYSrMyWcqI1TsJttUrLNhFuNEoly3czVJcWCBJ9zOZVaC2LHKx2JKMxJ2iQ7OfAchkDEnI-7E2SKc-uzbFsj1OcE6ZvfduuXvmMnJNUlmajAR8IFBdlwa7cpEKP-oR4PIbpTRBtqdv4HeBB2QWjU')"></div>
-                <div class="flex flex-col gap-6 p-6 pt-0">
-                  <div class="flex flex-col gap-2">
-                    <h3 class="text-white text-xl font-bold">E-commerce Platform</h3>
-                    <p class="text-white/70 text-sm">A full-stack e-commerce site with features like product catalog, shopping cart, and Stripe payment integration.</p>
+                <div class="flex flex-col gap-4 rounded-xl bg-[#161d2e] overflow-hidden group">
+                  <div class="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-[#0b1220] via-[#111827] to-[#1f2937]">
+                    <div class="absolute -left-16 -top-24 h-64 w-64 rounded-full bg-primary/25 blur-3xl"></div>
+                    <div class="absolute right-[-40px] bottom-[-40px] h-72 w-72 rounded-full bg-[#3DDC84]/20 blur-3xl"></div>
+                    <div class="absolute left-8 top-8 h-40 w-72 rounded-xl bg-white/10 border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-md"></div>
+                    <div class="absolute right-10 bottom-10 h-24 w-44 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md"></div>
+                    <div class="absolute inset-0 ring-1 ring-white/10"></div>
                   </div>
-                  <div class="flex gap-2 flex-wrap">
-                    <div class="flex h-7 items-center rounded-full bg-primary/20 px-3"><p class="text-primary text-xs font-medium">Next.js</p></div>
-                    <div class="flex h-7 items-center rounded-full bg-primary/20 px-3"><p class="text-primary text-xs font-medium">Stripe</p></div>
-                    <div class="flex h-7 items-center rounded-full bg-primary/20 px-3"><p class="text-primary text-xs font-medium">MongoDB</p></div>
-                  </div>
-                  <div class="flex gap-4">
-                    <a class="flex-1 text-center py-2 px-4 rounded-lg bg-[#222f49] text-white text-sm font-bold hover:bg-[#2d3c5b] transition-colors" href="#">Live Demo</a>
-                    <a class="flex-1 text-center py-2 px-4 rounded-lg border border-[#222f49] text-white text-sm font-bold hover:bg-[#222f49] transition-colors" href="#">View Code</a>
+
+                  <div class="flex flex-col gap-6 p-6 pt-0">
+                    <div class="flex flex-col gap-2">
+                      <h3 class="text-white text-xl font-bold"> Jetpack Compose Glassmorphism library </h3>
+                      <p class="text-white/70 text-sm">
+                        For applying <em>glassmorphism</em> effects — blurring both background and content.
+                        Android 12+ uses <code>RenderEffect</code>, while Android 11 and below rely on a native <strong>C++/NDK</strong>
+                      </p>
+                    </div>
+
+                    <!-- Tech chips -->
+                    <div class="flex gap-2 flex-wrap">
+                      <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                        <p class="text-primary text-xs font-medium">Jetpack Compose</p>
+                      </div>
+                      <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                        <p class="text-primary text-xs font-medium">Kotlin / Java</p>
+                      </div>
+                      <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                        <p class="text-primary text-xs font-medium">C++ / NDK</p>
+                      </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                      <a class="flex-1 text-center py-2 px-4 rounded-lg bg-[#222f49] text-white text-sm font-bold hover:bg-[#2d3c5b] transition-colors"
+                         href="https://github.com/Deiivid/Glassmorphism-Compose" target="_blank" rel="noopener">GitHub</a>
+                      <a class="flex-1 text-center py-2 px-4 rounded-lg border border-[#222f49] text-white text-sm font-bold hover:bg-[#222f49] transition-colors"
+                         href="https://github.com/Deiivid/Glassmorphism-Compose#readme" target="_blank" rel="noopener">README</a>
+                    </div>
                   </div>
                 </div>
-              </div>
+
+                <div class="flex flex-col gap-4 rounded-xl bg-[#161d2e] overflow-hidden group">
+                  <!-- Clean Architecture image -->
+                  <div class="relative w-full aspect-video overflow-hidden">
+                    <img src="assets/img/cleancode.png"
+                         alt="Clean Architecture Compose — multi-module Android project"
+                         loading="lazy"
+                         class="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out hover:scale-[1.02] hover:brightness-105"/>
+                    <div class="absolute inset-0 ring-1 ring-white/10"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-background-dark/70 via-transparent to-transparent mix-blend-overlay"></div>
+                  </div>
+
+                  <div class="flex flex-col gap-6 p-6 pt-0">
+                    <div class="flex flex-col gap-2">
+                      <h3 class="text-white text-xl font-bold">Clean Architecture Compose</h3>
+                      <p class="text-white/70 text-sm">
+                        A multi-module Android project demonstrating a layered <strong>Clean Architecture</strong> pattern — separation of concerns between
+                        <code>domain</code>, <code>data</code>, and <code>presentation</code> layers using <strong>Jetpack Compose</strong>.
+                        Includes custom <em>Detekt</em> rules, <em>use cases</em>, and dependency injection with <em>Koin</em>.
+                      </p>
+                    </div>
+
+                    <!-- Tech chips -->
+                    <div class="flex gap-2 flex-wrap">
+                      <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                        <p class="text-primary text-xs font-medium">Jetpack Compose</p>
+                      </div>
+                      <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                        <p class="text-primary text-xs font-medium">Kotlin</p>
+                      </div>
+                      <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                        <p class="text-primary text-xs font-medium">Clean Architecture</p>
+                      </div>
+                      <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                        <p class="text-primary text-xs font-medium">Koin</p>
+                      </div>
+                      <div class="flex h-7 items-center rounded-full bg-primary/20 px-3">
+                        <p class="text-primary text-xs font-medium">Detekt</p>
+                      </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                      <a class="flex-1 text-center py-2 px-4 rounded-lg bg-[#222f49] text-white text-sm font-bold hover:bg-[#2d3c5b] transition-colors"
+                         href="https://github.com/Deiivid/Clean_Arquitecture_Compose" target="_blank" rel="noopener">GitHub</a>
+                      <a class="flex-1 text-center py-2 px-4 rounded-lg border border-[#222f49] text-white text-sm font-bold hover:bg-[#222f49] transition-colors"
+                         href="https://github.com/Deiivid/Clean_Arquitecture_Compose#readme" target="_blank" rel="noopener">README</a>
+                    </div>
+                  </div>
+                </div>
             </div>
           </section>
+          <!-- =============== GAME / CALL TO ACTION =============== -->
+          <section id="game" class="flex flex-col items-center gap-6 rounded-xl border border-white/10 bg-[#161a22] p-8 md:p-12 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold leading-tight tracking-[-0.015em] text-white">Ready for a Challenge?</h2>
+            <p class="text-white/70 max-w-xl text-base md:text-lg">
+              I built a tiny game to showcase problem-solving with a playful twist. Smash the bugs, beat the clock, brag later.
+            </p>
 
+            <!-- Phone preview (static) -->
+            <div class="relative w-full max-w-xs h-auto select-none">
+              <div class="relative w-full aspect-[9/19.5] bg-[#222] rounded-[2.2rem] border-[10px] border-black shadow-2xl overflow-hidden">
+                <div class="absolute inset-[4px] bg-[#0f1626] rounded-[1.8rem] overflow-hidden">
+                  <div class="w-full h-full flex items-center justify-center">
+                    <span class="text-white/60 text-sm">Tap “Play Now”</span>
+                  </div>
+                </div>
+                <!-- Notch & buttons -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-b-xl"></div>
+                <div class="absolute right-[-3px] top-24 w-1 h-8 bg-black rounded-l-sm"></div>
+                <div class="absolute right-[-3px] top-36 w-1 h-8 bg-black rounded-l-sm"></div>
+                <div class="absolute left-[-3px] top-28 w-1 h-16 bg-black rounded-r-sm"></div>
+              </div>
+            </div>
+
+            <button id="openGameBtn"
+                    class="flex min-w-[140px] items-center justify-center gap-2 rounded-lg h-12 px-6 bg-primary text-background-dark text-base font-bold tracking-[0.015em] hover:opacity-90 transition-opacity">
+              <span class="material-symbols-outlined">gamepad</span>
+              <span class="truncate">Play Now</span>
+            </button>
+          </section>
+
+          <!-- =============== GAME MODAL =============== -->
+          <div id="gameModal"
+               class="hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm p-4 md:p-8">
+            <div class="mx-auto w-full max-w-sm relative">
+              <!-- Phone frame -->
+              <div class="relative w-full aspect-[9/19.5] bg-[#222] rounded-[2.4rem] border-[12px] border-black shadow-[0_20px_80px_rgba(0,0,0,0.8)] overflow-hidden">
+                <div class="absolute inset-[6px] bg-[#0b1220] rounded-[2rem] overflow-hidden">
+                  <!-- HUD -->
+                  <div class="absolute top-0 left-0 right-0 p-3 flex items-center justify-between text-white/90 text-sm">
+                    <div>Score: <span id="hudScore">0</span></div>
+                    <div>Time: <span id="hudTime">30</span>s</div>
+                  </div>
+                  <!-- Canvas -->
+                  <canvas id="gameCanvas" class="absolute inset-0 w-full h-full"></canvas>
+
+                  <!-- Overlay (pre-start / game-over) -->
+                  <div id="overlay"
+                       class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/40 text-white">
+                    <h3 id="overlayTitle" class="text-xl font-bold">Bug Smasher</h3>
+                    <p id="overlaySubtitle" class="text-white/80 text-sm">Tap the bugs before the time runs out.</p>
+                    <button id="startBtn"
+                            class="mt-1 rounded-lg px-5 h-11 bg-primary text-background-dark font-bold hover:opacity-90 transition-opacity">
+                      Start
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Notch & side buttons -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-7 bg-black rounded-b-xl"></div>
+                <div class="absolute right-[-4px] top-28 w-1 h-10 bg-black rounded-l-md"></div>
+                <div class="absolute right-[-4px] top-40 w-1 h-10 bg-black rounded-l-md"></div>
+                <div class="absolute left-[-4px] top-32 w-1 h-20 bg-black rounded-r-md"></div>
+              </div>
+
+              <!-- Close -->
+              <button id="closeGameBtn"
+                      class="absolute -top-4 -right-4 bg-primary text-background-dark rounded-full p-2 hover:opacity-90 transition-opacity">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+          </div>
+          </section>
 
           <section class="flex flex-col gap-8 px-4 py-10" id="contact">
             <div class="flex flex-col gap-2 text-center">
@@ -316,5 +521,187 @@
 
     tick();
   })();
+
+  <!-- =============== GAME SCRIPT =============== -->
+(() => {
+  const openBtn = document.getElementById('openGameBtn');
+  const modal = document.getElementById('gameModal');
+  const closeBtn = document.getElementById('closeGameBtn');
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const hudScore = document.getElementById('hudScore');
+  const hudTime  = document.getElementById('hudTime');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('startBtn');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlaySubtitle = document.getElementById('overlaySubtitle');
+
+  let dpr = Math.max(1, window.devicePixelRatio || 1);
+  let W = 0, H = 0, rafId = 0;
+  let running = false, timeLeft = 30, score = 0, timerId = 0;
+
+  // Simple “bug” objects
+  const bugs = [];
+  const BUG_COUNT = 6;
+  const SPEED_MIN = 40;  // px/s
+  const SPEED_MAX = 120; // px/s
+  const RADIUS = 18;     // logical px
+
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    W = Math.floor(rect.width  * dpr);
+    H = Math.floor(rect.height * dpr);
+    canvas.width = W;
+    canvas.height = H;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // use CSS pixels in drawing
+  }
+  window.addEventListener('resize', resizeCanvas, { passive: true });
+
+  function rnd(min, max) { return Math.random() * (max - min) + min; }
+
+  function spawnBug() {
+    return {
+      x: rnd(RADIUS, (W/dpr) - RADIUS),
+      y: rnd(RADIUS + 40, (H/dpr) - RADIUS), // leave room for HUD
+      vx: rnd(-1, 1) * rnd(SPEED_MIN, SPEED_MAX) / 60,
+      vy: rnd(-1, 1) * rnd(SPEED_MIN, SPEED_MAX) / 60,
+      r: RADIUS,
+      alive: true
+    };
+  }
+
+  function resetGame() {
+    score = 0;
+    timeLeft = 30;
+    hudScore.textContent = score;
+    hudTime.textContent = timeLeft;
+    bugs.length = 0;
+    for (let i = 0; i < BUG_COUNT; i++) bugs.push(spawnBug());
+  }
+
+  function drawBug(b) {
+    // body
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    ctx.fillStyle = '#e11d48'; // rose-600
+    ctx.fill();
+    // head
+    ctx.beginPath();
+    ctx.arc(b.x, b.y - b.r * 0.8, b.r * 0.55, 0, Math.PI * 2);
+    ctx.fillStyle = '#7f1d1d';
+    ctx.fill();
+    // legs (simple)
+    ctx.strokeStyle = '#0f0f0f';
+    ctx.lineWidth = 2;
+    for (let i = -1; i <= 1; i++) {
+      ctx.beginPath();
+      ctx.moveTo(b.x - b.r, b.y + i * 6);
+      ctx.lineTo(b.x - b.r - 8, b.y + i * 10);
+      ctx.moveTo(b.x + b.r, b.y + i * 6);
+      ctx.lineTo(b.x + b.r + 8, b.y + i * 10);
+      ctx.stroke();
+    }
+  }
+
+  function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // background subtle grid
+    ctx.fillStyle = '#0b1626';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    bugs.forEach(b => {
+      if (!b.alive) return;
+      b.x += b.vx;
+      b.y += b.vy;
+
+      // bounce on edges
+      if (b.x - b.r < 0 || b.x + b.r > (W/dpr)) b.vx *= -1;
+      if (b.y - b.r < 24 || b.y + b.r > (H/dpr)) b.vy *= -1;
+
+      drawBug(b);
+    });
+
+    if (running) rafId = requestAnimationFrame(update);
+  }
+
+  function onCanvasClick(e) {
+    if (!running) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left);
+    const y = (e.clientY - rect.top);
+
+    for (const b of bugs) {
+      if (!b.alive) continue;
+      const dx = x - b.x;
+      const dy = y - b.y;
+      if (dx*dx + dy*dy <= b.r*b.r) {
+        b.alive = false;
+        score++;
+        hudScore.textContent = score;
+        // respawn after a short delay
+        setTimeout(() => {
+          const idx = bugs.indexOf(b);
+          bugs[idx] = spawnBug();
+        }, 300);
+        break;
+      }
+    }
+  }
+
+  function startTimer() {
+    clearInterval(timerId);
+    timerId = setInterval(() => {
+      timeLeft--;
+      hudTime.textContent = timeLeft;
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  function startGame() {
+    overlay.classList.add('hidden');
+    running = true;
+    resetGame();
+    startTimer();
+    cancelAnimationFrame(rafId);
+    update();
+  }
+
+  function endGame() {
+    running = false;
+    clearInterval(timerId);
+    overlayTitle.textContent = 'Time\'s up!';
+    overlaySubtitle.textContent = `Final score: ${score}`;
+    startBtn.textContent = 'Play again';
+    overlay.classList.remove('hidden');
+  }
+
+  function openModal() {
+    resizeCanvas();
+    resetGame();
+    overlayTitle.textContent = 'Bug Smasher';
+    overlaySubtitle.textContent = 'Tap the bugs before the time runs out.';
+    startBtn.textContent = 'Start';
+    overlay.classList.remove('hidden');
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    running = false;
+    cancelAnimationFrame(rafId);
+    clearInterval(timerId);
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  // Wire up
+  openBtn?.addEventListener('click', openModal);
+  closeBtn?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  startBtn?.addEventListener('click', startGame);
+  canvas.addEventListener('click', onCanvasClick, { passive: true });
+})();
 </script>
 </html>
