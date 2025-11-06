@@ -1,474 +1,320 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html class="dark" lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Developer Portfolio</title>
 
-  <title>David Navarro Moreno</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
 
-  <!-- Favicons -->
-  <link href="assets/img/deiividlogo.webp" rel="icon">
-  <link href="assets/img/deiividlogo.webp" rel="touch-icon">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#256af4",
+            "background-light": "#f5f6f8",
+            "background-dark": "#101622",
+          },
+          fontFamily: {
+            display: ["Space Grotesk", "sans-serif"]
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+        },
+      },
+    }
+  </script>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+    }
 
-  <!-- Vendor CSS Files -->
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-
-  <!-- Template Main CSS File -->
-  <link href="assets/css/style.css" rel="stylesheet">
-
-  <!-- =======================================================
-  * Template Name: Personal
-  * Template URL: https://bootstrapmade.com/personal-free-resume-bootstrap-template/
-  * Updated: Mar 17 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+    /* Caret blink only; typing handled by JS for precisión */
+    .typing {
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 3px solid #256af4; /* cursor */
+      letter-spacing: 0;
+      animation: blink .75s step-end infinite;
+    }
+    @keyframes blink {
+      from, to { border-color: transparent }
+      50%      { border-color: #256af4 }
+    }
+    /* Blink for icons */
+    .blink-icon { animation: blinkIcon 1.2s ease-in-out infinite; }
+    @keyframes blinkIcon { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
+  </style>
 </head>
 
-<body>
-
-  <!-- ======= Header ======= -->
-  <header id="header">
-    <div class="container">
-
-      <h1><a href="index.html">David Navarro</a></h1>
-
-      <!-- <a href="index.html" class="mr-auto"><img src="assets/img/logo.png" alt="" class="img-fluid"></a> -->
-      <h2>I'm a passionate <span>mobile developer</span> from Spain</h2>
-
-      <nav id="navbar" class="navbar">
-        <ul>
-          <li><a class="nav-link active" href="#header">Home</a></li>
-          <li><a class="nav-link" href="#about">About</a></li>
-          <li><a class="nav-link" href="#resume">Resume</a></li>
-          <li><a class="nav-link" href="#portfolio">Portfolio</a></li>
-          <li><a class="nav-link" href="#contact">Contact</a></li>
-        </ul>
-        <i class="bi bi-list mobile-nav-toggle"></i>
-      </nav><!-- .navbar -->
-
-      <div class="social-links">
-        <a href="https://medium.com/" class="twitter"><i class="bi bi-medium"></i></a>
-        <a href="https://deiividdev.com" class="facebook"><i class="bi bi-people-fill"></i></a>
-        <a href="https://www.linkedin.com/in/david-navarro-moreno/" class="Linkedin"><i class="bi bi-linkedin"></i></a>
-        <a href="https://github.com/Deiivid" class="Github"><i class="bi bi-github"></i></a>
-      </div>
-
-    </div>
-  </header><!-- End Header -->
-
-  <!-- ======= About Section ======= -->
-  <section id="about" class="about">
-
-    <!-- ======= About Me ======= -->
-    <div class="about-me container">
-
-      <div class="section-title">
-        <h2>About</h2>
-        <p>Learn more about me</p>
-      </div>
-
-      <div class="row">
-        <div class="col-lg-4" data-aos="fade-right">
-          <img src="assets/img/david2.png" class="img-fluid" alt="">
-        </div>
-        <div class="col-lg-8 pt-4 pt-lg-0 content" data-aos="fade-left">
-          <h3>Android/iOS &amp; Mobile Developerr</h3>
-          <p class="fst-italic">
-          Hi I'm David Navarro, I'm passionate about mobile technology, I program in both Android and iOS in Kotlin/Java/JetpackCompose/Swift.
-          </p>
-          <div class="row">
-            <div class="col-lg-6">
-              <ul>
-                <li><i class="bi bi-chevron-right"></i> <strong>Birthday:</strong> <span>11 Mar 1993</span></li>
-                <li><i class="bi bi-chevron-right"></i> <strong>Website:</strong> <span>www.deiividdev.com</span></li>
-                <li><i class="bi bi-chevron-right"></i> <strong>City:</strong> <span>Zaragoza, Spain</span></li>
-              </ul>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#A0AEC0]">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+  <div class="layout-container flex h-full grow flex-col">
+    <div class="flex flex-1 justify-center py-5 md:px-10 lg:px-40">
+      <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+        <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-white/10 px-4 sm:px-10 py-3 bg-background-dark/80 backdrop-blur-sm" id="home">
+          <div class="flex items-center gap-4 text-white">
+            <div class="size-5 text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                   class="w-8 h-8 text-[#3DDC84] animate-bounce blink-icon" fill="currentColor" aria-hidden="true">
+                <path d="M17.6 9.48l1.43-2.48a.5.5 0 0 0-.86-.5l-1.45 2.53a7.93 7.93 0 0 0-8.44 0L6.83 6.5a.5.5 0 0 0-.86.5l1.43 2.48A8.15 8.15 0 0 0 4 16a.5.5 0 0 0 .5.5h1.51v3.25a1.25 1.25 0 1 0 2.5 0V16h1.5v3.25a1.25 1.25 0 1 0 2.5 0V16h1.5v3.25a1.25 1.25 0 1 0 2.5 0V16H19.5a.5.5 0 0 0 .5-.5 8.15 8.15 0 0 0-2.4-6.02zM8.75 10.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5zm6.5 0a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5z"/>
+              </svg>
             </div>
-            <div class="col-lg-6">
-              <ul>
-                <li><i class="bi bi-chevron-right"></i> <strong>Degree:</strong> <span>SUPERIOR GRADE</span></li>
-                <li><i class="bi bi-chevron-right"></i> <strong>Email:</strong> <span>davidnavarrom3@gmail.com</span></li>
-                <li><i class="bi bi-chevron-right"></i> <strong>Freelance:</strong> <span>Available</span></li>
-              </ul>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 blink-icon">
+              <defs>
+                <linearGradient id="kotlinGradientHeader" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#7F52FF"/>
+                  <stop offset="50%" stop-color="#A97BFF"/>
+                  <stop offset="100%" stop-color="#FF8A00"/>
+                </linearGradient>
+              </defs>
+              <path fill="url(#kotlinGradientHeader)" d="M2 2h20L12 12l10 10H2z"/>
+            </svg>
+            <h2 class="text-white text-lg font-bold tracking-[-0.015em]">David Navarro</h2>
+          </div>
+          <div class="hidden md:flex flex-1 justify-end gap-8">
+            <div class="flex items-center gap-9">
+              <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#home">Home</a>
+              <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#skills">Skills</a>
+              <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#projects">Projects</a>
+              <a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#contact">Contact</a>
             </div>
           </div>
-          <p>
-           I have been a systems technician in the past for 3 years, where I learned to manage projects and deal with customers which currently serves me as a programmer, I am a perfectionist person who likes to give the maximum every day.
-          </p>
-        </div>
-      </div>
+        </header>
 
-    </div><!-- End About Me -->
+        <main class="flex flex-col gap-16 md:gap-24">
+          <section class="@container pt-16 md:pt-24">
+            <div class="flex flex-col gap-6 px-4 py-10 @[480px]:gap-8 @[864px]:flex-row-reverse @[864px]:items-center">
+              <div class="relative w-full flex-shrink-0 @[864px]:max-w-[320px]">
+                <!-- Halo -->
+                <div aria-hidden class="absolute inset-0 rounded-[1rem] bg-gradient-to-br from-[#256af4]/10 via-transparent to-transparent blur-2xl"></div>
+                <div aria-hidden class="pointer-events-none absolute -inset-8 -z-10 rounded-2xl bg-gradient-to-br from-primary/15 via-transparent to-transparent blur-3xl opacity-60"></div>
+                <!-- Imagen -->
+                <div class="relative overflow-hidden rounded-xl ring-1 ring-white/10 shadow-[0_10px_50px_rgba(0,0,0,0.6)] backdrop-blur-sm">
+                  <img src="assets/img/DavidImage.jpg" alt="David Navarro — Android Developer"
+                       class="w-full h-full object-cover transition-all duration-700 ease-in-out hover:scale-[1.02] hover:brightness-105"/>
+                  <div class="absolute inset-0 bg-gradient-to-t from-background-dark/80 via-transparent to-transparent mix-blend-overlay"></div>
+                </div>
+              </div>
 
-    <!-- ======= Counts ======= -->
-    <div class="counts container">
+              <div class="flex flex-col gap-6 @[480px]:min-w-[400px] @[480px]:gap-8 @[864px]:justify-center">
+                <div class="flex flex-col gap-4 text-left">
+                  <div class="flex items-center gap-3">
+                    <!-- Título con efecto typing -->
+                    <h1 id="typingTitle" class="typing text-white text-4xl @[480px]:text-5xl font-black leading-tight">
+                      Android Developer
+                    </h1>
+                  </div>
 
-      <div class="row">
+                  <h2 class="text-white/80 text-base @[480px]:text-lg">
+                    Passionate about building modern Android apps (Kotlin · Compose · KMP) with great UX and performance.
+                  </h2>
+                </div>
 
-        <div class="col-lg-3 col-md-6">
-          <div class="count-box">
-            <i class="bi bi-emoji-smile"></i>
-            <span data-purecounter-start="0" data-purecounter-end="4" data-purecounter-duration="1" class="purecounter"></span>
-            <p>Personal Projects</p>
-          </div>
-        </div>
+                <div class="flex flex-col sm:flex-row gap-4 items-start">
+                  <!-- Descargar CV -->
+                  <a id="downloadCvLink"
+                     href="assets/cv/cv.pdf"
+                     download="cv.pdf"
+                     class="inline-flex min-w-[140px] items-center justify-center rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                    Download CV
+                  </a>
 
-        <div class="col-lg-3 col-md-6 mt-5 mt-md-0">
-          <div class="count-box">
-            <i class="bi bi-journal-richtext"></i>
-            <span data-purecounter-start="0" data-purecounter-end="28" data-purecounter-duration="1" class="purecounter"></span>
-            <p>Projects Done</p>
-          </div>
-        </div>
+                  <!-- Iconos -->
+                  <div class="flex gap-2">
+                    <!-- GitHub -->
+                    <a class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-[#222f49] text-white/80 hover:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-4 transition-colors"
+                       href="https://github.com/Deiivid" target="_blank" rel="noopener" aria-label="GitHub">
+                      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M12 2C6.48 2 2 6.58 2 12.26c0 4.5 2.87 8.32 6.84 9.67.5.09.68-.22.68-.48v-1.68c-2.78.62-3.37-1.36-3.37-1.36-.46-1.18-1.11-1.49-1.11-1.49-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.85.09-.67.35-1.1.63-1.36-2.22-.26-4.56-1.12-4.56-4.97 0-1.1.39-2 1.03-2.7-.1-.26-.45-1.27.1-2.64 0 0 .84-.28 2.75 1.05a9.38 9.38 0 0 1 5 0c1.9-1.33 2.75-1.05 2.75-1.05.55 1.37.2 2.38.1 2.64.64.7 1.03 1.6 1.03 2.7 0 3.86-2.34 4.71-4.57 4.97.36.31.68.93.68 1.88v2.78c0 .26.18.57.69.47A10.01 10.01 0 0 0 22 12.26C22 6.58 17.52 2 12 2Z"/>
+                      </svg>
+                    </a>
 
-        <div class="col-lg-3 col-md-6 mt-5 mt-lg-0">
-          <div class="count-box">
-            <i class="bi bi-headset"></i>
-            <span data-purecounter-start="0" data-purecounter-end="650" data-purecounter-duration="1" class="purecounter"></span>
-            <p>Hours Of HelpDesk</p>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mt-5 mt-lg-0">
-          <div class="count-box">
-            <i class="bi bi-award"></i>
-            <span data-purecounter-start="0" data-purecounter-end="2" data-purecounter-duration="1" class="purecounter"></span>
-            <p>Awards</p>
-          </div>
-        </div>
-
-      </div>
-
-    </div><!-- End Counts -->
-
-    <!-- ======= Skills  ======= -->
-    <div class="skills container">
-
-      <div class="section-title">
-        <h2>Skills</h2>
-      </div>
-
-      <div class="row skills-content">
-
-        <div class="col-lg-6">
-
-          <div class="progress">
-            <span class="skill">Kotlin <i class="val">80%</i></span>
-            <div class="progress-bar-wrap">
-              <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-          </div>
-
-          <div class="progress">
-            <span class="skill">Java <i class="val">60%</i></span>
-            <div class="progress-bar-wrap">
-              <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-          </div>
-
-          <div class="progress">
-            <span class="skill">Swift <i class="val">30%</i></span>
-            <div class="progress-bar-wrap">
-              <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="col-lg-6">
-
-          <div class="progress">
-            <span class="skill">Jetpack Compose <i class="val">70%</i></span>
-            <div class="progress-bar-wrap">
-              <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-          </div>
-
-          <div class="progress">
-            <span class="skill">WordPress <i class="val">70%</i></span>
-            <div class="progress-bar-wrap">
-              <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-          </div>
-
-          <div class="progress">
-            <span class="skill">Git <i class="val">90%</i></span>
-            <div class="progress-bar-wrap">
-              <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </div><!-- End Skills -->
-
-    <!-- ======= Interests ======= -->
-    <div class="interests container">
-
-      <div class="section-title">
-        <h2>Interests</h2>
-      </div>
-
-      <div class="row">
-        <div class="col-lg-3 col-md-4">
-          <div class="icon-box">
-            <i class="bi-laptop" style="color: #ffbb2c;"></i>
-            <h3>Programming</h3>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 mt-4 mt-md-0">
-          <div class="icon-box">
-            <i class="bxs-chess" style="color: #5578ff;"></i>
-            <h3>Chess</h3>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 mt-4 mt-md-0">
-          <div class="icon-box">
-            <i class="bx-math" style="color: #e80368;"></i>
-            <h3>Matemátics</h3>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 mt-4 mt-lg-0">
-          <div class="icon-box">
-            <i class="ri-paint-brush-line" style="color: #e361ff;"></i>
-            <h3>IA</h3>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 mt-4">
-          <div class="icon-box">
-            <i class="ri-database-2-line" style="color: #47aeff;"></i>
-            <h3>BBDD</h3>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 mt-4">
-          <div class="icon-box">
-            <i class="ri-gradienter-line" style="color: #ffa76e;"></i>
-            <h3>Padel</h3>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- End Interests -->
-
-  </section><!-- End About Section -->
-
-  <!-- ======= Resume Section ======= -->
-  <section id="resume" class="resume">
-    <div class="container">
-
-      <div class="section-title">
-        <h2>Resume</h2>
-        <p>Check My Resume</p>
-      </div>
-
-      <div class="row">
-        <div class="col-lg-6">
-          <h3 class="resume-title">Sumary</h3>
-          <div class="resume-item pb-0">
-            <h4>David Navarro</h4>
-            <p><em>Mobile developer with 3+ years of experience designing and developing  Android/iOS Apps.</em></p>
-            <p>
-            <ul>
-              <li>Zaragoza, SP</li>
-              <li>davidnavarrom3@gmail.com</li>
-            </ul>
-            </p>
-          </div>
-
-          <h3 class="resume-title">Education</h3>
-          <div class="resume-item">
-            <h4>Higher Technician in Networked Computer Systems Administration</h4>
-            <h5>2016 - 2018</h5>
-            <p><em>Marco Academy, Zaragoza</em></p>
-          </div>
-          <div class="resume-item">
-            <h4>Higher Technician in Multiplatform Application Development</h4>
-            <h5>2019 - 2021</h5>
-            <p><em>C.P.I.F Los Enlaces, Zaragoza</em></p>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <h3 class="resume-title">Professional Experience</h3>
-          <div class="resume-item">
-            <h4>Mobile Developer in Hiberus</h4>
-            <h5>2021 - Present</h5>
-            <p><em>Zaragoza, SP</em></p>
-            <p>
-            <ul>
-              <li>Android mobile developer with kotlin and java.</li>
-              <li>Using Jetpack Compose kit for modern views</li>
-              <li>Managing a project.</li>
-            </ul>
-            </p>
-          </div>
-          <div class="resume-item">
-            <h4>SOFTWARE DEVELOPMENT SOLUTIONS S.L.</h4>
-            <h5>2018 - 2021</h5>
-            <p><em>Zaragoza, SP</em></p>
-            <p>
-            <ul>
-              <li>IT support for important Governmental Client </li>
-              <li>VPN network creator for all the companies we worked with for remote work in pandemics</li>
-              <li>Repair of equipment</li>
-              <li>Data Recovery</li>
-            </ul>
-            </p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section><!-- End Resume Section -->
-
-  <!-- ======= Portfolio Section ======= -->
-  <section id="portfolio" class="portfolio">
-    <div class="container">
-
-      <div class="section-title">
-        <h2>Portfolio</h2>
-        <p>My Works</p>
-      </div>
-
-      <div class="row">
-        <div class="col-lg-12 d-flex justify-content-center">
-          <ul id="portfolio-flters">
-            <li data-filter="*" class="filter-active">App</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="row portfolio-container">
-
-        <div class="col-lg-4 col-md-6 portfolio-item filter-app">
-          <div class="portfolio-wrap">
-            <img src="assets/img/permissionprotect/home.png" class="img-fluid" alt="">
-            <div class="portfolio-info">
-              <h4>App 1</h4>
-              <p>App</p>
-              <div class="portfolio-links">
-                <a href="assets/img/permissionprotect/onboarding1.png" data-gallery="portfolioGallery" class="portfolio-lightbox" title="PermissionProtect"><i class="bx bx-plus"></i></a>
-                <a href="assets/img/permissionprotect/onboarding2.png" data-gallery="portfolioGallery" class="portfolio-lightbox" title="PermissionProtect"><i class="bx bx-plus"></i></a>
-                <a href="assets/img/permissionprotect/onboarding3.png" data-gallery="portfolioGallery" class="portfolio-lightbox" title="PermissionProtect"><i class="bx bx-plus"></i></a>
-                <a href="assets/img/permissionprotect/home.png" data-gallery="portfolioGallery" class="portfolio-lightbox" title="PermissionProtect"><i class="bx bx-plus"></i></a>
-                <a href="assets/img/permissionprotect/detailscreen.png" data-gallery="portfolioGallery" class="portfolio-lightbox" title="PermissionProtect"><i class="bx bx-plus"></i></a>
-                <a href="assets/img/permissionprotect/settingsscreen.png" data-gallery="portfolioGallery" class="portfolio-lightbox" title="PermissionProtect"><i class="bx bx-plus"></i></a>
+                    <!-- Medium -->
+                    <a class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-[#222f49] text-white/80 hover:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-4 transition-colors"
+                       href="https://medium.com/@davidnavarrom3" target="_blank" rel="noopener" aria-label="Medium">
+                      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 1043.63 592.71" aria-hidden="true">
+                        <path d="M588.67 296.36c0 163.65-131.78 296.35-294.33 296.35S0 460 0 296.36 131.78 0 294.33 0s294.34 132.71 294.34 296.36zm304.55 0c0 154.13-65.89 279.06-147.2 279.06S598.82 450.49 598.82 296.36 664.71 17.3 745.99 17.3s147.23 125.07 147.23 279.06zm150.41 0c0 142.45-29.25 258.02-65.32 258.02s-65.32-115.57-65.32-258.02 29.25-258.02 65.32-258.02 65.32 115.57 65.32 258.02z"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </section>
+
+          <section class="flex flex-col gap-8 px-4" id="skills">
+            <div class="flex flex-col gap-2">
+              <h2 class="text-white text-[22px] font-bold tracking-[-0.015em] pt-5">Key Skills &amp; Technologies</h2>
+              <p class="text-white/70 text-base">A selection of my preferred tools and technologies for building high-quality Android applications.</p>
+            </div>
+            <div class="flex flex-col gap-6">
+              <div>
+                <h3 class="text-primary font-bold text-lg mb-4">Core &amp; UI</h3>
+                <div class="flex flex-wrap gap-3">
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Kotlin</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Java</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Jetpack Compose</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">KMP</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Coroutines &amp; Flow</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Retrofit</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">SQL</span>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-primary font-bold text-lg mb-4">Architecture &amp; Dependency Injection</h3>
+                <div class="flex flex-wrap gap-3">
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Clean Architecture</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Dagger Hilt</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Koin</span>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-primary font-bold text-lg mb-4">Testing &amp; Tooling</h3>
+                <div class="flex flex-wrap gap-3">
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">JUnit</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Mockito</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Git</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">GitHub Actions</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Firebase</span>
+                  <span class="flex h-9 items-center rounded-full bg-[#161d2e] px-4 text-sm font-medium text-white/90">Detekt</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="flex flex-col gap-8 px-4" id="projects">
+            <h2 class="text-white text-[22px] font-bold tracking-[-0.015em] pb-3 pt-5">My Projects</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="flex flex-col gap-4 rounded-xl bg-[#161d2e] overflow-hidden group">
+                <div class="relative w-full aspect-video overflow-hidden">
+                  <img src="assets/img/permissionProtectImage.png"
+                       alt="PermissionProtect — Android permissions helper"
+                       class="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out hover:scale-[1.02] hover:brightness-105"/>
+                  <div class="absolute inset-0 ring-1 ring-white/10"></div>
+                  <div class="absolute inset-0 bg-gradient-to-t from-background-dark/70 via-transparent to-transparent mix-blend-overlay"></div>
+                </div>
+                <div class="flex flex-col gap-6 p-6 pt-0">
+                  <div class="flex flex-col gap-2">
+                    <h3 class="text-white text-xl font-bold">PermissionProtect</h3>
+                    <p class="text-white/70 text-sm">Android app to review, control and learn about your app permissions. Built with Kotlin & Jetpack Compose.</p>
+                  </div>
+                  <div class="flex gap-4">
+                    <a class="flex-1 text-center py-2 px-4 rounded-lg bg-[#222f49] text-white text-sm font-bold hover:bg-[#2d3c5b] transition-colors" href="https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es" target="_blank" rel="noopener">Google Play</a>
+                    <a class="flex-1 text-center py-2 px-4 rounded-lg border border-[#222f49] text-white text-sm font-bold hover:bg-[#222f49] transition-colors" href="https://deiivid.github.io/PermissionProtectWeb/" target="_blank" rel="noopener">Privacy Policy</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-4 rounded-xl bg-[#161d2e] overflow-hidden group">
+                <div class="w-full aspect-video bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAHVM4hjraen5BjYMyhDPjAw19aJRKdz4oyP0DyRbkTQf4maLy6xGVdh0SxDf8R-Rbn3Q_M2x72lcK0bdF9hefL1R1-ZteyBKoveCT9V7nIL8HsuwVwccCGDwjgYSrMyWcqI1TsJttUrLNhFuNEoly3czVJcWCBJ9zOZVaC2LHKx2JKMxJ2iQ7OfAchkDEnI-7E2SKc-uzbFsj1OcE6ZvfduuXvmMnJNUlmajAR8IFBdlwa7cpEKP-oR4PIbpTRBtqdv4HeBB2QWjU')"></div>
+                <div class="flex flex-col gap-6 p-6 pt-0">
+                  <div class="flex flex-col gap-2">
+                    <h3 class="text-white text-xl font-bold">E-commerce Platform</h3>
+                    <p class="text-white/70 text-sm">A full-stack e-commerce site with features like product catalog, shopping cart, and Stripe payment integration.</p>
+                  </div>
+                  <div class="flex gap-2 flex-wrap">
+                    <div class="flex h-7 items-center rounded-full bg-primary/20 px-3"><p class="text-primary text-xs font-medium">Next.js</p></div>
+                    <div class="flex h-7 items-center rounded-full bg-primary/20 px-3"><p class="text-primary text-xs font-medium">Stripe</p></div>
+                    <div class="flex h-7 items-center rounded-full bg-primary/20 px-3"><p class="text-primary text-xs font-medium">MongoDB</p></div>
+                  </div>
+                  <div class="flex gap-4">
+                    <a class="flex-1 text-center py-2 px-4 rounded-lg bg-[#222f49] text-white text-sm font-bold hover:bg-[#2d3c5b] transition-colors" href="#">Live Demo</a>
+                    <a class="flex-1 text-center py-2 px-4 rounded-lg border border-[#222f49] text-white text-sm font-bold hover:bg-[#222f49] transition-colors" href="#">View Code</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
 
-    </div>
-  </section><!-- End Portfolio Section -->
+          <section class="flex flex-col gap-8 px-4 py-10" id="contact">
+            <div class="flex flex-col gap-2 text-center">
+              <h2 class="text-white text-[22px] font-bold tracking-[-0.015em] pt-5">Get In Touch</h2>
+              <p class="text-white/70 text-base">Have a project in mind or just want to say hi? Feel free to reach out!</p>
+            </div>
+            <form class="flex flex-col gap-6 max-w-lg mx-auto w-full">
+              <div class="flex flex-col gap-2">
+                <label class="text-white/90 text-sm font-medium" for="name">Name</label>
+                <input class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg h-12 px-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" id="name" name="name" placeholder="Your Name" type="text"/>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-white/90 text-sm font-medium" for="email">Email</label>
+                <input class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg h-12 px-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" id="email" name="email" placeholder="you@example.com" type="email"/>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-white/90 text-sm font-medium" for="message">Message</label>
+                <textarea class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" id="message" name="message" placeholder="Your message here..." rows="5"></textarea>
+              </div>
+              <button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-[0.015em] hover:bg-primary/90 transition-colors disabled:bg-primary/50 disabled:cursor-not-allowed" type="submit">
+                <span class="truncate">Send Message</span>
+              </button>
+            </form>
+          </section>
+        </main>
 
-  <!-- ======= Contact Section ======= -->
-  <section id="contact" class="contact">
-    <div class="container">
-
-      <div class="section-title">
-        <h2>Contact</h2>
-        <p>Contact Me</p>
-      </div>
-
-      <div class="row mt-2">
-
-        <div class="col-md-6 d-flex align-items-stretch">
-          <div class="info-box">
-            <i class="bx bx-map"></i>
-            <h3>My Address</h3>
-            <p>Zaragoza Spain</p>
-          </div>
-        </div>
-
-        <div class="col-md-6 mt-4 mt-md-0 d-flex align-items-stretch">
-          <div class="info-box">
-            <i class="bx bx-share-alt"></i>
-            <h3>Social Profiles</h3>
-            <div class="social-links">
-              <a href="https://medium.com/" class="twitter"><i class="bi bi-medium"></i></a>
-                <a href="https://deiividdev.com" class="facebook"><i class="bi bi-people-fill"></i></a>
-                <a href="https://www.linkedin.com/in/david-navarro-moreno/" class="Linkedin"><i class="bi bi-linkedin"></i></a>
-                <a href="https://github.com/Deiivid" class="Github"><i class="bi bi-github"></i></a>
+        <footer class="mt-16 md:mt-24 border-t border-white/10 px-4 sm:px-10 py-6">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-white/60 text-sm">© 2024 David Navarro. All rights reserved.</p>
+            <div class="flex gap-3">
+              <a class="text-white/60 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-2xl">code</span></a>
+              <a class="text-white/60 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-2xl">group</span></a>
             </div>
           </div>
-        </div>
+        </footer>
 
-        <div class="col-md-6 mt-4 d-flex align-items-stretch">
-          <div class="info-box">
-            <i class="bx bx-envelope"></i>
-            <h3>Email Me</h3>
-            <p>davidnavarrom3@gmail.com</p>
-          </div>
-        </div>
-        <div class="col-md-6 mt-4 d-flex align-items-stretch">
-          <div class="info-box">
-            <i class="bx bx-phone-call"></i>
-            <h3>Call Me</h3>
-            <p>Just Via Email</p>
-          </div>
-        </div>
       </div>
-
-      <form action="forms/contact.php" method="post" role="form" class="php-email-form mt-4">
-        <div class="row">
-          <div class="col-md-6 form-group">
-            <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
-          </div>
-          <div class="col-md-6 form-group mt-3 mt-md-0">
-            <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
-          </div>
-        </div>
-        <div class="form-group mt-3">
-          <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
-        </div>
-        <div class="form-group mt-3">
-          <textarea class="form-control" name="message" rows="5" placeholder="Message" required></textarea>
-        </div>
-        <div class="my-3">
-          <div class="loading">Loading</div>
-          <div class="error-message"></div>
-          <div class="sent-message">Your message has been sent. Thank you!</div>
-        </div>
-        <div class="text-center"><button type="submit">Send Message</button></div>
-      </form>
-
     </div>
-  </section><!-- End Contact Section -->
-
-  <div class="credits">
-    <!-- All the links in the footer should remain intact. -->
-    <!-- You can delete the links only if you purchased the pro version. -->
-    <!-- Licensing information: https://bootstrapmade.com/license/ -->
-    <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/personal-free-resume-bootstrap-template/ -->
-    Designed by <a href="https://deiividdev.com/">Deiividdev</a>
   </div>
-
-  <!-- Vendor JS Files -->
-  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
-
-  <!-- Template Main JS File -->
-  <script src="assets/js/main.js"></script>
-
+</div>
 </body>
+<script>
+  (function(){
+    const el = document.getElementById('typingTitle');
+    if (!el) return;
 
+    const full = 'Android Developer';
+    const typeDelay = 80;    // ms por carácter
+    const holdDelay = 1200;  // pausa al final
+    const eraseDelay = 50;   // ms por carácter al borrar
+
+    let i = 0;
+    let dir = 1; // 1 escribe, -1 borra
+
+    function tick(){
+      el.textContent = full.slice(0, i);
+      if (dir === 1) {
+        if (i < full.length) {
+          i++;
+          setTimeout(tick, typeDelay);
+        } else {
+          setTimeout(() => { dir = -1; tick(); }, holdDelay);
+        }
+      } else {
+        if (i > 0) {
+          i--;
+          setTimeout(tick, eraseDelay);
+        } else {
+          dir = 1;
+          setTimeout(tick, 300);
+        }
+      }
+    }
+
+    tick();
+  })();
+</script>
 </html>
