@@ -444,31 +444,57 @@
               </button>
             </div>
           </div>
-          </section>
 
           <section class="flex flex-col gap-8 px-4 py-10" id="contact">
             <div class="flex flex-col gap-2 text-center">
               <h2 class="text-white text-[22px] font-bold tracking-[-0.015em] pt-5">Get In Touch</h2>
-              <p class="text-white/70 text-base">Have a project in mind or just want to say hi? Feel free to reach out!</p>
+              <p class="text-white/70 text-base">
+                Have a project in mind or just want to say hi? Feel free to reach out!
+              </p>
             </div>
-            <form class="flex flex-col gap-6 max-w-lg mx-auto w-full">
+
+            <!-- Formspree Contact Form -->
+            <form id="contactForm"
+                  action="https://formspree.io/f/xqagrndb"
+                  method="POST"
+                  class="flex flex-col gap-6 max-w-lg mx-auto w-full">
+
+              <!-- Honeypot (anti spam) -->
+              <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off"/>
+
               <div class="flex flex-col gap-2">
                 <label class="text-white/90 text-sm font-medium" for="name">Name</label>
-                <input class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg h-12 px-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" id="name" name="name" placeholder="Your Name" type="text"/>
+                <input class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg h-12 px-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+                       id="name" name="name" placeholder="Your Name" type="text" required/>
               </div>
+
               <div class="flex flex-col gap-2">
                 <label class="text-white/90 text-sm font-medium" for="email">Email</label>
-                <input class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg h-12 px-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" id="email" name="email" placeholder="you@example.com" type="email"/>
+                <input class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg h-12 px-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+                       id="email" name="email" placeholder="you@example.com" type="email" required/>
               </div>
+
               <div class="flex flex-col gap-2">
                 <label class="text-white/90 text-sm font-medium" for="message">Message</label>
-                <textarea class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" id="message" name="message" placeholder="Your message here..." rows="5"></textarea>
+                <textarea class="w-full bg-[#222f49] text-white border border-[#2d3c5b] rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+                          id="message" name="message" placeholder="Your message here..." rows="5" required></textarea>
               </div>
-              <button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-[0.015em] hover:bg-primary/90 transition-colors disabled:bg-primary/50 disabled:cursor-not-allowed" type="submit">
+
+              <!-- Hidden extra fields -->
+              <input type="hidden" name="_subject" value="New message from davidnavarro.dev"/>
+              <input type="hidden" name="_captcha" value="false"/>
+
+              <!-- Submit button -->
+              <button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-[0.015em] hover:bg-primary/90 transition-colors disabled:bg-primary/50 disabled:cursor-not-allowed"
+                      type="submit">
                 <span class="truncate">Send Message</span>
               </button>
+
+              <!-- Status message -->
+              <p id="formStatus" class="text-sm text-white/80 hidden"></p>
             </form>
           </section>
+
         </main>
 
         <footer class="mt-16 md:mt-24 border-t border-white/10 px-4 sm:px-10 py-6">
@@ -522,7 +548,7 @@
     tick();
   })();
 
-  <!-- =============== GAME SCRIPT =============== -->
+<!-- =============== GAME SCRIPT =============== -->
 (() => {
   const openBtn = document.getElementById('openGameBtn');
   const modal = document.getElementById('gameModal');
@@ -537,37 +563,47 @@
   const overlayTitle = document.getElementById('overlayTitle');
   const overlaySubtitle = document.getElementById('overlaySubtitle');
 
+  // Device-pixel aware sizing
   let dpr = Math.max(1, window.devicePixelRatio || 1);
   let W = 0, H = 0, rafId = 0;
   let running = false, timeLeft = 30, score = 0, timerId = 0;
 
-  // Simple “bug” objects
+  // Simple bug objects
   const bugs = [];
   const BUG_COUNT = 6;
-  const SPEED_MIN = 40;  // px/s
-  const SPEED_MAX = 120; // px/s
-  const RADIUS = 18;     // logical px
+  const SPEED_MIN = 40;  // px/s in CSS pixels
+  const SPEED_MAX = 120; // px/s in CSS pixels
+  const RADIUS_CSS = 18; // CSS pixels
 
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
-    W = Math.floor(rect.width  * dpr);
-    H = Math.floor(rect.height * dpr);
+    const cssW = rect.width;
+    const cssH = rect.height;
+    if (cssW === 0 || cssH === 0) return;
+
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    W = Math.floor(cssW * dpr);
+    H = Math.floor(cssH * dpr);
     canvas.width = W;
     canvas.height = H;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // use CSS pixels in drawing
+
+    // Work in DEVICE pixels with identity transform to avoid any mismatch.
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
-  window.addEventListener('resize', resizeCanvas, { passive: true });
+  window.addEventListener('resize', () => {
+    if (!modal.classList.contains('hidden')) resizeCanvas();
+  }, { passive: true });
 
   function rnd(min, max) { return Math.random() * (max - min) + min; }
 
   function spawnBug() {
+    const r = RADIUS_CSS * dpr;                    // radius in device px
+    const vx = rnd(-1, 1) * rnd(SPEED_MIN, SPEED_MAX) * dpr / 60; // per frame approx
+    const vy = rnd(-1, 1) * rnd(SPEED_MIN, SPEED_MAX) * dpr / 60;
     return {
-      x: rnd(RADIUS, (W/dpr) - RADIUS),
-      y: rnd(RADIUS + 40, (H/dpr) - RADIUS), // leave room for HUD
-      vx: rnd(-1, 1) * rnd(SPEED_MIN, SPEED_MAX) / 60,
-      vy: rnd(-1, 1) * rnd(SPEED_MIN, SPEED_MAX) / 60,
-      r: RADIUS,
-      alive: true
+      x: rnd(r, W - r),
+      y: rnd(r + 40 * dpr, H - r), // leave room for HUD
+      vx, vy, r, alive: true
     };
   }
 
@@ -591,24 +627,23 @@
     ctx.arc(b.x, b.y - b.r * 0.8, b.r * 0.55, 0, Math.PI * 2);
     ctx.fillStyle = '#7f1d1d';
     ctx.fill();
-    // legs (simple)
+    // legs
     ctx.strokeStyle = '#0f0f0f';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = Math.max(1, 2 * dpr);
     for (let i = -1; i <= 1; i++) {
       ctx.beginPath();
-      ctx.moveTo(b.x - b.r, b.y + i * 6);
-      ctx.lineTo(b.x - b.r - 8, b.y + i * 10);
-      ctx.moveTo(b.x + b.r, b.y + i * 6);
-      ctx.lineTo(b.x + b.r + 8, b.y + i * 10);
+      ctx.moveTo(b.x - b.r, b.y + i * 6 * dpr);
+      ctx.lineTo(b.x - b.r - 8 * dpr, b.y + i * 10 * dpr);
+      ctx.moveTo(b.x + b.r, b.y + i * 6 * dpr);
+      ctx.lineTo(b.x + b.r + 8 * dpr, b.y + i * 10 * dpr);
       ctx.stroke();
     }
   }
 
   function update() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // background subtle grid
+    // background
     ctx.fillStyle = '#0b1626';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, W, H);
 
     bugs.forEach(b => {
       if (!b.alive) return;
@@ -616,8 +651,8 @@
       b.y += b.vy;
 
       // bounce on edges
-      if (b.x - b.r < 0 || b.x + b.r > (W/dpr)) b.vx *= -1;
-      if (b.y - b.r < 24 || b.y + b.r > (H/dpr)) b.vy *= -1;
+      if (b.x - b.r < 0 || b.x + b.r > W) b.vx *= -1;
+      if (b.y - b.r < 24 * dpr || b.y + b.r > H) b.vy *= -1;
 
       drawBug(b);
     });
@@ -625,12 +660,8 @@
     if (running) rafId = requestAnimationFrame(update);
   }
 
-  function onCanvasClick(e) {
+  function handleTap(x, y) {
     if (!running) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left);
-    const y = (e.clientY - rect.top);
-
     for (const b of bugs) {
       if (!b.alive) continue;
       const dx = x - b.x;
@@ -639,7 +670,6 @@
         b.alive = false;
         score++;
         hudScore.textContent = score;
-        // respawn after a short delay
         setTimeout(() => {
           const idx = bugs.indexOf(b);
           bugs[idx] = spawnBug();
@@ -647,6 +677,21 @@
         break;
       }
     }
+  }
+
+  function onCanvasClick(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * dpr;
+    const y = (e.clientY - rect.top) * dpr;
+    handleTap(x, y);
+  }
+
+  function onCanvasTouch(e) {
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    const x = (t.clientX - rect.left) * dpr;
+    const y = (t.clientY - rect.top) * dpr;
+    handleTap(x, y);
   }
 
   function startTimer() {
@@ -670,22 +715,31 @@
   function endGame() {
     running = false;
     clearInterval(timerId);
-    overlayTitle.textContent = 'Time\'s up!';
+    overlayTitle.textContent = "Time's up!";
     overlaySubtitle.textContent = `Final score: ${score}`;
     startBtn.textContent = 'Play again';
     overlay.classList.remove('hidden');
   }
 
   function openModal() {
-    resizeCanvas();
-    resetGame();
+    // show modal so layout exists
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
     overlayTitle.textContent = 'Bug Smasher';
     overlaySubtitle.textContent = 'Tap the bugs before the time runs out.';
     startBtn.textContent = 'Start';
     overlay.classList.remove('hidden');
 
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+    // next frame -> size canvas and pre-spawn
+    requestAnimationFrame(() => {
+      resizeCanvas();
+      resetGame();
+      // draw one frame so bugs are visible before pressing Start
+      ctx.fillStyle = '#0b1626';
+      ctx.fillRect(0, 0, W, H);
+      bugs.forEach(drawBug);
+    });
   }
 
   function closeModal() {
@@ -702,6 +756,44 @@
   modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
   startBtn?.addEventListener('click', startGame);
   canvas.addEventListener('click', onCanvasClick, { passive: true });
+  canvas.addEventListener('touchstart', onCanvasTouch, { passive: true });
 })();
+
+
+  <!------- contact --->
+             (function () {
+              const form = document.getElementById('contactForm');
+              const statusEl = document.getElementById('formStatus');
+
+              function setStatus(text, ok = true) {
+                statusEl.textContent = text;
+                statusEl.classList.remove('hidden');
+                statusEl.classList.toggle('text-green-400', ok);
+                statusEl.classList.toggle('text-red-400', !ok);
+              }
+
+              form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = new FormData(form);
+
+                try {
+                  const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: data,
+                    headers: { 'Accept': 'application/json' }
+                  });
+
+                  if (res.ok) {
+                    form.reset();
+                    setStatus('✅ Message sent! I will get back to you soon.', true);
+                  } else {
+                    const err = await res.json().catch(() => ({}));
+                    setStatus(err?.errors?.[0]?.message || '❌ Error sending the message. Please try again.', false);
+                  }
+                } catch (err) {
+                  setStatus('❌ Network error. Please check your connection.', false);
+                }
+              });
+            })();
 </script>
 </html>
