@@ -546,13 +546,17 @@
                 <!-- Phone frame -->
                 <div class="absolute inset-0 bg-[#222] rounded-[2.4rem] border-[12px] border-black shadow-[0_20px_80px_rgba(0,0,0,0.8)] overflow-hidden">
                   <div class="absolute inset-[6px] bg-[#0b1220] rounded-[2rem] overflow-hidden">
-                    <!-- HUD -->
-                    <div class="absolute top-0 left-0 right-0 p-3 flex items-center justify-between text-white/90 text-sm">
-                      <div>Score: <span id="hudScore">0</span></div>
-                      <div>Time: <span id="hudTime">30</span>s</div>
+                    <!-- HUD (big badges) -->
+                    <div class="absolute top-3 left-0 right-0 z-10 pointer-events-none flex items-center justify-center gap-3 select-none">
+                      <div class="rounded-full bg-black/40 backdrop-blur px-4 py-2 text-white text-base md:text-lg font-bold shadow">
+                        ⏱ <span id="hudTime">30</span>s
+                      </div>
+                      <div class="rounded-full bg-black/40 backdrop-blur px-4 py-2 text-white text-base md:text-lg font-bold shadow">
+                        🪲 <span id="hudScore">0</span>
+                      </div>
                     </div>
                     <!-- Canvas -->
-                    <canvas id="gameCanvas" class="absolute inset-0 w-full h-full"></canvas>
+                    <canvas id="gameCanvas" class="absolute inset-0 w-full h-full z-0"></canvas>
 
                     <!-- Overlay (pre-start / game-over) -->
                     <div id="overlay"
@@ -575,8 +579,7 @@
               </div> <!-- /phoneAspect -->
               <!-- Close -->
               <button id="closeGameBtn"
-                      class="absolute -top-4 -right-4 bg-primary text-background-dark rounded-full p-2 hover:opacity-90 transition-opacity">
-                <span class="material-symbols-outlined">close</span>
+                      class="absolute -top-4 -right-4 z-[70] bg-primary text-background-dark rounded-full p-3 shadow-lg hover:opacity-90 transition-opacity">                <span class="material-symbols-outlined">close</span>
               </button>
             </div> <!-- /gameScaleBox -->
             </div>
@@ -705,6 +708,14 @@
   let W = 0, H = 0, rafId = 0;
   let running = false, timeLeft = 30, score = 0, timerId = 0;
 
+  // ---------------- FX: puntero + splats + popups + shake ----------------
+  let pointerInside = false;
+  let mouseX = 0, mouseY = 0;
+  let lastX = 0, lastY = 0; // para ángulo del matamoscas
+  const splats = [];   // {x,y,t} 0..1
+  const popups = [];   // {x,y,text,t}
+  let shakeFrames = 0; // sacudida de pantalla
+
   // Config
   const bugs = [];
   const BASE_BUGS   = 6;
@@ -728,29 +739,38 @@
     canvas.height = H;
     ctx.setTransform(1,0,0,1,0,0);
   }
+
+  // Pointer handlers (mouse & touch)
+  function onEnter() { pointerInside = true; canvas.style.cursor = 'none'; }
+  function onLeave() { pointerInside = false; canvas.style.cursor = ''; }
+  function onMove(e) {
+    const r = canvas.getBoundingClientRect();
+    const cx = (e.clientX - r.left) * dpr;
+    const cy = (e.clientY - r.top) * dpr;
+    lastX = mouseX; lastY = mouseY;
+    mouseX = cx; mouseY = cy;
+  }
+
   // Fit the phone to viewport (respect both width & height, leave safe margins)
   function fitPhone() {
     const box = document.getElementById('gameScaleBox');
     if (!box) return;
 
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-    // Prefer visualViewport height to avoid browser UI bars skewing vh
     const vv = window.visualViewport;
     const rawVh = vv ? vv.height : Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
 
-    // Safe paddings (account for modal padding + close button)
-    const safeW = vw * 0.92;                  // 4% margin each side
-    const safeH = (rawVh - 80) * 0.92;        // minus ~close button & padding
+    const safeW = vw * 0.92;           // 4% margin por lado
+    const safeH = (rawVh - 80) * 0.92; // padding + botón cerrar
+    const maxW = Math.min(safeW, 560); // tope escritorio
+    const aspect = 9 / 19.5;
 
-    const maxW = Math.min(safeW, 560);        // cap desktop width
-    const aspect = 9 / 19.5;                  // width / height of device frame
-
-    // Compute width constrained by height as well
-    const widthFromHeight = safeH * aspect;   // w = h * (9/19.5)
-    const finalW = Math.floor(Math.max(280, Math.min(maxW, widthFromHeight))); // never too tiny
+    const widthFromHeight = safeH * aspect;
+    const finalW = Math.floor(Math.max(280, Math.min(maxW, widthFromHeight)));
 
     box.style.width = finalW + 'px';
   }
+
   window.addEventListener('resize', () => {
     if (!modal.classList.contains('hidden')) {
       fitPhone();
@@ -790,16 +810,85 @@
     refillBase();
   }
 
+  // ---------------- Dibujos extra (matamoscas + FX) ----------------
+  function drawSwatter() {
+    if (!pointerInside) return;
+    const dx = mouseX - lastX, dy = mouseY - lastY;
+    const ang = Math.atan2(dy, dx) + Math.PI * 0.15;
+    const size = 42 * dpr;
+
+    ctx.save();
+    ctx.translate(mouseX, mouseY);
+    ctx.rotate(ang);
+
+    // mango
+    ctx.lineWidth = 6 * dpr;
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.1, size * 0.6);
+    ctx.lineTo(0, 0);
+    ctx.stroke();
+
+    // “malla”
+    const w = size * 0.6, h = size * 0.4;
+    ctx.fillStyle = 'rgba(37,106,244,0.25)';
+    ctx.strokeStyle = 'rgba(37,106,244,0.55)';
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.roundRect(0, -h, w, h, 6 * dpr);
+    ctx.fill();
+    ctx.stroke();
+
+    // rejilla
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1 * dpr;
+    for (let gx = 4 * dpr; gx < w; gx += 6 * dpr) {
+      ctx.beginPath(); ctx.moveTo(gx, -h); ctx.lineTo(gx, 0); ctx.stroke();
+    }
+    for (let gy = -h + 4 * dpr; gy < 0; gy += 6 * dpr) {
+      ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawSplats(dt) {
+    for (let i = splats.length - 1; i >= 0; i--) {
+      const s = splats[i];
+      s.t += dt * 0.0015; // crece con el tiempo
+      if (s.t >= 1) { splats.splice(i, 1); continue; }
+      const r = (22 + 38 * s.t) * dpr;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(225,29,72,${0.25 * (1 - s.t)})`;
+      ctx.fill();
+    }
+  }
+
+  function drawPopups(dt) {
+    for (let i = popups.length - 1; i >= 0; i--) {
+      const p = popups[i];
+      p.t += dt * 0.002; // ~0.5s de vida
+      if (p.t >= 1) { popups.splice(i, 1); continue; }
+      const y = p.y - 26 * dpr * p.t * 1.2;
+      ctx.globalAlpha = 1 - p.t;
+      ctx.fillStyle = '#fff';
+      ctx.font = `${14 * dpr}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(p.text, p.x, y);
+      ctx.globalAlpha = 1;
+    }
+  }
+
   function drawBug(b) {
     // cuerpo
     ctx.beginPath();
     ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
     if (b.type === 'golden') {
-      ctx.fillStyle = '#facc15'; // amarillo (gold)
+      ctx.fillStyle = '#facc15';
     } else if (b.type === 'green') {
-      ctx.fillStyle = '#22c55e'; // verde
+      ctx.fillStyle = '#22c55e';
     } else {
-      ctx.fillStyle = '#e11d48'; // rojo normal
+      ctx.fillStyle = '#e11d48';
     }
     ctx.fill();
 
@@ -831,10 +920,26 @@
     }
   }
 
-  function update() {
+  // ---------------- Bucle principal con shake + FX ----------------
+  function update(timestamp) {
+    if (!update.prev) update.prev = timestamp || 0;
+    const dt = Math.min(32, (timestamp || 0) - update.prev);
+    update.prev = timestamp || 0;
+
+    ctx.save();
+    if (shakeFrames > 0) {
+      const mag = 3 * dpr;
+      ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
+      shakeFrames--;
+    }
+
     ctx.fillStyle = '#0b1626';
     ctx.fillRect(0, 0, W, H);
 
+    // FX bajo los bichos
+    drawSplats(dt);
+
+    // bichos
     for (const b of bugs) {
       if (!b.alive) continue;
       b.x += b.vx;
@@ -843,6 +948,12 @@
       if (b.y - b.r < HUD_TOP_CSS * dpr || b.y + b.r > H) b.vy *= -1;
       drawBug(b);
     }
+
+    // overlays & puntero
+    drawPopups(dt);
+    drawSwatter();
+    ctx.restore();
+
     if (running) rafId = requestAnimationFrame(update);
   }
 
@@ -854,22 +965,26 @@
       if (!b.alive) continue;
       const dx = x - b.x, dy = y - b.y;
       if (dx*dx + dy*dy <= b.r*b.r) {
+        // FX comunes
+        splats.push({ x, y, t: 0 });
+        popups.push({ x, y: y - 10 * dpr, text: '+1', t: 0 });
+        shakeFrames = 6;
+
         // Golpeado
         if (b.type === 'golden') {
-          // Limpia todo y repuebla
           const aliveBefore = bugs.filter(bb => bb.alive).length;
-          score += 5 + Math.max(0, aliveBefore - 1); // bonus + cuantos había
+          score += 5 + Math.max(0, aliveBefore - 1);
           hudScore.textContent = score;
+          popups[popups.length - 1].text = `+${5 + Math.max(0, aliveBefore - 1)}`;
           refillBase();
         } else if (b.type === 'green') {
-          // Explosión: spawnea un montón
           score += 3;
           hudScore.textContent = score;
+          popups[popups.length - 1].text = '+3';
           b.alive = false;
           const toAdd = Math.min(20, MAX_BUGS - bugs.filter(bb => bb.alive).length);
           for (let k = 0; k < toAdd; k++) bugs.push(spawnBug('normal'));
         } else {
-          // Normal
           b.alive = false;
           score += 1;
           hudScore.textContent = score;
@@ -932,6 +1047,7 @@
     requestAnimationFrame(() => {
       resizeCanvas();
       resetGame();
+      canvas.style.cursor = 'none'; // esconder cursor en modal
       // pintar un frame previo
       ctx.fillStyle = '#0b1626'; ctx.fillRect(0,0,W,H);
       bugs.forEach(drawBug);
@@ -942,6 +1058,7 @@
     running = false;
     cancelAnimationFrame(rafId);
     clearInterval(timerId);
+    canvas.style.cursor = ''; // restaurar cursor
     modal.classList.add('hidden');
     document.body.style.overflow = '';
   }
@@ -951,10 +1068,15 @@
   closeBtn?.addEventListener('click', closeModal);
   modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
   startBtn?.addEventListener('click', startGame);
+
+  // nuevos listeners de puntero
+  canvas.addEventListener('mouseenter', onEnter, { passive: true });
+  canvas.addEventListener('mouseleave', onLeave, { passive: true });
+  canvas.addEventListener('mousemove', onMove,   { passive: true });
+
   canvas.addEventListener('click', onCanvasClick, { passive: true });
   canvas.addEventListener('touchstart', onCanvasTouch, { passive: true });
 })();
-
   <!------- contact --->
              (function () {
               const form = document.getElementById('contactForm');
