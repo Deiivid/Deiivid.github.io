@@ -56,6 +56,42 @@
     /* Blink for icons */
     .blink-icon { animation: blinkIcon 1.2s ease-in-out infinite; }
     @keyframes blinkIcon { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
+
+    /* --- Lightweight tooltip (attribute-driven) --- */
+    [data-tooltip] { position: relative; }
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(0,0,0,.85);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,.45);
+      z-index: 80;
+    }
+    [data-tooltip]::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 6px);
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(0,0,0,.85);
+      opacity: 0;
+      transition: opacity .18s ease;
+      z-index: 79;
+    }
+    [data-tooltip]:hover::after,
+    [data-tooltip]:hover::before { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 
@@ -303,9 +339,9 @@
                       Focused on Clean Architecture, personal projects, and advanced mobile development.
                     </p>
                     <div class="flex flex-wrap gap-2 mt-1">
-                      <span class="px-3 py-1 rounded-full text-xs font-medium bg-[#0b1220] text-[#9cc1ff]">Clean Architecture</span>
-                      <span class="px-3 py-1 rounded-full text-xs font-medium bg-[#0b1220] text-[#9cc1ff]">MVVM</span>
-                      <span class="px-3 py-1 rounded-full text-xs font-medium bg-[#0b1220] text-[#9cc1ff]">Proyectos personales</span>
+                      <a href="https://github.com/Deiivid/Clean_Arquitecture_Compose" target="_blank" rel="noopener" data-tooltip="Open GitHub: Clean_Arquitecture_Compose" class="px-3 py-1 rounded-full text-xs font-medium bg-[#0b1220] text-[#9cc1ff] hover:bg-[#0f172a] hover:text-white transition-colors">Clean Architecture</a>
+                      <a href="https://github.com/Deiivid" target="_blank" rel="noopener" data-tooltip="See MVVM work on GitHub" class="px-3 py-1 rounded-full text-xs font-medium bg-[#0b1220] text-[#9cc1ff] hover:bg-[#0f172a] hover:text-white transition-colors">MVVM</a>
+                      <a href="https://github.com/Deiivid?tab=repositories" target="_blank" rel="noopener" data-tooltip="Browse personal projects" class="px-3 py-1 rounded-full text-xs font-medium bg-[#0b1220] text-[#9cc1ff] hover:bg-[#0f172a] hover:text-white transition-colors">Proyectos personales</a>
                     </div>
                   </div>
                 </li>
