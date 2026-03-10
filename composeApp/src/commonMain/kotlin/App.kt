@@ -9,11 +9,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,11 +27,18 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,20 +48,41 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.offset
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidweb_kmp.composeapp.generated.resources.Res
+import davidweb_kmp.composeapp.generated.resources.android_logo
 import davidweb_kmp.composeapp.generated.resources.cleancode
+import davidweb_kmp.composeapp.generated.resources.github_logo
+import davidweb_kmp.composeapp.generated.resources.icon_code
+import davidweb_kmp.composeapp.generated.resources.icon_deployed_code
+import davidweb_kmp.composeapp.generated.resources.icon_hub
+import davidweb_kmp.composeapp.generated.resources.icon_layers
+import davidweb_kmp.composeapp.generated.resources.icon_science
+import davidweb_kmp.composeapp.generated.resources.icon_sync
+import davidweb_kmp.composeapp.generated.resources.icon_timeline_architecture
+import davidweb_kmp.composeapp.generated.resources.icon_timeline_bank
+import davidweb_kmp.composeapp.generated.resources.icon_timeline_phone
+import davidweb_kmp.composeapp.generated.resources.icon_timeline_school
+import davidweb_kmp.composeapp.generated.resources.icon_timeline_training
 import davidweb_kmp.composeapp.generated.resources.image_david
+import davidweb_kmp.composeapp.generated.resources.kotlin_logo
+import davidweb_kmp.composeapp.generated.resources.medium_logo
 import davidweb_kmp.composeapp.generated.resources.permission_protect
+import davidweb_kmp.composeapp.generated.resources.icon_timer
+import davidweb_kmp.composeapp.generated.resources.icon_bug
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
@@ -74,6 +108,7 @@ private val accent = Color(0xFF256AF4)
 @Composable
 fun App() {
     val scroll = rememberScrollState()
+    var showGame by remember { mutableStateOf(false) }
 
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = pageBg) {
@@ -84,16 +119,22 @@ fun App() {
                         .fillMaxWidth()
                         .verticalScroll(scroll)
                         .padding(horizontal = 24.dp, vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(26.dp)
+                    verticalArrangement = Arrangement.spacedBy(40.dp)
                 ) {
                     Header()
                     HeroSection()
                     SkillsSection()
                     TimelineSection()
                     ProjectsSection()
-                    GameSection()
+                    GameSection(onOpen = { showGame = true })
                     ContactSection()
                     Footer()
+                }
+                if (showGame) {
+                    GameModal(
+                        modifier = Modifier.zIndex(10f),
+                        onClose = { showGame = false }
+                    )
                 }
             }
         }
@@ -112,21 +153,15 @@ private fun Header() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(20.dp)
-                        .background(Color(0xFF3DDC84), RoundedCornerShape(999.dp))
+                AnimatedHeaderIcon(
+                    icon = Res.drawable.android_logo,
+                    size = 28.dp,
+                    bounce = true
                 )
-                Box(
-                    modifier = Modifier
-                        .size(18.dp)
-                        .graphicsLayer(rotationZ = 45f)
-                        .background(
-                            Brush.linearGradient(
-                                listOf(Color(0xFF7F52FF), Color(0xFFA97BFF), Color(0xFFFF8A00))
-                            ),
-                            RoundedCornerShape(3.dp)
-                        )
+                AnimatedHeaderIcon(
+                    icon = Res.drawable.kotlin_logo,
+                    size = 22.dp,
+                    bounce = false
                 )
                 Text("David Navarro", color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
@@ -153,9 +188,9 @@ private fun HeaderLabel(text: String) {
 private fun HeroSection() {
     val uriHandler = LocalUriHandler.current
 
-    SectionCard {
+    SectionBlock {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            val mobile = maxWidth < 940.dp
+            val mobile = maxWidth < 864.dp
             val compact = maxWidth < 480.dp
             if (mobile) {
                 Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
@@ -163,8 +198,8 @@ private fun HeroSection() {
                     HeroImage()
                 }
             } else {
-                val imageWidth = 320.dp
-                val gap = 30.dp
+                    val imageWidth = 340.dp
+                    val gap = 40.dp
                 val textWidth = (maxWidth - imageWidth - gap).coerceAtLeast(320.dp)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -187,29 +222,23 @@ private fun HeroText(uriHandler: androidx.compose.ui.platform.UriHandler, isComp
     val bodySize = if (isCompact) 16.sp else 18.sp
 
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("Android Developer", color = textPrimary, fontWeight = FontWeight.Black, fontSize = titleSize)
+        TypingTitle(text = "Android Developer", fontSize = titleSize)
         Text(
             "Passionate about building modern Android apps (Kotlin · Compose · KMP) with great UX and performance.",
             color = textSecondary,
             fontSize = bodySize,
             lineHeight = (bodySize.value + 6).sp
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(
                 onClick = { uriHandler.openUri("/assets/cv/cv.pdf") },
                 colors = ButtonDefaults.buttonColors(containerColor = accent),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(10.dp)
             ) { Text("Download CV", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp) }
-            Button(
-                onClick = { uriHandler.openUri("https://github.com/Deiivid") },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF233255)),
-                shape = RoundedCornerShape(12.dp)
-            ) { Text("GitHub", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp) }
-            Button(
-                onClick = { uriHandler.openUri("https://medium.com/@davidnavarrom3") },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF233255)),
-                shape = RoundedCornerShape(12.dp)
-            ) { Text("Medium", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp) }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                IconLinkButton(icon = Res.drawable.github_logo, onClick = { uriHandler.openUri("https://github.com/Deiivid") })
+                IconLinkButton(icon = Res.drawable.medium_logo, onClick = { uriHandler.openUri("https://medium.com/@davidnavarrom3") })
+            }
         }
     }
 }
@@ -217,19 +246,20 @@ private fun HeroText(uriHandler: androidx.compose.ui.platform.UriHandler, isComp
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun HeroImage() {
+    val outerRadius = 22.dp
     Box(
         modifier = Modifier
-            .width(320.dp)
+            .width(340.dp)
             .aspectRatio(1f)
-            .shadow(18.dp, RoundedCornerShape(16.dp))
-            .border(1.dp, border, RoundedCornerShape(16.dp))
-            .background(Color(0x111B2A), RoundedCornerShape(16.dp))
-            .padding(6.dp)
+            .shadow(22.dp, RoundedCornerShape(outerRadius), clip = false)
+            .border(1.dp, border, RoundedCornerShape(outerRadius))
+            .clip(RoundedCornerShape(outerRadius))
+            .background(Color(0x111B2A))
     ) {
         Image(
             painter = painterResource(Res.drawable.image_david),
             contentDescription = "David Navarro",
-            modifier = Modifier.fillMaxSize().background(Color.Black, RoundedCornerShape(16.dp)),
+            modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
     }
@@ -237,7 +267,7 @@ private fun HeroImage() {
 
 @Composable
 private fun SkillsSection() {
-    SectionCard {
+    SectionBlock {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             SectionTitle("Key Skills")
             Text(
@@ -258,55 +288,101 @@ private fun SkillsSection() {
 
                 Column(verticalArrangement = Arrangement.spacedBy(gap)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                        SkillCard("Kotlin & Java", "Primary languages for Android development.", Modifier.width(cardWidth))
-                        if (columns > 1) SkillCard("Jetpack Compose", "Modern declarative UI toolkit.", Modifier.width(cardWidth))
-                        if (columns > 2) SkillCard("Coroutines & Flow", "Asynchronous and reactive programming.", Modifier.width(cardWidth))
+                        SkillCard(Res.drawable.icon_code, "Kotlin & Java", "Primary languages for Android development.", Modifier.width(cardWidth))
+                        if (columns > 1) SkillCard(Res.drawable.icon_layers, "Jetpack Compose", "Modern declarative UI toolkit.", Modifier.width(cardWidth))
+                        if (columns > 2) SkillCard(Res.drawable.icon_sync, "Coroutines & Flow", "Asynchronous and reactive programming.", Modifier.width(cardWidth))
                     }
                     if (columns == 1) {
-                        SkillCard("Jetpack Compose", "Modern declarative UI toolkit.", Modifier.fillMaxWidth())
-                        SkillCard("Coroutines & Flow", "Asynchronous and reactive programming.", Modifier.fillMaxWidth())
+                        SkillCard(Res.drawable.icon_layers, "Jetpack Compose", "Modern declarative UI toolkit.", Modifier.fillMaxWidth())
+                        SkillCard(Res.drawable.icon_sync, "Coroutines & Flow", "Asynchronous and reactive programming.", Modifier.fillMaxWidth())
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                        SkillCard("Koin / Dagger-Hilt", "Dependency injection frameworks.", Modifier.width(cardWidth))
-                        if (columns > 1) SkillCard("CI/CD", "Automated build & delivery pipelines.", Modifier.width(cardWidth))
-                        if (columns > 2) SkillCard("Unit & UI Testing", "Quality, stability and coverage.", Modifier.width(cardWidth))
+                        SkillCard(Res.drawable.icon_hub, "Koin / Dagger-Hilt", "Dependency injection frameworks.", Modifier.width(cardWidth))
+                        if (columns > 1) SkillCard(Res.drawable.icon_deployed_code, "CI/CD", "Automated build & delivery pipelines.", Modifier.width(cardWidth))
+                        if (columns > 2) SkillCard(Res.drawable.icon_science, "Unit & UI Testing", "Quality, stability and coverage.", Modifier.width(cardWidth))
                     }
                     if (columns == 1) {
-                        SkillCard("CI/CD", "Automated build & delivery pipelines.", Modifier.fillMaxWidth())
-                        SkillCard("Unit & UI Testing", "Quality, stability and coverage.", Modifier.fillMaxWidth())
+                        SkillCard(Res.drawable.icon_deployed_code, "CI/CD", "Automated build & delivery pipelines.", Modifier.fillMaxWidth())
+                        SkillCard(Res.drawable.icon_science, "Unit & UI Testing", "Quality, stability and coverage.", Modifier.fillMaxWidth())
                     }
                 }
             }
+
+            val extras = listOf(
+                "KMP",
+                "Retrofit",
+                "SQL",
+                "Firebase",
+                "Git",
+                "GitHub Actions",
+                "Detekt",
+                "Koin",
+                "Clean Architecture"
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("Also comfortable with", color = accent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            SkillsPills(extras)
         }
     }
 }
 
 @Composable
-private fun SkillCard(title: String, subtitle: String, modifier: Modifier = Modifier) {
+private fun SkillCard(icon: DrawableResource, title: String, subtitle: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .border(1.dp, border, RoundedCornerShape(14.dp))
             .background(Color(0xFF121A2E), RoundedCornerShape(14.dp))
             .padding(14.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(subtitle, color = textSecondary, fontSize = 14.sp)
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
+            Image(
+                painter = painterResource(icon),
+                contentDescription = null,
+                modifier = Modifier.size(28.dp)
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(subtitle, color = textSecondary, fontSize = 14.sp)
+            }
         }
     }
 }
 
 @Composable
+private fun SkillPill(text: String) {
+    Box(
+        modifier = Modifier
+            .background(Color(0xFF161D2E), RoundedCornerShape(999.dp))
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+    ) {
+        Text(text, color = textPrimary.copy(alpha = 0.9f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SkillsPills(items: List<String>) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        items.forEach { SkillPill(it) }
+    }
+}
+
+@Composable
 private fun TimelineSection() {
-    SectionCard {
+    SectionBlock {
         val entries = listOf(
             TimelineEntry(
                 period = "Currently",
                 title = "Hiberus – Android Developer supporting a banking sector client",
                 subtitle = "Developing integrations using Jetpack Compose.",
-                icon = "🏛",
+                icon = Res.drawable.icon_timeline_bank,
                 iconBg = Color(0xFF0F5D4A),
+                iconTint = Color(0xFF8EF0C5),
                 chipTone = Color(0xFF0F5D4A),
                 chips = listOf("Android", "Jetpack Compose")
             ),
@@ -314,8 +390,9 @@ private fun TimelineSection() {
                 period = "2024",
                 title = "Specialization and Clean Architecture",
                 subtitle = "Focused on Clean Architecture, personal projects, and advanced mobile development.",
-                icon = "🧭",
+                icon = Res.drawable.icon_timeline_architecture,
                 iconBg = Color(0xFF203B7A),
+                iconTint = Color(0xFF93C5FD),
                 chipTone = Color(0xFF203B7A),
                 chips = listOf("Clean Architecture", "MVVM", "Proyectos personales")
             ),
@@ -323,8 +400,9 @@ private fun TimelineSection() {
                 period = "2021 - 2023",
                 title = "Immersion in Mobile Development",
                 subtitle = "First professional steps, project leadership, and creation of a personal library.",
-                icon = "📱",
+                icon = Res.drawable.icon_timeline_phone,
                 iconBg = Color(0xFF0F5D4A),
+                iconTint = Color(0xFF8EF0C5),
                 chipTone = Color(0xFF0F5D4A),
                 chips = listOf("Java", "Kotlin", "Jetpack Compose", "Libreria")
             ),
@@ -332,8 +410,9 @@ private fun TimelineSection() {
                 period = "2021",
                 title = "Hiberus Heroes y Heroinas",
                 subtitle = "Intensive training program specialized in Mobile application development with the MEAN Stack.",
-                icon = "🧪",
+                icon = Res.drawable.icon_timeline_training,
                 iconBg = Color(0xFF203B7A),
+                iconTint = Color(0xFF93C5FD),
                 chipTone = Color(0xFF203B7A),
                 chips = listOf("MEAN", "Javascript", "Training")
             ),
@@ -341,8 +420,9 @@ private fun TimelineSection() {
                 period = "2019 - 2021",
                 title = "Transition to DAM",
                 subtitle = "From Systems Technician to Higher Degree in Multiplatform Application Development.",
-                icon = "🎓",
+                icon = Res.drawable.icon_timeline_school,
                 iconBg = Color(0xFF0F5D4A),
+                iconTint = Color(0xFF8EF0C5),
                 chipTone = Color(0xFF0F5D4A),
                 chips = listOf("Java", "Bases de datos", "Sistemas")
             )
@@ -357,18 +437,22 @@ private fun TimelineSection() {
 
 @Composable
 private fun TimelineList(entries: List<TimelineEntry>) {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(1.dp)
-                .background(border)
-                .align(Alignment.TopStart)
-                .offset(x = 24.dp)
-        )
-        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-            entries.forEach { TimelineItemRow(it) }
-        }
+    val lineX = 28.dp
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .drawBehind {
+                val x = lineX.toPx()
+                drawLine(
+                    color = border,
+                    start = Offset(x, 0f),
+                    end = Offset(x, size.height),
+                    strokeWidth = 1.dp.toPx()
+                )
+            },
+        verticalArrangement = Arrangement.spacedBy(18.dp)
+    ) {
+        entries.forEach { TimelineItemRow(it) }
     }
 }
 
@@ -376,8 +460,9 @@ private data class TimelineEntry(
     val period: String,
     val title: String,
     val subtitle: String,
-    val icon: String,
+    val icon: DrawableResource,
     val iconBg: Color,
+    val iconTint: Color,
     val chipTone: Color,
     val chips: List<String>
 )
@@ -389,18 +474,23 @@ private fun TimelineItemRow(entry: TimelineEntry) {
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Box(
-            modifier = Modifier.width(48.dp),
+            modifier = Modifier.width(56.dp),
             contentAlignment = Alignment.TopCenter
         ) {
-            Box(
-                modifier = Modifier
-                    .size(34.dp)
-                    .background(entry.iconBg, RoundedCornerShape(999.dp))
-                    .border(1.dp, border, RoundedCornerShape(999.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(entry.icon, fontSize = 14.sp, color = Color.White)
-            }
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .background(entry.iconBg, RoundedCornerShape(999.dp))
+                .border(1.dp, border, RoundedCornerShape(999.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(entry.icon),
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+                colorFilter = ColorFilter.tint(entry.iconTint)
+            )
+        }
         }
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(entry.period, color = textSecondary, fontSize = 13.sp)
@@ -438,7 +528,7 @@ private fun Chip(text: String, tone: Color) {
 @Composable
 private fun ProjectsSection() {
     val uriHandler = LocalUriHandler.current
-    SectionCard {
+    SectionBlock {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             SectionTitle("My Projects")
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -447,16 +537,27 @@ private fun ProjectsSection() {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         ProjectCardStack(
                             title = "PermissionProtect",
-                            description = "Android app to review, control and learn about app permissions.",
+                            description = "Android app to review, control and learn about your app permissions. Built with Kotlin & Jetpack Compose.",
                             image = Res.drawable.permission_protect,
+                            chips = listOf("Jetpack Compose", "Kotlin / Java"),
                             button1 = "Google Play" to "https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es",
                             button2 = "Web" to "https://deiivid.github.io/PermissionProtectWeb/",
                             onOpen = uriHandler::openUri
                         )
+                        ProjectCardCustomStack(
+                            title = "Jetpack Compose Glassmorphism library",
+                            description = "For applying glassmorphism effects — blurring both background and content. Android 12+ uses RenderEffect, while Android 11 and below rely on a native C++/NDK.",
+                            header = { GlassmorphismHeader() },
+                            chips = listOf("Jetpack Compose", "Kotlin / Java", "C++ / NDK"),
+                            button1 = "GitHub" to "https://github.com/Deiivid/Glassmorphism-Compose",
+                            button2 = "README" to "https://github.com/Deiivid/Glassmorphism-Compose#readme",
+                            onOpen = uriHandler::openUri
+                        )
                         ProjectCardStack(
                             title = "Clean Architecture Compose",
-                            description = "Multi-module Android project with layered architecture and Compose.",
+                            description = "A multi-module Android project demonstrating a layered Clean Architecture pattern — separation of concerns between domain, data, and presentation layers using Jetpack Compose.",
                             image = Res.drawable.cleancode,
+                            chips = listOf("Jetpack Compose", "Kotlin", "Clean Architecture", "Koin", "Detekt"),
                             button1 = "GitHub" to "https://github.com/Deiivid/Clean_Arquitecture_Compose",
                             button2 = "README" to "https://github.com/Deiivid/Clean_Arquitecture_Compose#readme",
                             onOpen = uriHandler::openUri
@@ -465,25 +566,48 @@ private fun ProjectsSection() {
                 } else {
                     val gap = 16.dp
                     val cardWidth = (maxWidth - gap) / 2f
-                    Row(horizontalArrangement = Arrangement.spacedBy(gap), modifier = Modifier.fillMaxWidth()) {
-                        ProjectCard(
-                            title = "PermissionProtect",
-                            description = "Android app to review, control and learn about app permissions.",
-                            image = Res.drawable.permission_protect,
-                            button1 = "Google Play" to "https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es",
-                            button2 = "Web" to "https://deiivid.github.io/PermissionProtectWeb/",
-                            onOpen = uriHandler::openUri,
-                            modifier = Modifier.width(cardWidth)
-                        )
-                        ProjectCard(
-                            title = "Clean Architecture Compose",
-                            description = "Multi-module Android project with layered architecture and Compose.",
-                            image = Res.drawable.cleancode,
-                            button1 = "GitHub" to "https://github.com/Deiivid/Clean_Arquitecture_Compose",
-                            button2 = "README" to "https://github.com/Deiivid/Clean_Arquitecture_Compose#readme",
-                            onOpen = uriHandler::openUri,
-                            modifier = Modifier.width(cardWidth)
-                        )
+                    Column(verticalArrangement = Arrangement.spacedBy(gap)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(gap),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            ProjectCard(
+                                title = "PermissionProtect",
+                                description = "Android app to review, control and learn about your app permissions. Built with Kotlin & Jetpack Compose.",
+                                image = Res.drawable.permission_protect,
+                                chips = listOf("Jetpack Compose", "Kotlin / Java"),
+                                button1 = "Google Play" to "https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es",
+                                button2 = "Web" to "https://deiivid.github.io/PermissionProtectWeb/",
+                                onOpen = uriHandler::openUri,
+                                modifier = Modifier.width(cardWidth)
+                            )
+                            ProjectCardCustom(
+                                title = "Jetpack Compose Glassmorphism library",
+                                description = "For applying glassmorphism effects — blurring both background and content.",
+                                header = { GlassmorphismHeader() },
+                                chips = listOf("Jetpack Compose", "Kotlin / Java", "C++ / NDK"),
+                                button1 = "GitHub" to "https://github.com/Deiivid/Glassmorphism-Compose",
+                                button2 = "README" to "https://github.com/Deiivid/Glassmorphism-Compose#readme",
+                                onOpen = uriHandler::openUri,
+                                modifier = Modifier.width(cardWidth)
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(gap),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            ProjectCard(
+                                title = "Clean Architecture Compose",
+                                description = "A multi-module Android project demonstrating a layered Clean Architecture pattern — separation of concerns between domain, data, and presentation layers using Jetpack Compose.",
+                                image = Res.drawable.cleancode,
+                                chips = listOf("Jetpack Compose", "Kotlin", "Clean Architecture", "Koin", "Detekt"),
+                                button1 = "GitHub" to "https://github.com/Deiivid/Clean_Arquitecture_Compose",
+                                button2 = "README" to "https://github.com/Deiivid/Clean_Arquitecture_Compose#readme",
+                                onOpen = uriHandler::openUri,
+                                modifier = Modifier.width(cardWidth)
+                            )
+                            Spacer(modifier = Modifier.width(cardWidth))
+                        }
                     }
                 }
             }
@@ -497,42 +621,63 @@ private fun ProjectCard(
     title: String,
     description: String,
     image: DrawableResource,
+    chips: List<String> = emptyList(),
     button1: Pair<String, String>,
     button2: Pair<String, String>,
     onOpen: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cardShape = RoundedCornerShape(16.dp)
+    val imageShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     Box(
         modifier = modifier
-            .border(1.dp, border, RoundedCornerShape(16.dp))
-            .background(cardBg, RoundedCornerShape(16.dp))
-            .padding(12.dp)
+            .border(1.dp, border, cardShape)
+            .background(cardBg, cardShape)
+            .clip(cardShape)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Image(
-                painter = painterResource(image),
-                contentDescription = title,
-                modifier = Modifier.fillMaxWidth().height(260.dp).background(Color(0x20000000), RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
-            Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val gap = 10.dp
-                val btnWidth = (maxWidth - gap) / 2f
-                Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                    Button(
-                        modifier = Modifier.width(btnWidth),
-                        onClick = { onOpen(button1.second) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                        shape = RoundedCornerShape(10.dp)
-                    ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
-                    Button(
-                        modifier = Modifier.width(btnWidth),
-                        onClick = { onOpen(button2.second) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                        shape = RoundedCornerShape(10.dp)
-                    ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(260.dp)
+                    .clip(imageShape)
+            ) {
+                Image(
+                    painter = painterResource(image),
+                    contentDescription = title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Box(modifier = Modifier.fillMaxSize().border(1.dp, border, imageShape))
+            }
+            Column(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
+                if (chips.isNotEmpty()) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        chips.forEach { Chip(it, accent) }
+                    }
+                }
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val gap = 10.dp
+                    val btnWidth = (maxWidth - gap) / 2f
+                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
+                        Button(
+                            modifier = Modifier.width(btnWidth),
+                            onClick = { onOpen(button1.second) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
+                        Button(
+                            modifier = Modifier.width(btnWidth),
+                            onClick = { onOpen(button2.second) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
+                    }
                 }
             }
         }
@@ -545,42 +690,63 @@ private fun ProjectCardStack(
     title: String,
     description: String,
     image: DrawableResource,
+    chips: List<String> = emptyList(),
     button1: Pair<String, String>,
     button2: Pair<String, String>,
     onOpen: (String) -> Unit
 ) {
+    val cardShape = RoundedCornerShape(16.dp)
+    val imageShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, border, RoundedCornerShape(16.dp))
-            .background(cardBg, RoundedCornerShape(16.dp))
-            .padding(12.dp)
+            .border(1.dp, border, cardShape)
+            .background(cardBg, cardShape)
+            .clip(cardShape)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Image(
-                painter = painterResource(image),
-                contentDescription = title,
-                modifier = Modifier.fillMaxWidth().height(240.dp).background(Color(0x20000000), RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
-            Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val gap = 10.dp
-                val btnWidth = (maxWidth - gap) / 2f
-                Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                    Button(
-                        modifier = Modifier.width(btnWidth),
-                        onClick = { onOpen(button1.second) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                        shape = RoundedCornerShape(10.dp)
-                    ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
-                    Button(
-                        modifier = Modifier.width(btnWidth),
-                        onClick = { onOpen(button2.second) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                        shape = RoundedCornerShape(10.dp)
-                    ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
+                    .clip(imageShape)
+            ) {
+                Image(
+                    painter = painterResource(image),
+                    contentDescription = title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Box(modifier = Modifier.fillMaxSize().border(1.dp, border, imageShape))
+            }
+            Column(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
+                if (chips.isNotEmpty()) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        chips.forEach { Chip(it, accent) }
+                    }
+                }
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val gap = 10.dp
+                    val btnWidth = (maxWidth - gap) / 2f
+                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
+                        Button(
+                            modifier = Modifier.width(btnWidth),
+                            onClick = { onOpen(button1.second) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
+                        Button(
+                            modifier = Modifier.width(btnWidth),
+                            onClick = { onOpen(button2.second) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
+                    }
                 }
             }
         }
@@ -588,9 +754,174 @@ private fun ProjectCardStack(
 }
 
 @Composable
-private fun GameSection() {
-    var showGame by remember { mutableStateOf(false) }
+private fun GlassmorphismHeader(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(260.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(Color(0xFF0B1220), Color(0xFF111827), Color(0xFF1F2937))
+                )
+            )
+            .border(1.dp, border, RoundedCornerShape(12.dp))
+    ) {
+        Box(
+            modifier = Modifier
+                .size(220.dp)
+                .offset(x = (-48).dp, y = (-72).dp)
+                .background(Color(0x40256AF4), RoundedCornerShape(999.dp))
+        )
+        Box(
+            modifier = Modifier
+                .size(240.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 40.dp, y = 40.dp)
+                .background(Color(0x333DDC84), RoundedCornerShape(999.dp))
+        )
+        Box(
+            modifier = Modifier
+                .size(width = 220.dp, height = 120.dp)
+                .offset(x = 28.dp, y = 24.dp)
+                .background(Color(0x26FFFFFF), RoundedCornerShape(14.dp))
+                .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(14.dp))
+        )
+        Box(
+            modifier = Modifier
+                .size(width = 140.dp, height = 80.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = (-24).dp, y = (-24).dp)
+                .background(Color(0x26FFFFFF), RoundedCornerShape(14.dp))
+                .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(14.dp))
+        )
+    }
+}
 
+@Composable
+private fun ProjectCardCustom(
+    title: String,
+    description: String,
+    header: @Composable () -> Unit,
+    chips: List<String>,
+    button1: Pair<String, String>,
+    button2: Pair<String, String>,
+    onOpen: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val cardShape = RoundedCornerShape(16.dp)
+    val imageShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+    Box(
+        modifier = modifier
+            .border(1.dp, border, cardShape)
+            .background(cardBg, cardShape)
+            .clip(cardShape)
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(260.dp)
+                    .clip(imageShape)
+            ) {
+                header()
+                Box(modifier = Modifier.fillMaxSize().border(1.dp, border, imageShape))
+            }
+            Column(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    chips.forEach { Chip(it, accent) }
+                }
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val gap = 10.dp
+                    val btnWidth = (maxWidth - gap) / 2f
+                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
+                        Button(
+                            modifier = Modifier.width(btnWidth),
+                            onClick = { onOpen(button1.second) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
+                        Button(
+                            modifier = Modifier.width(btnWidth),
+                            onClick = { onOpen(button2.second) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProjectCardCustomStack(
+    title: String,
+    description: String,
+    header: @Composable () -> Unit,
+    chips: List<String>,
+    button1: Pair<String, String>,
+    button2: Pair<String, String>,
+    onOpen: (String) -> Unit
+) {
+    val cardShape = RoundedCornerShape(16.dp)
+    val imageShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, border, cardShape)
+            .background(cardBg, cardShape)
+            .clip(cardShape)
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(260.dp)
+                    .clip(imageShape)
+            ) {
+                header()
+                Box(modifier = Modifier.fillMaxSize().border(1.dp, border, imageShape))
+            }
+            Column(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    chips.forEach { Chip(it, accent) }
+                }
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val gap = 10.dp
+                    val btnWidth = (maxWidth - gap) / 2f
+                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
+                        Button(
+                            modifier = Modifier.width(btnWidth),
+                            onClick = { onOpen(button1.second) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
+                        Button(
+                            modifier = Modifier.width(btnWidth),
+                            onClick = { onOpen(button2.second) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GameSection(onOpen: () -> Unit) {
     SectionCard {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -614,30 +945,29 @@ private fun GameSection() {
                 Text("Tap “Play Now”", color = textSecondary, fontSize = 14.sp)
             }
             Button(
-                onClick = { showGame = true },
+                onClick = onOpen,
                 colors = ButtonDefaults.buttonColors(containerColor = accent),
                 shape = RoundedCornerShape(12.dp)
             ) { Text("Play Now", color = Color(0xFF061127), fontWeight = FontWeight.Bold, fontSize = 16.sp) }
         }
     }
-
-    if (showGame) {
-        GameModal(onClose = { showGame = false })
-    }
 }
+
+private enum class BugType { NORMAL, GOLDEN, GREEN }
 
 private data class Bug(
     var x: Float,
     var y: Float,
     var vx: Float,
     var vy: Float,
-    val r: Float
+    val r: Float,
+    val type: BugType
 )
 
 @Composable
-private fun GameModal(onClose: () -> Unit) {
+private fun GameModal(modifier: Modifier = Modifier, onClose: () -> Unit) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color(0xB3000000))
             .clickable(
@@ -688,26 +1018,48 @@ private fun GameCanvas() {
     var timeLeft by remember { mutableIntStateOf(30) }
     var score by remember { mutableIntStateOf(0) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
-    var frameTick by remember { mutableIntStateOf(0) }
-    val bugs = remember { mutableStateListOf<Bug>() }
+    var frameTime by remember { mutableStateOf(0L) }
+    val bugs = remember { mutableListOf<Bug>() }
+    val baseBugs = 6
+    val maxBugs = 60
+    val goldenChance = 0.06f
+    val greenChance = 0.08f
 
-    fun spawnBug(w: Float, h: Float): Bug {
-        val r = 12f
+    fun chooseType(): BugType {
+        val r = Random.nextFloat()
+        return when {
+            r < goldenChance -> BugType.GOLDEN
+            r < goldenChance + greenChance -> BugType.GREEN
+            else -> BugType.NORMAL
+        }
+    }
+
+    fun spawnBug(w: Float, h: Float, type: BugType = chooseType()): Bug {
+        val baseR = 12f
+        val r = when (type) {
+            BugType.GOLDEN -> baseR * 1.15f
+            BugType.GREEN -> baseR * 1.05f
+            BugType.NORMAL -> baseR
+        }
         val vx = Random.nextFloat() * 1.6f - 0.8f
         val vy = Random.nextFloat() * 1.6f - 0.8f
         val x = r + Random.nextFloat() * (w - r * 2f)
         val y = r + 48f + Random.nextFloat() * (h - r * 2f - 48f)
-        return Bug(x, y, vx, vy, r)
+        return Bug(x, y, vx, vy, r, type)
+    }
+
+    fun refillBase(w: Float, h: Float) {
+        bugs.clear()
+        repeat(baseBugs) { bugs.add(spawnBug(w, h, BugType.NORMAL)) }
     }
 
     fun resetGame() {
         score = 0
         timeLeft = 30
-        bugs.clear()
         val w = canvasSize.width.toFloat()
         val h = canvasSize.height.toFloat()
         if (w > 0 && h > 0) {
-            repeat(6) { bugs.add(spawnBug(w, h)) }
+            refillBase(w, h)
         }
     }
 
@@ -727,7 +1079,7 @@ private fun GameCanvas() {
                 if (b.x - b.r < 0f || b.x + b.r > w) b.vx *= -1f
                 if (b.y - b.r < 40f || b.y + b.r > h) b.vy *= -1f
             }
-            frameTick++
+            frameTime = now
         }
     }
 
@@ -745,28 +1097,62 @@ private fun GameCanvas() {
             modifier = Modifier
                 .fillMaxSize()
                 .onSizeChanged { canvasSize = it }
-                .pointerInput(running, frameTick) {
+                .pointerInput(running) {
                     detectTapGestures { pos ->
                         if (!running) return@detectTapGestures
+                        val w = canvasSize.width.toFloat()
+                        val h = canvasSize.height.toFloat()
                         for (i in bugs.indices.reversed()) {
                             val b = bugs[i]
                             val dx = pos.x - b.x
                             val dy = pos.y - b.y
                             if (sqrt(dx * dx + dy * dy) <= b.r) {
-                                score += 1
-                                val w = canvasSize.width.toFloat()
-                                val h = canvasSize.height.toFloat()
-                                bugs[i] = spawnBug(w, h)
+                                when (b.type) {
+                                    BugType.GOLDEN -> {
+                                        val aliveCount = bugs.size
+                                        score += 5 + kotlin.math.max(0, aliveCount - 1)
+                                        if (w > 0 && h > 0) refillBase(w, h)
+                                    }
+                                    BugType.GREEN -> {
+                                        score += 3
+                                        bugs.removeAt(i)
+                                        val toAdd = kotlin.math.min(20, maxBugs - bugs.size)
+                                        repeat(toAdd) { bugs.add(spawnBug(w, h, BugType.NORMAL)) }
+                                    }
+                                    BugType.NORMAL -> {
+                                        score += 1
+                                        bugs[i] = spawnBug(w, h)
+                                    }
+                                }
                                 break
                             }
                         }
                     }
                 }
         ) {
+            frameTime // read to trigger redraws
             drawRect(Color(0xFF0B1626))
             for (b in bugs) {
-                drawCircle(Color(0xFFE11D48), radius = b.r, center = Offset(b.x, b.y))
-                drawCircle(Color(0xFF7F1D1D), radius = b.r * 0.55f, center = Offset(b.x, b.y - b.r * 0.8f))
+                val bodyColor = when (b.type) {
+                    BugType.GOLDEN -> Color(0xFFFACC15)
+                    BugType.GREEN -> Color(0xFF22C55E)
+                    BugType.NORMAL -> Color(0xFFE11D48)
+                }
+                val headColor = when (b.type) {
+                    BugType.GOLDEN -> Color(0xFFB45309)
+                    BugType.GREEN -> Color(0xFF065F46)
+                    BugType.NORMAL -> Color(0xFF7F1D1D)
+                }
+                drawCircle(bodyColor, radius = b.r, center = Offset(b.x, b.y))
+                drawCircle(headColor, radius = b.r * 0.55f, center = Offset(b.x, b.y - b.r * 0.8f))
+                if (b.type != BugType.NORMAL) {
+                    drawCircle(
+                        color = if (b.type == BugType.GOLDEN) Color(0x66FACC15) else Color(0x6634D399),
+                        radius = b.r * 1.35f,
+                        center = Offset(b.x, b.y),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                    )
+                }
             }
         }
 
@@ -776,8 +1162,8 @@ private fun GameCanvas() {
                 .padding(top = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Pill("⏱ ${timeLeft}s")
-            Pill("🐞 $score")
+            Pill(icon = Res.drawable.icon_timer, text = "${timeLeft}s")
+            Pill(icon = Res.drawable.icon_bug, text = "$score")
         }
 
         if (!running) {
@@ -817,38 +1203,119 @@ private fun GameCanvas() {
 }
 
 @Composable
-private fun Pill(text: String) {
+@OptIn(ExperimentalResourceApi::class)
+private fun Pill(icon: DrawableResource, text: String) {
     Box(
         modifier = Modifier
             .background(Color(0x66000000), RoundedCornerShape(999.dp))
             .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
-        Text(text, color = textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-private fun ContactSection() {
-    SectionCard {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            SectionTitle("Get In Touch")
-            Text("Have a project in mind or just want to say hi?", color = textSecondary, fontSize = 16.sp)
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                ContactChip("Email: davidnavarrom3@gmail.com")
-                ContactChip("GitHub: /Deiivid")
-            }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Image(
+                painter = painterResource(icon),
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+            Text(text, color = textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
-private fun ContactChip(text: String) {
-    Box(
-        modifier = Modifier
-            .border(1.dp, border, RoundedCornerShape(999.dp))
-            .background(Color(0xFF161F36), RoundedCornerShape(999.dp))
-            .padding(horizontal = 14.dp, vertical = 9.dp)
-    ) { Text(text, color = textPrimary, fontSize = 14.sp) }
+private fun ContactSection() {
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+
+    SectionBlock {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SectionTitle("Get In Touch")
+            Text("Have a project in mind or just want to say hi? Feel free to reach out!", color = textSecondary, fontSize = 16.sp)
+            Column(
+                modifier = Modifier.widthIn(max = 520.dp).fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    placeholder = { Text("Your Name") },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF222F49),
+                        unfocusedContainerColor = Color(0xFF222F49),
+                        focusedIndicatorColor = accent,
+                        unfocusedIndicatorColor = Color(0xFF2D3C5B),
+                        focusedLabelColor = textPrimary,
+                        unfocusedLabelColor = textSecondary,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedPlaceholderColor = textSecondary,
+                        unfocusedPlaceholderColor = textSecondary,
+                        cursorColor = accent
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    placeholder = { Text("you@example.com") },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF222F49),
+                        unfocusedContainerColor = Color(0xFF222F49),
+                        focusedIndicatorColor = accent,
+                        unfocusedIndicatorColor = Color(0xFF2D3C5B),
+                        focusedLabelColor = textPrimary,
+                        unfocusedLabelColor = textSecondary,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedPlaceholderColor = textSecondary,
+                        unfocusedPlaceholderColor = textSecondary,
+                        cursorColor = accent
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = message,
+                    onValueChange = { message = it },
+                    label = { Text("Message") },
+                    placeholder = { Text("Your message here...") },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF222F49),
+                        unfocusedContainerColor = Color(0xFF222F49),
+                        focusedIndicatorColor = accent,
+                        unfocusedIndicatorColor = Color(0xFF2D3C5B),
+                        focusedLabelColor = textPrimary,
+                        unfocusedLabelColor = textSecondary,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedPlaceholderColor = textSecondary,
+                        unfocusedPlaceholderColor = textSecondary,
+                        cursorColor = accent
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth().height(140.dp)
+                )
+                Button(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(containerColor = accent),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Send Message", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -880,6 +1347,15 @@ private fun SectionCard(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
+private fun SectionBlock(content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        content = content
+    )
+}
+
+@Composable
 private fun SectionTitle(text: String) {
     Text(text, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 22.sp)
 }
@@ -887,4 +1363,98 @@ private fun SectionTitle(text: String) {
 @Composable
 private fun SectionTitleLarge(text: String) {
     Text(text, color = textPrimary, fontWeight = FontWeight.ExtraBold, fontSize = 32.sp)
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun AnimatedHeaderIcon(icon: DrawableResource, size: androidx.compose.ui.unit.Dp, bounce: Boolean) {
+    val transition = rememberInfiniteTransition(label = "headerIcon")
+    val alpha by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.35f,
+        animationSpec = infiniteRepeatable(animation = tween(1200), repeatMode = RepeatMode.Reverse),
+        label = "iconAlpha"
+    )
+    val offsetY by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = if (bounce) -6f else 0f,
+        animationSpec = infiniteRepeatable(animation = tween(600), repeatMode = RepeatMode.Reverse),
+        label = "iconBounce"
+    )
+    Image(
+        painter = painterResource(icon),
+        contentDescription = null,
+        modifier = Modifier
+            .size(size)
+            .offset(y = offsetY.dp)
+            .graphicsLayer(alpha = alpha)
+    )
+}
+
+@Composable
+private fun TypingTitle(text: String, fontSize: androidx.compose.ui.unit.TextUnit) {
+    var content by remember { mutableStateOf("") }
+    var index by remember { mutableIntStateOf(0) }
+    var forward by remember { mutableStateOf(true) }
+    val cursorAlpha by rememberInfiniteTransition(label = "cursorBlink").animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(animation = tween(750), repeatMode = RepeatMode.Reverse),
+        label = "cursorAlpha"
+    )
+    val density = LocalDensity.current
+    val cursorHeight = with(density) { fontSize.toDp() + 6.dp }
+
+    LaunchedEffect(text) {
+        while (true) {
+            content = text.take(index)
+            if (forward) {
+                if (index < text.length) {
+                    index++
+                    delay(80)
+                } else {
+                    delay(1200)
+                    forward = false
+                }
+            } else {
+                if (index > 0) {
+                    index--
+                    delay(50)
+                } else {
+                    forward = true
+                    delay(300)
+                }
+            }
+        }
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(content, color = textPrimary, fontWeight = FontWeight.Black, fontSize = fontSize)
+        Box(
+            modifier = Modifier
+                .padding(start = 4.dp)
+                .width(2.dp)
+                .height(cursorHeight)
+                .background(accent)
+                .graphicsLayer(alpha = cursorAlpha)
+        )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun IconLinkButton(icon: DrawableResource, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF222F49)),
+        shape = RoundedCornerShape(10.dp),
+        contentPadding = PaddingValues(0.dp),
+        modifier = Modifier.size(48.dp)
+    ) {
+        Image(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.size(22.dp)
+        )
+    }
 }
