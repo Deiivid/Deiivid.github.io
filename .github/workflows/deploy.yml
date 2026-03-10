@@ -33,6 +33,7 @@ jobs:
           rm -rf docs
           mkdir -p docs
           cp -R composeApp/build/dist/wasmJs/productionExecutable/* docs
+          touch docs/.nojekyll
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs
