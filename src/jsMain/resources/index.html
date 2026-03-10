@@ -1,0 +1,104 @@
+<!doctype html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Developer Portfolio - KMP</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#256af4",
+            "background-light": "#f5f6f8",
+            "background-dark": "#101622"
+          },
+          fontFamily: {
+            display: ["Space Grotesk", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .typing {
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 3px solid #256af4;
+      letter-spacing: 0;
+      animation: blink .75s step-end infinite;
+    }
+
+    @keyframes blink {
+      from, to { border-color: transparent }
+      50% { border-color: #256af4 }
+    }
+
+    .blink-icon { animation: blinkIcon 1.2s ease-in-out infinite; }
+
+    @keyframes blinkIcon {
+      0%, 100% { opacity: 1 }
+      50% { opacity: .35 }
+    }
+
+    [data-tooltip] { position: relative; }
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(0,0,0,.85);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,.45);
+      z-index: 80;
+    }
+
+    [data-tooltip]::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 6px);
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(0,0,0,.85);
+      opacity: 0;
+      transition: opacity .18s ease;
+      z-index: 79;
+    }
+
+    [data-tooltip]:hover::after,
+    [data-tooltip]:hover::before {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#A0AEC0]">
+  <div id="root"></div>
+  <script src="app.js"></script>
+  <script src="site.js"></script>
+</body>
+</html>
