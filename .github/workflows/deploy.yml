@@ -3,7 +3,17 @@ name: Deploy to GitHub Pages (Actions)
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - ".github/workflows/deploy.yml"
+      - "composeApp/**"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - "gradle.properties"
   workflow_dispatch:
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -25,9 +35,11 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "9.4.0"
 
       - name: Build WASM
-        run: gradle wasmJsBrowserDistribution
+        run: gradle :composeApp:wasmJsBrowserDistribution --no-daemon
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
