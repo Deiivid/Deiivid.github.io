@@ -149,7 +149,7 @@ private fun Header() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xCC101622))
+                .background(pageBg)
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
