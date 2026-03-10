@@ -2,4 +2,5 @@
 build/
 out/
 .kotlin/
-
+kotlin-js-store/
+.DS_Store
