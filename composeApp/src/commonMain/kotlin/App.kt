@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -103,6 +104,7 @@ private val border = Color(0x22FFFFFF)
 private val textPrimary = Color(0xFFF8FAFC)
 private val textSecondary = Color(0xFF94A3B8)
 private val accent = Color(0xFF256AF4)
+private val skillsCardMinHeight = 116.dp
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -331,6 +333,7 @@ private fun SkillsSection() {
 private fun SkillCard(icon: DrawableResource, title: String, subtitle: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
+            .heightIn(min = skillsCardMinHeight)
             .border(1.dp, border, RoundedCornerShape(14.dp))
             .background(Color(0xFF121A2E), RoundedCornerShape(14.dp))
             .padding(14.dp)
