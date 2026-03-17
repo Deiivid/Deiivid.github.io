@@ -145,44 +145,70 @@ fun App() {
 
 @Composable
 private fun Header() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(pageBg)
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                AnimatedHeaderIcon(
-                    icon = Res.drawable.android_logo,
-                    size = 28.dp,
-                    bounce = true
-                )
-                AnimatedHeaderIcon(
-                    icon = Res.drawable.kotlin_logo,
-                    size = 22.dp,
-                    bounce = false
-                )
-                Text("David Navarro", color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val compact = maxWidth < 720.dp
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(pageBg)
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    AnimatedHeaderIcon(
+                        icon = Res.drawable.android_logo,
+                        size = 28.dp,
+                        bounce = true
+                    )
+                    AnimatedHeaderIcon(
+                        icon = Res.drawable.kotlin_logo,
+                        size = 22.dp,
+                        bounce = false
+                    )
+                    Text("David Navarro", color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                }
+                if (!compact) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+                        HeaderLabel("Home")
+                        HeaderLabel("Skills")
+                        HeaderLabel("Timeline")
+                        HeaderLabel("Projects")
+                        HeaderLabel("Game")
+                        HeaderLabel("Contact")
+                    }
+                }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                HeaderLabel("Home")
-                HeaderLabel("Skills")
-                HeaderLabel("Timeline")
-                HeaderLabel("Projects")
-                HeaderLabel("Game")
-                HeaderLabel("Contact")
+            if (compact) {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    HeaderLabelSmall("Home")
+                    HeaderLabelSmall("Skills")
+                    HeaderLabelSmall("Timeline")
+                    HeaderLabelSmall("Projects")
+                    HeaderLabelSmall("Game")
+                    HeaderLabelSmall("Contact")
+                }
             }
+            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(border))
         }
-        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(border))
     }
 }
 
 @Composable
 private fun HeaderLabel(text: String) {
     Text(text, color = textSecondary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+}
+
+@Composable
+private fun HeaderLabelSmall(text: String) {
+    Text(text, color = textSecondary, fontWeight = FontWeight.Medium, fontSize = 12.sp)
 }
 
 @OptIn(ExperimentalResourceApi::class)
@@ -192,17 +218,18 @@ private fun HeroSection() {
 
     SectionBlock {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            val mobile = maxWidth < 864.dp
-            val compact = maxWidth < 480.dp
+            val availableWidth = maxWidth
+            val mobile = availableWidth < 864.dp
+            val compact = availableWidth < 480.dp
             if (mobile) {
                 Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
                     HeroText(uriHandler, compact)
-                    HeroImage()
+                    HeroImage(availableWidth)
                 }
             } else {
-                    val imageWidth = 340.dp
-                    val gap = 40.dp
-                val textWidth = (maxWidth - imageWidth - gap).coerceAtLeast(320.dp)
+                val imageWidth = 340.dp
+                val gap = 40.dp
+                val textWidth = (availableWidth - imageWidth - gap).coerceAtLeast(320.dp)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(30.dp),
@@ -247,11 +274,12 @@ private fun HeroText(uriHandler: androidx.compose.ui.platform.UriHandler, isComp
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun HeroImage() {
+private fun HeroImage(maxWidth: androidx.compose.ui.unit.Dp? = null) {
     val outerRadius = 22.dp
+    val imageWidth = maxWidth?.coerceAtMost(340.dp) ?: 340.dp
     Box(
         modifier = Modifier
-            .width(340.dp)
+            .width(imageWidth)
             .aspectRatio(1f)
             .shadow(22.dp, RoundedCornerShape(outerRadius), clip = false)
             .border(1.dp, border, RoundedCornerShape(outerRadius))
