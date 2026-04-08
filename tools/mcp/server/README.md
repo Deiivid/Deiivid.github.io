@@ -1,10 +1,17 @@
 # MCP Server
 
-Place local MCP server implementations here.
+This directory stores configuration stubs for repo-scoped MCP knowledge sources.
 
-Suggested sub-areas:
-- `adapters/`
-- `handlers/`
-- `config/`
+Current files:
 
-Keep the server decoupled from deployment output and frontend assets.
+- `mcp-kmp-docs.yaml`
+- `mcp-compose-web-patterns.yaml`
+- `mcp-ux-ui-principles.yaml`
+- `mcp-repo-knowledge.yaml`
+
+Guidance:
+
+- keep each file small and human-readable
+- model source, ingestion strategy, cadence, and risks explicitly
+- avoid embedding secrets, credentials, or machine-specific paths
+- treat these files as documentation first, not runtime deployment manifests

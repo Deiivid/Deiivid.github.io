@@ -1,0 +1,104 @@
+id: ui-parity-fix
+description: Restore visual parity in Compose Web by correcting layout, spacing, responsiveness, and presentation drift without redesigning the site.
+triggers:
+  manual: true
+  push:
+    branches:
+      - main
+      - feature/*
+    paths:
+      - composeApp/**
+      - docs/assets/**
+      - .codex/**
+  pr:
+    events:
+      - opened
+      - reopened
+      - synchronize
+    labels:
+      - ui
+      - parity
+      - compose
+stages:
+  - name: visual_intake
+    owner: ui-agent
+    input:
+      - screenshot_or_html_reference
+      - target_screen_or_component
+      - repo_context
+    output:
+      - parity_gap_list
+      - visual_priority_order
+      - acceptance_notes
+    quality_gates:
+      - target area is identified precisely
+      - gaps are described as observable differences, not opinions
+      - redesign is ruled out unless explicitly requested
+    failure_policy: halt_and_request_reference
+  - name: compose_diagnosis
+    owner: architecture-agent
+    input:
+      - parity_gap_list
+      - current_compose_structure
+      - acceptance_notes
+    output:
+      - root_cause_notes
+      - minimal_fix_plan
+      - component_split_recommendation
+    quality_gates:
+      - root cause is tied to actual code paths
+      - fix plan preserves existing design language
+      - unnecessary abstraction is avoided
+    failure_policy: retry_once_then_escalate
+  - name: ui_patch
+    owner: implementation-agent
+    input:
+      - minimal_fix_plan
+      - root_cause_notes
+      - parity_gap_list
+    output:
+      - ui_changes
+      - patch_notes
+      - responsive_adjustments
+    quality_gates:
+      - spacing, typography, and media framing match the intended layout
+      - mobile behavior remains intentional
+      - changes do not leak business logic into composables
+    failure_policy: retry_once_then_halt
+  - name: visual_validation
+    owner: qa-agent
+    input:
+      - ui_changes
+      - acceptance_notes
+      - responsive_adjustments
+    output:
+      - validation_summary
+      - remaining_deltas
+      - screenshot_check_notes
+    quality_gates:
+      - desktop and mobile states are checked or accounted for
+      - remaining deltas are small and explicitly accepted
+      - no regression in overall composition or hierarchy
+    failure_policy: retry_once_then_halt
+  - name: final_review
+    owner: review-agent
+    input:
+      - patch_notes
+      - validation_summary
+      - remaining_deltas
+    output:
+      - review_decision
+      - release_ready_notes
+    quality_gates:
+      - fix stays faithful to the original visual intent
+      - no unrelated refactors were introduced
+    failure_policy: halt
+quality_gates:
+  - public visual identity is preserved
+  - Compose structure remains readable and incremental
+  - responsive behavior is verified for the changed surface
+failure_policy:
+  on_reference_gap: halt_and_request_reference
+  on_layout_regression: retry_once_then_halt
+  on_architecture_concern: escalate
+  on_visual_uncertainty: stop_and_document

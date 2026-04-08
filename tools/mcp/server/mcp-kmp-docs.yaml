@@ -1,0 +1,21 @@
+name: mcp-kmp-docs
+description: Documentation MCP for KMP and Web migration guidance.
+source:
+  kind: repo-docs
+  paths:
+    - docs/migration/
+    - .codex/prompts/
+    - .codex/skills/kmp-migration.md
+ingestion_strategy:
+  mode: file-based
+  scope: decision notes, migration patterns, and repo prompts
+  exclude:
+    - generated files
+    - build outputs
+update_cadence:
+  docs: on-change
+  decisions: weekly review
+risks:
+  - stale migration guidance
+  - duplicated decisions
+  - docs and implementation drifting apart
