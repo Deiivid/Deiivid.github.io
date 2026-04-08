@@ -14,7 +14,7 @@
 </div>
 
 <p align="center">
-  <img src="docs/assets/img/permissionProtectImage.png" alt="Project preview" width="920" />
+  <img src="docs/assets/img/web-david.png" alt="David Web homepage preview" width="920" />
 </p>
 
 ## Overview
