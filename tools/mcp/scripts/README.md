@@ -1,11 +1,19 @@
 # MCP Scripts
 
-Place local helper scripts here.
+This directory holds shell-first helpers for validating and maintaining `tools/mcp/`.
 
-Examples:
-- bootstrap scripts
-- local run wrappers
-- inspection utilities
-- migration helpers
+Current script:
 
-Prefer deterministic scripts with clear inputs and outputs.
+- `validate-mcp-configs.sh`: checks that the expected MCP docs and YAML stubs exist and contain the required top-level keys
+
+Usage:
+
+```bash
+bash tools/mcp/scripts/validate-mcp-configs.sh
+```
+
+Rules:
+
+- keep scripts deterministic and dependency-free
+- prefer clear failure messages over silent fixes
+- keep the script surface small unless the repo needs more automation

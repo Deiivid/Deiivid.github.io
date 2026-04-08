@@ -1,0 +1,22 @@
+name: mcp-repo-knowledge
+description: Documentation MCP for repository map and local working conventions.
+source:
+  kind: repo-meta
+  paths:
+    - AGENTS.md
+    - .codex/config.toml
+    - tools/mcp/README.md
+    - tools/mcp/catalog.md
+ingestion_strategy:
+  mode: metadata-first
+  scope: ownership, folder roles, and working rules
+  exclude:
+    - large generated files
+    - build artifacts
+update_cadence:
+  structure: on-change
+  audit: monthly
+risks:
+  - outdated folder map
+  - missing ownership notes
+  - workers depending on memory instead of documentation
