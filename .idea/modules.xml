@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/davidweb-kmp.iml" filepath="$PROJECT_DIR$/.idea/modules/davidweb-kmp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.commonMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.commonMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.commonTest.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.commonTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.wasmJsMain.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.wasmJsMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.wasmJsTest.iml" filepath="$PROJECT_DIR$/.idea/modules/composeApp/davidweb-kmp.composeApp.wasmJsTest.iml" />
+    </modules>
+  </component>
+</project>

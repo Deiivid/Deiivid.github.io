@@ -1,0 +1,22 @@
+[project]
+name = "Deiivid.github.io"
+description = "Portfolio web en Kotlin Multiplatform + Compose Web/Wasm"
+
+[stack]
+ui = "Compose Multiplatform Web"
+language = "Kotlin"
+target = "wasmJs"
+deploy = "GitHub Pages"
+
+[paths]
+app = "composeApp"
+prompts = ".codex/prompts"
+skills = ".codex/skills"
+migration_docs = "docs/migration"
+mcp = "tools/mcp"
+
+[working_rules]
+prefer_existing_patterns = true
+keep_html_reference_in_docs = true
+preserve_public_ui = true
+prefer_incremental_changes = true

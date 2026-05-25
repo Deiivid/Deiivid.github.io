@@ -1,0 +1,103 @@
+id: feature-from-brief
+description: Turn a product brief into a scoped, testable KMP/Compose implementation plan and execution path.
+triggers:
+  manual: true
+  push:
+    branches:
+      - feature/*
+    paths:
+      - composeApp/**
+      - docs/**
+      - .codex/**
+  pr:
+    events:
+      - opened
+      - reopened
+      - synchronize
+    labels:
+      - feature
+      - brief
+stages:
+  - name: brief_intake
+    owner: intake-agent
+    input:
+      - product_brief
+      - repo_context
+      - constraints_from_AGENTS
+    output:
+      - scoped_problem_statement
+      - non_goals
+      - acceptance_criteria
+      - open_questions
+    quality_gates:
+      - brief is mapped to a single primary user outcome
+      - non-goals are explicit
+      - unresolved ambiguity is captured as open questions
+    failure_policy: halt_and_request_clarification
+  - name: architecture_slice
+    owner: architecture-agent
+    input:
+      - scoped_problem_statement
+      - acceptance_criteria
+      - repo_structure
+    output:
+      - minimal_implementation_plan
+      - module_boundary_notes
+      - risk_register
+    quality_gates:
+      - proposed change fits existing module boundaries
+      - no feature-to-feature coupling is introduced
+      - plan is incremental and reversible
+    failure_policy: halt_and_escalate
+  - name: implementation
+    owner: implementation-agent
+    input:
+      - minimal_implementation_plan
+      - module_boundary_notes
+      - acceptance_criteria
+    output:
+      - code_changes
+      - implementation_summary
+      - follow_up_items
+    quality_gates:
+      - implementation matches acceptance criteria
+      - code remains idiomatic Kotlin
+      - UI logic stays thin and state-driven
+    failure_policy: retry_once_then_halt
+  - name: verification
+    owner: qa-agent
+    input:
+      - code_changes
+      - acceptance_criteria
+      - risk_register
+    output:
+      - verification_notes
+      - test_results
+      - residual_risks
+    quality_gates:
+      - relevant tests or smoke checks are executed or explicitly justified
+      - regressions are either resolved or documented
+      - no new architecture violations are introduced
+    failure_policy: retry_once_then_escalate
+  - name: handoff
+    owner: review-agent
+    input:
+      - implementation_summary
+      - verification_notes
+      - follow_up_items
+    output:
+      - delivery_handoff
+      - review_decision
+    quality_gates:
+      - summary is specific enough for another worker to continue safely
+      - any follow-up work is clearly separated from the main change
+    failure_policy: halt
+quality_gates:
+  - brief-to-implementation traceability is preserved
+  - scope stays within one coherent feature slice
+  - repository conventions and existing patterns are respected
+failure_policy:
+  on_scope_drift: halt_and_re-scope
+  on_missing_inputs: request_clarification
+  on_validation_failure: retry_once_then_halt
+  on_architecture_risk: escalate

@@ -1,0 +1,99 @@
+id: release-to-pages
+description: Build, verify, package, and publish the Compose Web/Wasm portfolio to GitHub Pages with release-safe checks.
+triggers:
+  manual: true
+  push:
+    branches:
+      - main
+    paths:
+      - composeApp/**
+      - .github/workflows/**
+      - build.gradle.kts
+      - settings.gradle.kts
+      - gradle.properties
+  pr:
+    events:
+      - opened
+      - reopened
+      - synchronize
+    labels:
+      - release
+      - pages
+stages:
+  - name: release_intake
+    owner: release-agent
+    input:
+      - release_intent
+      - repo_state
+      - trigger_type
+    output:
+      - release_scope
+      - deployment_risk_notes
+      - publish_approval
+    quality_gates:
+      - target branch is confirmed
+      - release scope is limited to site deployment
+      - manual approval is explicit when required
+    failure_policy: halt_and_request_approval
+  - name: build_wasm
+    owner: implementation-agent
+    input:
+      - release_scope
+      - repo_state
+    output:
+      - wasm_build_artifact
+      - build_log_summary
+      - build_metadata
+    quality_gates:
+      - wasm build completes successfully
+      - artifact path is known and reproducible
+      - build log contains no unresolved warnings that affect runtime
+    failure_policy: retry_once_then_halt
+  - name: smoke_check
+    owner: qa-agent
+    input:
+      - wasm_build_artifact
+      - build_log_summary
+    output:
+      - smoke_test_notes
+      - deployment_readiness_assessment
+    quality_gates:
+      - built output is structurally valid for Pages
+      - basic navigation or render sanity is confirmed where possible
+      - release blockers are documented
+    failure_policy: retry_once_then_escalate
+  - name: publish
+    owner: release-agent
+    input:
+      - deployment_readiness_assessment
+      - publish_approval
+    output:
+      - pages_release_record
+      - deployed_url
+    quality_gates:
+      - publish target matches GitHub Pages configuration
+      - deploy step is only reached after successful build validation
+      - deployment output is captured for traceability
+    failure_policy: halt
+  - name: post_release_review
+    owner: review-agent
+    input:
+      - pages_release_record
+      - deployed_url
+      - smoke_test_notes
+    output:
+      - release_notes
+      - follow_up_actions
+    quality_gates:
+      - release outcome is documented
+      - any follow-up actions are separated from the release itself
+    failure_policy: halt
+quality_gates:
+  - release flow remains compatible with GitHub Pages
+  - no unpublished or unsafe changes are included in the deploy path
+  - build and publish steps are traceable
+failure_policy:
+  on_build_failure: retry_once_then_halt
+  on_smoke_failure: retry_once_then_escalate
+  on_publish_failure: halt_and_escalate
+  on_missing_approval: halt

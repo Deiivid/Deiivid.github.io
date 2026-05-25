@@ -1,0 +1,21 @@
+name: mcp-compose-web-patterns
+description: Documentation MCP for Compose Web structure and reusable UI patterns.
+source:
+  kind: repo-code-and-notes
+  paths:
+    - composeApp/
+    - .codex/skills/compose-web-review.md
+    - .codex/prompts/review-compose-structure.md
+ingestion_strategy:
+  mode: structure-aware
+  scope: composable boundaries, layout patterns, and UI reuse candidates
+  exclude:
+    - generated assets
+    - platform build outputs
+update_cadence:
+  code: on-change
+  patterns: monthly review
+risks:
+  - premature extraction
+  - stale Compose assumptions
+  - pattern sprawl across screens

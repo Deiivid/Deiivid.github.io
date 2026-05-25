@@ -1,0 +1,21 @@
+name: mcp-ux-ui-principles
+description: Documentation MCP for stable UX, UI, and accessibility principles.
+source:
+  kind: repo-docs
+  paths:
+    - tools/mcp/
+    - .codex/
+    - docs/migration/
+ingestion_strategy:
+  mode: curated
+  scope: durable visual rules, interaction constraints, and accessibility guidance
+  exclude:
+    - speculative notes
+    - temporary drafts
+update_cadence:
+  principles: quarterly review
+  exceptions: on-change when visual language shifts
+risks:
+  - principle drift
+  - contradictory guidance
+  - turning preferences into hard rules without evidence
