@@ -28,6 +28,14 @@ The project is already close to the HTML reference in several sections, so targe
 Impact:
 When a section is off, adjust sizing, spacing, composition, and extracted patterns first.
 
+### 4. Keep repo context split between durable docs and reusable agent guidance
+
+Reason:
+The repository now uses `AGENTS.md` for top-level operating rules, `docs/project-context.md` for project-wide context, `.codex/` for repo guardrails, and `ai/skills/` for reusable markdown guidance.
+
+Impact:
+Future edits should keep those layers aligned instead of duplicating the same rules in several places. Keep `ai/` readable and reusable, but avoid adding sensitive, local-only, or machine-specific data there.
+
 ## Update Policy
 
 Add an entry here when a migration or architecture decision would otherwise be rediscovered later.

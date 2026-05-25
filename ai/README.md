@@ -10,6 +10,8 @@ It exists to make orchestration explicit: who does the work, how handoffs happen
   Role contracts for technical workers. These describe scope, inputs, outputs, guardrails, and handoff targets.
 - `workflows/`
   Ordered multi-agent flows for repeatable tasks such as UI parity fixes, feature delivery, and release publishing.
+- `skills/`
+  Reusable markdown guidance for repo-specific work that should stay easy to read and reuse.
 
 ## Adjacent Context
 
@@ -32,5 +34,6 @@ It is to keep AI work:
 
 1. Start with the relevant agent contract in `agents/`.
 2. Follow the matching workflow in `workflows/` when the task needs multiple stages.
-3. Use `.codex/` and `tools/mcp/` as the repository context behind the work.
-4. Keep changes narrow enough that another worker can continue without re-deriving intent.
+3. Use the reusable skill in `skills/` when you need a compact repo context package.
+4. Use `.codex/` and `tools/mcp/` as the repository context behind the work.
+5. Keep changes narrow enough that another worker can continue without re-deriving intent.
