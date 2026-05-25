@@ -44,6 +44,7 @@ I use the repo as a controlled AI workspace, not as a free-form prompt dump. The
 - `.codex/` holds the repo guardrails, prompts, and skills that define how AI work should behave here.
 - `ai/agents/` contains role contracts for technical workers such as architecture, UI implementation, QA/performance, and release coordination.
 - `ai/workflows/` contains deterministic multi-agent flows that chain those roles together for repeatable tasks.
+- `ai/skills/` contains reusable markdown guidance for compact repo context and shared constraints.
 - `tools/mcp/` documents the local MCP surface area and the supporting tooling used to keep that knowledge structured.
 
 ### Multi-agent flow
@@ -77,6 +78,7 @@ flowchart LR
 - `ai/agents/ux-ui-auditor.yaml`
 - `ai/agents/qa-performance.yaml`
 - `ai/agents/release-manager.yaml`
+- `ai/skills/repo-context/SKILL.md`
 - `ai/workflows/feature-from-brief.yaml`
 - `ai/workflows/ui-parity-fix.yaml`
 - `ai/workflows/release-to-pages.yaml`
@@ -106,7 +108,7 @@ This repo is set up to support both product work and structured iteration:
 3. **AI-assisted migration**
    - Use `.codex/prompts/` for repeatable migration and review workflows.
    - Use `.codex/skills/` as repo-local expert notes for KMP, Compose Web, and HTML parity work.
-   - Use `ai/agents/` and `ai/workflows/` when work needs explicit multi-agent coordination.
+   - Use `ai/agents/`, `ai/workflows/`, and `ai/skills/` when work needs explicit multi-agent coordination or reusable repo context.
 
 4. **Publish**
    - Generate the site output and publish to GitHub Pages.
@@ -122,6 +124,7 @@ Deiivid.github.io/
 ├─ ai/
 │  ├─ README.md
 │  ├─ agents/
+│  ├─ skills/
 │  └─ workflows/
 ├─ tools/
 │  └─ mcp/
@@ -176,6 +179,8 @@ If you are changing deployment behavior, keep the publish target and artifact pa
   Migration notes, mapping decisions, and visual references.
 - `ai/agents/`
   Agent contracts for orchestration and handoffs.
+- `ai/skills/`
+  Reusable repo guidance and compact context.
 - `ai/workflows/`
   Multi-agent workflow specs.
 - `tools/mcp/`
