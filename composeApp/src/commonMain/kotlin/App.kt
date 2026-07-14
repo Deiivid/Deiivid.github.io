@@ -59,11 +59,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -71,11 +69,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidweb_kmp.composeapp.generated.resources.Res
+import davidweb_kmp.composeapp.generated.resources.david_walk_rear_01
+import davidweb_kmp.composeapp.generated.resources.david_walk_rear_02
+import davidweb_kmp.composeapp.generated.resources.david_walk_rear_03
+import davidweb_kmp.composeapp.generated.resources.david_walk_rear_04
+import davidweb_kmp.composeapp.generated.resources.david_walk_rear_05
+import davidweb_kmp.composeapp.generated.resources.david_walk_rear_06
 import davidweb_kmp.composeapp.generated.resources.image_david
 import davidweb_kmp.composeapp.generated.resources.office_background
 import davidweb_kmp.composeapp.generated.resources.office_david_integrated_v2
 import davidweb_kmp.composeapp.generated.resources.office_david_typing_01
 import davidweb_kmp.composeapp.generated.resources.office_david_typing_02
+import davidweb_kmp.composeapp.generated.resources.office_window_mountains
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
@@ -94,6 +99,31 @@ private val mint = accent
 private val warm = amber
 private const val contactEmail = "davidnavarrom3@gmail.com"
 
+private fun premiumSurfaceBrush() = Brush.linearGradient(
+    colors = listOf(
+        Color(0xFC111C29),
+        Color(0xF70A121D),
+        Color(0xFA101824)
+    )
+)
+
+private fun premiumInsetBrush() = Brush.linearGradient(
+    colors = listOf(
+        Color(0xA5192A3B),
+        Color(0xB80B131E),
+        Color(0x9E111D2A)
+    )
+)
+
+private fun premiumBorderBrush(highlight: Color = accent) = Brush.linearGradient(
+    colors = listOf(
+        highlight.copy(alpha = 0.72f),
+        Color.White.copy(alpha = 0.18f),
+        highlight.copy(alpha = 0.16f),
+        Color.White.copy(alpha = 0.08f)
+    )
+)
+
 private enum class PortfolioSection(
     val number: String,
     val label: String,
@@ -107,6 +137,13 @@ private enum class PortfolioSection(
     SOCIAL("06", "Redes sociales", "Código y artículos")
 }
 
+private data class OrbitPlacement(
+    val section: PortfolioSection,
+    val x: Dp,
+    val y: Dp,
+    val menuOnLeft: Boolean
+)
+
 @Composable
 fun App() {
     var introKey by remember { mutableIntStateOf(0) }
@@ -118,12 +155,12 @@ fun App() {
         menusVisible = false
         activeSection = null
         walkProgress.snapTo(0f)
-        delay(360)
+        delay(120)
         walkProgress.animateTo(
             targetValue = 1f,
-            animationSpec = tween(3600, easing = LinearEasing)
+            animationSpec = tween(2350, easing = LinearEasing)
         )
-        delay(520)
+        delay(180)
         menusVisible = true
     }
 
@@ -164,15 +201,17 @@ private fun PortfolioExperience(
             modifier = Modifier.fillMaxSize()
         )
 
-        if (menusVisible && activeSection == null) {
+        if (menusVisible && (!compact || activeSection == null)) {
             HeadOrbitMenu(
                 compact = compact,
+                activeSection = activeSection,
                 onSectionSelected = onSectionSelected,
+                onBack = onBack,
                 modifier = Modifier.fillMaxSize()
             )
         }
 
-        activeSection?.let { section ->
+        if (compact) activeSection?.let { section ->
             PortfolioDetailOverlay(
                 section = section,
                 compact = compact,
@@ -207,7 +246,7 @@ private fun CinematicStage(
         ) {
             IntroCopy(compact = compact, modifier = Modifier.padding(start = if (compact) 22.dp else 48.dp))
         }
-        if (walkProgress in 0.001f..0.985f) {
+        if (walkProgress in 0.001f..0.82f) {
             Text(
                 "ACERCÁNDOME  ${((walkProgress * 100).toInt()).coerceIn(1, 99).toString().padStart(2, '0')}%",
                 color = primaryText.copy(alpha = 0.72f),
@@ -223,14 +262,14 @@ private fun CinematicStage(
                     .padding(horizontal = 12.dp, vertical = 7.dp)
             )
         }
-        if (walkProgress >= 0.90f) {
+        if (walkProgress >= 0.82f) {
             TypingStatus(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(if (compact) 14.dp else 24.dp)
             )
         }
-        if (!compact && walkProgress < 0.90f) {
+        if (!compact && walkProgress < 0.82f) {
             Text(
                 "ANDROID · KOTLIN · KMP",
                 color = secondaryText.copy(alpha = 0.58f),
@@ -318,43 +357,17 @@ private fun IntroCopy(compact: Boolean, modifier: Modifier = Modifier) {
 @Composable
 private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier.clipToBounds()) {
-        val density = LocalDensity.current
-        val portrait = maxHeight > maxWidth
-        val approach = smoothStep(walkProgress / 0.76f)
-        val startMotion = smoothStep(walkProgress / 0.06f)
-        val stopMotion = 1f - smoothStep((walkProgress - 0.68f) / 0.08f)
-        val motionStrength = startMotion * stopMotion
-        val stepPhase = approach * 9f * PI.toFloat()
-        val bob = (
-            -abs(sin(stepPhase.toDouble())).toFloat() *
-                (if (portrait) 2.6f else 4.8f) * motionStrength
-            ).dp
-        val sway = (
-            sin(stepPhase.toDouble()).toFloat() *
-                (if (portrait) 1.4f else 2.6f) * motionStrength
-            ).dp
-        val roll = sin(stepPhase.toDouble()).toFloat() * 0.14f * motionStrength
-        val hiddenReset = smoothStep((walkProgress - 0.81f) / 0.04f)
-        val cameraMix = if (walkProgress < 0.81f) approach else 1f - hiddenReset
-        val targetZoom = when {
-            portrait -> 1.09f
-            maxHeight < 700.dp -> 1.13f
-            else -> 1.18f
-        }
-        val cameraZoom = 1.01f + (targetZoom - 1.01f) * cameraMix
-        val panX = maxWidth * (-0.014f * cameraMix)
-        val panY = maxHeight * ((if (portrait) -0.035f else -0.07f) * cameraMix)
-        val translationXPx = with(density) { (panX + sway).toPx() }
-        val translationYPx = with(density) { (panY + bob).toPx() }
-        val blinkAlpha = when {
-            walkProgress < 0.76f -> 0f
-            walkProgress < 0.81f -> smoothStep((walkProgress - 0.76f) / 0.05f)
-            walkProgress < 0.86f -> 1f
-            walkProgress < 0.94f -> 1f - smoothStep((walkProgress - 0.86f) / 0.08f)
-            else -> 0f
-        }
-        val seated = walkProgress >= 0.84f
-        val typing = walkProgress >= 0.93f
+        val sourceWidth = 1672f
+        val sourceHeight = 941f
+        val coverScale = maxOf(maxWidth.value / sourceWidth, maxHeight.value / sourceHeight)
+        val cropX = ((sourceWidth * coverScale).dp - maxWidth) / 2f
+        val cropY = ((sourceHeight * coverScale).dp - maxHeight) / 2f
+        fun sourceX(value: Float) = (value * coverScale).dp - cropX
+        fun sourceY(value: Float) = (value * coverScale).dp - cropY
+        fun sourceSize(value: Float) = (value * coverScale).dp
+
+        val seatedAlpha = smoothStep((walkProgress - 0.68f) / 0.06f)
+        val typing = walkProgress >= 0.88f
         var typingFrame by remember { mutableIntStateOf(0) }
 
         LaunchedEffect(typing) {
@@ -370,18 +383,9 @@ private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifie
             contentDescription = null,
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    scaleX = cameraZoom
-                    scaleY = cameraZoom
-                    translationX = translationXPx
-                    translationY = translationYPx
-                    rotationZ = roll
-                    transformOrigin = TransformOrigin.Center
-                }
+            modifier = Modifier.fillMaxSize()
         )
-        if (seated) {
+        if (seatedAlpha > 0f) {
             val typingPainters = listOf(
                 painterResource(Res.drawable.office_david_integrated_v2),
                 painterResource(Res.drawable.office_david_typing_01),
@@ -392,34 +396,40 @@ private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifie
                 contentDescription = "David Navarro tecleando en su ordenador",
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().alpha(seatedAlpha)
             )
         }
-        if (!seated) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.28f * motionStrength)
-                    .background(
-                        Brush.horizontalGradient(
-                            colorStops = arrayOf(
-                                0f to Color.Black.copy(alpha = 0.72f),
-                                0.18f to Color.Transparent,
-                                0.82f to Color.Transparent,
-                                1f to Color.Black.copy(alpha = 0.72f)
-                            )
-                        )
-                    )
-            )
-        }
+
+        WindowBackdropOverlay(
+            x = sourceX(370f),
+            y = sourceY(95f),
+            width = sourceSize(291f),
+            height = sourceSize(444f),
+            dividerX = sourceSize(97f),
+            dividerWidth = sourceSize(9f)
+        )
+        MonitorPlatformOverlay(
+            x = sourceX(1007f),
+            y = sourceY(354f),
+            width = sourceSize(226f),
+            height = sourceSize(145f)
+        )
+        ApproachingCharacterLayer(
+            walkProgress = walkProgress,
+            sceneWidth = maxWidth,
+            sceneHeight = maxHeight,
+            targetX = sourceX(810f),
+            targetY = sourceY(838f)
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.horizontalGradient(
                         colorStops = arrayOf(
-                            0f to Color.Black.copy(alpha = if (compact) 0.24f else 0.44f),
-                            0.42f to Color.Black.copy(alpha = if (compact) 0.08f else 0.12f),
+                            0f to Color.Black.copy(alpha = if (compact) 0.22f else 0.36f),
+                            0.42f to Color.Black.copy(alpha = if (compact) 0.06f else 0.10f),
                             0.72f to Color.Transparent,
                             1f to Color.Black.copy(alpha = 0.08f)
                         )
@@ -431,17 +441,162 @@ private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifie
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        listOf(Color.Black.copy(alpha = 0.18f), Color.Transparent, Color.Black.copy(alpha = 0.22f))
+                        listOf(Color.Black.copy(alpha = 0.14f), Color.Transparent, Color.Black.copy(alpha = 0.24f))
+                    )
+                )
+        )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun WindowBackdropOverlay(
+    x: Dp,
+    y: Dp,
+    width: Dp,
+    height: Dp,
+    dividerX: Dp,
+    dividerWidth: Dp
+) {
+    Box(
+        modifier = Modifier
+            .offset(x = x, y = y)
+            .width(width)
+            .height(height)
+            .clip(RoundedCornerShape(2.dp))
+    ) {
+        Image(
+            painter = painterResource(Res.drawable.office_window_mountains),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color(0x29165478), Color(0x38102032), Color(0x65101722))
                     )
                 )
         )
         Box(
             modifier = Modifier
+                .offset(x = dividerX)
+                .width(dividerWidth)
                 .fillMaxSize()
-                .alpha(blinkAlpha)
-                .background(Color.Black)
+                .background(Color(0xE30B1119))
         )
     }
+}
+
+@Composable
+private fun MonitorPlatformOverlay(x: Dp, y: Dp, width: Dp, height: Dp) {
+    Box(
+        modifier = Modifier
+            .offset(x = x, y = y)
+            .width(width)
+            .height(height)
+            .graphicsLayer { rotationZ = -4.1f }
+            .clip(RoundedCornerShape(3.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(Color(0xFF07131F), Color(0xFF0A2230), Color(0xFF07111B))
+                )
+            )
+            .border(1.dp, accent.copy(alpha = 0.32f), RoundedCornerShape(3.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Text(
+            "MOBILE PLATFORM",
+            color = primaryText.copy(alpha = 0.50f),
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold,
+            fontSize = 5.sp,
+            letterSpacing = 0.7.sp
+        )
+        Row(
+            modifier = Modifier.align(Alignment.Center).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PlatformMark("ANDROID", Color(0xFF72E08A))
+            PlatformMark("KMP", Color(0xFFC98CFF))
+            PlatformMark("iOS", Color(0xFFAEDCFF))
+        }
+    }
+}
+
+@Composable
+private fun PlatformMark(label: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .border(1.dp, color.copy(alpha = 0.90f), CircleShape)
+        )
+        Text(
+            label,
+            color = color,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold,
+            fontSize = 5.sp,
+            modifier = Modifier.padding(top = 7.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun ApproachingCharacterLayer(
+    walkProgress: Float,
+    sceneWidth: Dp,
+    sceneHeight: Dp,
+    targetX: Dp,
+    targetY: Dp
+) {
+    val approach = smoothStep((walkProgress - 0.015f) / 0.66f)
+    val alpha = 1f - smoothStep((walkProgress - 0.66f) / 0.08f)
+    if (alpha <= 0f) return
+
+    val frames = listOf(
+        painterResource(Res.drawable.david_walk_rear_01),
+        painterResource(Res.drawable.david_walk_rear_04),
+        painterResource(Res.drawable.david_walk_rear_02),
+        painterResource(Res.drawable.david_walk_rear_06),
+        painterResource(Res.drawable.david_walk_rear_03),
+        painterResource(Res.drawable.david_walk_rear_05)
+    )
+    val frame = frames[((approach * 18f).toInt()).coerceAtLeast(0) % frames.size]
+    val phase = approach * 12f * PI.toFloat()
+    val stepSway = sin(phase.toDouble()).toFloat()
+    val finalSize = (sceneHeight * 0.70f).coerceIn(430.dp, 610.dp)
+    val characterSize = finalSize * (1.28f - approach * 0.28f)
+    val startX = sceneWidth * 0.56f
+    val startY = sceneHeight + finalSize * 0.44f
+    val controlX = sceneWidth * 0.56f
+    val controlY = sceneHeight * 0.93f
+    val positionX = quadraticBezier(startX, controlX, targetX, approach)
+    val positionY = quadraticBezier(startY, controlY, targetY, approach)
+
+    Image(
+        painter = frame,
+        contentDescription = "David Navarro acercándose a su escritorio",
+        contentScale = ContentScale.Fit,
+        modifier = Modifier
+            .offset(
+                x = positionX - characterSize / 2f + (stepSway * 5f).dp,
+                y = positionY - characterSize - (abs(stepSway) * 4f).dp
+            )
+            .size(characterSize)
+            .alpha(alpha)
+            .graphicsLayer { rotationZ = stepSway * 0.65f }
+    )
+}
+
+private fun quadraticBezier(start: Dp, control: Dp, end: Dp, progress: Float): Dp {
+    val inverse = 1f - progress
+    return start * (inverse * inverse) + control * (2f * inverse * progress) + end * (progress * progress)
 }
 
 private fun smoothStep(value: Float): Float {
@@ -480,7 +635,9 @@ private fun TypingStatus(modifier: Modifier = Modifier) {
 @Composable
 private fun HeadOrbitMenu(
     compact: Boolean,
+    activeSection: PortfolioSection?,
     onSectionSelected: (PortfolioSection) -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var revealedCount by remember { mutableIntStateOf(0) }
@@ -500,103 +657,158 @@ private fun HeadOrbitMenu(
         val headY = scaledHeight * 0.36f - (scaledHeight - maxHeight) / 2f
         val narrow = maxWidth < 430.dp
         val menuWidth = when {
-            narrow -> 124.dp
-            compact -> (maxWidth * 0.30f).coerceIn(120.dp, 136.dp)
-            else -> 236.dp
+            narrow -> 136.dp
+            compact -> (maxWidth * 0.31f).coerceIn(132.dp, 152.dp)
+            else -> (maxWidth * 0.235f).coerceIn(268.dp, 304.dp)
         }
-        val menuHeight = if (compact) 50.dp else 66.dp
+        val menuHeight = if (compact) 56.dp else 78.dp
         val clearSpace = when {
-            narrow -> 58.dp
-            compact -> 72.dp
-            else -> 112.dp
+            narrow -> 64.dp
+            compact -> 82.dp
+            else -> (maxWidth * 0.12f).coerceIn(138.dp, 176.dp)
         }
-        val rowStep = if (compact) 59.dp else 80.dp
+        val rowStep = if (compact) 68.dp else (maxHeight * 0.19f).coerceIn(96.dp, 116.dp)
         val edge = if (compact) 8.dp else 24.dp
-        val arcShift = if (compact) 8.dp else 24.dp
         val leftBase = (headX - clearSpace - menuWidth).coerceAtLeast(edge)
         val rightBase = (headX + clearSpace).coerceAtMost(maxWidth - edge - menuWidth)
         val centerY = (headY - menuHeight / 2f).coerceIn(
-            82.dp + rowStep,
-            maxHeight - menuHeight - edge - rowStep
+            72.dp + rowStep * 1.35f,
+            maxHeight - menuHeight - edge - rowStep * 1.35f
         )
-        val rows = listOf(centerY - rowStep, centerY, centerY + rowStep)
-        val leftXs = rows.indices.map { row ->
-            (leftBase - if (row == 1) arcShift else 0.dp).coerceAtLeast(edge)
-        }
-        val rightXs = rows.indices.map { row ->
-            (rightBase + if (row == 1) arcShift else 0.dp).coerceAtMost(maxWidth - edge - menuWidth)
-        }
-        val leftSections = listOf(PortfolioSection.CV, PortfolioSection.ABOUT, PortfolioSection.CONTACT)
-        val rightSections = listOf(PortfolioSection.PROJECTS, PortfolioSection.EXPERIENCE, PortfolioSection.SOCIAL)
-        val nodeSize = if (compact) 38.dp else 48.dp
-        val faceRadius = if (compact) 62.dp else 88.dp
-        val connectorRise = if (compact) 30.dp else 44.dp
+        val faceRadius = if (compact) 70.dp else 102.dp
+        val horizontalScatter = if (compact) 12.dp else 42.dp
+        val placements = listOf(
+            OrbitPlacement(
+                PortfolioSection.CV,
+                (leftBase - horizontalScatter * 0.35f).coerceAtLeast(edge),
+                centerY - rowStep * 1.42f,
+                true
+            ),
+            OrbitPlacement(
+                PortfolioSection.PROJECTS,
+                (rightBase + horizontalScatter * 0.50f).coerceAtMost(maxWidth - edge - menuWidth),
+                centerY - rowStep * 1.18f,
+                false
+            ),
+            OrbitPlacement(
+                PortfolioSection.ABOUT,
+                (leftBase - horizontalScatter).coerceAtLeast(edge),
+                centerY - rowStep * 0.18f,
+                true
+            ),
+            OrbitPlacement(
+                PortfolioSection.EXPERIENCE,
+                (rightBase + horizontalScatter * 1.15f).coerceAtMost(maxWidth - edge - menuWidth),
+                centerY + rowStep * 0.14f,
+                false
+            ),
+            OrbitPlacement(
+                PortfolioSection.CONTACT,
+                (leftBase - horizontalScatter * 0.18f).coerceAtLeast(edge),
+                centerY + rowStep * 1.16f,
+                true
+            ),
+            OrbitPlacement(
+                PortfolioSection.SOCIAL,
+                (rightBase + horizontalScatter * 0.22f).coerceAtMost(maxWidth - edge - menuWidth),
+                centerY + rowStep * 1.46f,
+                false
+            )
+        )
 
         Canvas(modifier = Modifier.fillMaxSize()) {
-            rows.forEachIndexed { row, y ->
-                listOf(
-                    Triple(leftXs[row], true, leftSections[row]),
-                    Triple(rightXs[row], false, rightSections[row])
-                ).forEach { (x, menuOnLeft, _) ->
-                    val startX = if (menuOnLeft) x + menuWidth else x
-                    val startY = y + menuHeight / 2f
-                    val endX = headX + if (menuOnLeft) -faceRadius else faceRadius
-                    val endY = headY + connectorRise * (row - 1).toFloat()
-                    val start = Offset(startX.toPx(), startY.toPx())
-                    val end = Offset(endX.toPx(), endY.toPx())
-                    val direction = end.x - start.x
-                    val connector = Path().apply {
-                        moveTo(start.x, start.y)
-                        cubicTo(
-                            start.x + direction * 0.46f,
-                            start.y,
-                            end.x - direction * 0.18f,
-                            end.y,
-                            end.x,
-                            end.y
-                        )
-                    }
-                    drawPath(
-                        path = connector,
-                        color = accent.copy(alpha = 0.38f),
-                        style = Stroke(width = 1.dp.toPx())
+            placements
+                .filter { activeSection == null || it.section == activeSection }
+                .forEach { placement ->
+                val startX = if (placement.menuOnLeft) placement.x + menuWidth else placement.x
+                val startY = placement.y + menuHeight / 2f
+                val endX = headX + if (placement.menuOnLeft) -faceRadius else faceRadius
+                val endY = headY + (startY - headY) * 0.32f
+                val start = Offset(startX.toPx(), startY.toPx())
+                val end = Offset(endX.toPx(), endY.toPx())
+                val direction = end.x - start.x
+                val connector = Path().apply {
+                    moveTo(start.x, start.y)
+                    cubicTo(
+                        start.x + direction * 0.42f,
+                        start.y,
+                        end.x - direction * 0.20f,
+                        end.y,
+                        end.x,
+                        end.y
                     )
-                    drawCircle(accent.copy(alpha = 0.18f), radius = 6.dp.toPx(), center = end)
-                    drawCircle(accent.copy(alpha = 0.92f), radius = 2.5.dp.toPx(), center = end)
                 }
+                drawPath(
+                    path = connector,
+                    color = accent.copy(alpha = 0.34f),
+                    style = Stroke(width = 1.dp.toPx())
+                )
+                drawCircle(accent.copy(alpha = 0.16f), radius = 6.dp.toPx(), center = end)
+                drawCircle(accent.copy(alpha = 0.92f), radius = 2.5.dp.toPx(), center = end)
             }
         }
 
-        rows.forEachIndexed { row, y ->
-            listOf(
-                Triple(leftSections[row], leftXs[row], true),
-                Triple(rightSections[row], rightXs[row], false)
-            ).forEachIndexed { side, (section, x, menuOnLeft) ->
-                val revealIndex = row * 2 + side
+        if (activeSection == null) {
+            placements.forEachIndexed { revealIndex, placement ->
                 Box(
                     modifier = Modifier
-                        .offset(x = x, y = y)
+                        .offset(x = placement.x, y = placement.y)
                         .width(menuWidth)
                         .height(menuHeight)
                 ) {
                     AnimatedVisibility(
                         visible = revealedCount > revealIndex,
-                        enter = fadeIn(tween(260)) +
-                            scaleIn(tween(320), initialScale = 0.94f) +
-                            slideInHorizontally(tween(340)) { width ->
-                                if (menuOnLeft) width / 4 else -width / 4
+                        enter = fadeIn(tween(220)) +
+                            scaleIn(tween(280), initialScale = 0.95f) +
+                            slideInHorizontally(tween(300)) { width ->
+                                if (placement.menuOnLeft) width / 4 else -width / 4
                             },
                         modifier = Modifier.fillMaxSize()
                     ) {
                         HeadMenuButton(
-                            section = section,
+                            section = placement.section,
                             compact = compact,
-                            menuOnLeft = menuOnLeft,
-                            onClick = { onSectionSelected(section) },
+                            menuOnLeft = placement.menuOnLeft,
+                            onClick = { onSectionSelected(placement.section) },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
+            }
+        } else {
+            val selectedPlacement = placements.first { it.section == activeSection }
+            val panelWidth = (maxWidth * 0.34f).coerceIn(360.dp, 470.dp)
+            val panelMaxHeight = when (activeSection) {
+                PortfolioSection.PROJECTS, PortfolioSection.EXPERIENCE ->
+                    (maxHeight * 0.58f).coerceIn(340.dp, 510.dp)
+                PortfolioSection.ABOUT -> (maxHeight * 0.50f).coerceIn(310.dp, 430.dp)
+                else -> (maxHeight * 0.42f).coerceIn(250.dp, 360.dp)
+            }
+            val expandedX = if (selectedPlacement.menuOnLeft) {
+                (selectedPlacement.x + menuWidth - panelWidth).coerceAtLeast(edge)
+            } else {
+                selectedPlacement.x.coerceAtMost(maxWidth - edge - panelWidth)
+            }
+            val expandedY = when (activeSection) {
+                PortfolioSection.CV, PortfolioSection.PROJECTS -> selectedPlacement.y
+                PortfolioSection.ABOUT, PortfolioSection.EXPERIENCE -> selectedPlacement.y - panelMaxHeight * 0.38f
+                PortfolioSection.CONTACT, PortfolioSection.SOCIAL -> selectedPlacement.y + menuHeight - panelMaxHeight
+            }.coerceIn(72.dp, maxHeight - panelMaxHeight - edge)
+
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(tween(180)) + scaleIn(tween(300), initialScale = 0.86f),
+                modifier = Modifier
+                    .offset(x = expandedX, y = expandedY)
+                    .width(panelWidth)
+            ) {
+                PortfolioDetailPanel(
+                    section = activeSection,
+                    onBack = onBack,
+                    compact = false,
+                    maxHeight = panelMaxHeight,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
@@ -626,11 +838,11 @@ private fun HeadMenuButton(
         PortfolioSection.CONTACT -> "CONTACTO"
         PortfolioSection.SOCIAL -> "LINKS"
     }
-    val nodeSize = if (compact) 38.dp else 48.dp
+    val nodeSize = if (compact) 44.dp else 58.dp
     val plateShape = if (menuOnLeft) {
-        RoundedCornerShape(topStart = 17.dp, bottomStart = 17.dp, topEnd = 8.dp, bottomEnd = 8.dp)
+        RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp, topEnd = 9.dp, bottomEnd = 9.dp)
     } else {
-        RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp, topEnd = 17.dp, bottomEnd = 17.dp)
+        RoundedCornerShape(topStart = 9.dp, bottomStart = 9.dp, topEnd = 20.dp, bottomEnd = 20.dp)
     }
 
     BoxWithConstraints(
@@ -687,8 +899,8 @@ private fun HeadMenuButton(
                     label,
                     color = primaryText,
                     fontWeight = FontWeight.Bold,
-                    fontSize = if (compact) 9.sp else 13.sp,
-                    letterSpacing = if (compact) 0.sp else 0.3.sp,
+                    fontSize = if (compact) 10.sp else 15.sp,
+                    letterSpacing = if (compact) 0.sp else 0.25.sp,
                     maxLines = 1
                 )
                 if (!compact) {
@@ -701,7 +913,7 @@ private fun HeadMenuButton(
                             descriptor,
                             color = secondaryText.copy(alpha = 0.74f),
                             fontFamily = FontFamily.Monospace,
-                            fontSize = 7.sp,
+                            fontSize = 8.sp,
                             letterSpacing = 0.7.sp,
                             maxLines = 1
                         )
@@ -710,7 +922,7 @@ private fun HeadMenuButton(
                             color = primaryText.copy(alpha = 0.30f),
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 7.sp
+                            fontSize = 8.sp
                         )
                     }
                 }
@@ -755,7 +967,7 @@ private fun HeadMenuButton(
 
 @Composable
 private fun MenuSymbol(section: PortfolioSection, compact: Boolean) {
-    val symbolSize = if (compact) 17.dp else 21.dp
+    val symbolSize = if (compact) 19.dp else 24.dp
     Canvas(modifier = Modifier.size(symbolSize)) {
         val color = primaryText.copy(alpha = 0.92f)
         val stroke = Stroke(width = if (compact) 1.2.dp.toPx() else 1.35.dp.toPx())
@@ -840,6 +1052,21 @@ private fun PortfolioDetailOverlay(
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(modifier) {
+        val panelWidth = (maxWidth * 0.36f).coerceIn(420.dp, 520.dp)
+        val panelGap = (maxWidth * 0.07f).coerceIn(92.dp, 138.dp)
+        val leftPanelX = (maxWidth * 0.50f - panelGap - panelWidth).coerceAtLeast(24.dp)
+        val rightPanelX = (maxWidth * 0.50f + panelGap).coerceAtMost(maxWidth - panelWidth - 24.dp)
+        val desktopPanelModifier = when (section) {
+            PortfolioSection.CV -> Modifier.align(Alignment.TopStart).offset(x = leftPanelX, y = 82.dp)
+            PortfolioSection.PROJECTS -> Modifier.align(Alignment.TopStart).offset(x = rightPanelX, y = 82.dp)
+            PortfolioSection.ABOUT -> Modifier.align(Alignment.CenterStart).offset(x = leftPanelX)
+            PortfolioSection.EXPERIENCE -> Modifier.align(Alignment.CenterStart).offset(x = rightPanelX)
+            PortfolioSection.CONTACT -> Modifier.align(Alignment.BottomStart).offset(x = leftPanelX, y = (-28).dp)
+            PortfolioSection.SOCIAL -> Modifier.align(Alignment.BottomStart).offset(x = rightPanelX, y = (-28).dp)
+        }
+        val opensFromLeft = section == PortfolioSection.CV ||
+            section == PortfolioSection.ABOUT ||
+            section == PortfolioSection.CONTACT
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -847,30 +1074,46 @@ private fun PortfolioDetailOverlay(
                     if (compact) {
                         Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.30f), Color.Black.copy(alpha = 0.74f)))
                     } else {
-                        Brush.horizontalGradient(listOf(Color.Black.copy(alpha = 0.66f), Color.Black.copy(alpha = 0.30f), Color.Transparent))
+                        Brush.horizontalGradient(
+                            listOf(
+                                Color.Black.copy(alpha = 0.42f),
+                                Color.Black.copy(alpha = 0.12f),
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.12f),
+                                Color.Black.copy(alpha = 0.42f)
+                            )
+                        )
                     }
                 )
         )
         AnimatedVisibility(
             visible = true,
-            enter = fadeIn(tween(240)) + slideInVertically(tween(300), initialOffsetY = { if (compact) 36 else 12 }),
+            enter = fadeIn(tween(240)) + scaleIn(tween(320), initialScale = 0.94f) +
+                if (compact) {
+                    slideInVertically(tween(300), initialOffsetY = { 36 })
+                } else {
+                    slideInHorizontally(tween(360), initialOffsetX = { width ->
+                        if (opensFromLeft) -width / 5 else width / 5
+                    })
+                },
             modifier = if (compact) {
                 Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .padding(12.dp)
             } else {
-                Modifier
-                    .align(Alignment.CenterStart)
-                    .width(430.dp)
-                    .padding(start = 34.dp, top = 88.dp, bottom = 24.dp)
+                desktopPanelModifier.width(panelWidth)
             }
         ) {
             PortfolioDetailPanel(
                 section = section,
                 onBack = onBack,
                 compact = compact,
-                maxHeight = if (compact) maxHeight * 0.62f else maxHeight - 112.dp,
+                maxHeight = if (compact) {
+                    maxHeight * 0.62f
+                } else {
+                    (maxHeight * 0.44f).coerceIn(270.dp, 430.dp)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -885,13 +1128,14 @@ private fun PortfolioDetailPanel(
     maxHeight: Dp,
     modifier: Modifier = Modifier
 ) {
+    val panelShape = RoundedCornerShape(if (compact) 24.dp else 22.dp)
     Column(
         modifier = modifier
             .heightIn(max = maxHeight)
-            .shadow(30.dp, RoundedCornerShape(if (compact) 22.dp else 20.dp), ambientColor = Color.Black, spotColor = Color.Black)
-            .clip(RoundedCornerShape(if (compact) 22.dp else 20.dp))
-            .background(Brush.verticalGradient(listOf(Color(0xFA0C141E), surface)))
-            .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(if (compact) 22.dp else 20.dp))
+            .shadow(34.dp, panelShape, ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.18f))
+            .clip(panelShape)
+            .background(premiumSurfaceBrush())
+            .border(1.dp, premiumBorderBrush(), panelShape)
             .verticalScroll(rememberScrollState())
             .padding(if (compact) 18.dp else 22.dp)
     ) {
@@ -902,10 +1146,11 @@ private fun PortfolioDetailPanel(
         ) {
             Row(
                 modifier = Modifier
+                    .shadow(10.dp, RoundedCornerShape(11.dp), ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.22f))
                     .clip(RoundedCornerShape(10.dp))
                     .clickable(onClick = onBack)
-                    .background(Color.White.copy(alpha = 0.05f))
-                    .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(10.dp))
+                    .background(premiumInsetBrush())
+                    .border(1.dp, premiumBorderBrush(), RoundedCornerShape(10.dp))
                     .padding(horizontal = 11.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(7.dp)
@@ -971,8 +1216,9 @@ private fun SectionContent(section: PortfolioSection) {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(82.dp)
+                        .shadow(14.dp, RoundedCornerShape(18.dp), ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.24f))
                         .clip(RoundedCornerShape(18.dp))
-                        .border(1.dp, accent.copy(alpha = 0.45f), RoundedCornerShape(18.dp))
+                        .border(1.dp, premiumBorderBrush(), RoundedCornerShape(18.dp))
                 )
                 Column {
                     Text("Android Developer", color = accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
@@ -1033,15 +1279,17 @@ private fun PrimaryAction(text: String, modifier: Modifier = Modifier, onClick: 
 
 @Composable
 private fun ProjectItem(title: String, description: String, tags: String, onClick: () -> Unit) {
+    val itemShape = RoundedCornerShape(15.dp)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 9.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .shadow(12.dp, itemShape, ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.12f))
+            .clip(itemShape)
             .clickable(onClick = onClick)
-            .background(Color.White.copy(alpha = 0.035f))
-            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(14.dp))
-            .padding(13.dp)
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(), itemShape)
+            .padding(horizontal = 14.dp, vertical = 13.dp)
     ) {
         Text(title, color = primaryText, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         Text(description, color = secondaryText, fontSize = 11.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 4.dp))
@@ -1051,21 +1299,34 @@ private fun ProjectItem(title: String, description: String, tags: String, onClic
 
 @Composable
 private fun ExperienceItem(period: String, title: String, description: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(11.dp)
+    val itemShape = RoundedCornerShape(15.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 11.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .padding(top = 4.dp)
-                .size(8.dp)
-                .background(warm, CircleShape)
-        )
-        Column {
+                .fillMaxWidth()
+                .padding(start = 12.dp)
+                .shadow(11.dp, itemShape, ambientColor = Color.Black, spotColor = warm.copy(alpha = 0.10f))
+                .clip(itemShape)
+                .background(premiumInsetBrush())
+                .border(1.dp, premiumBorderBrush(warm), itemShape)
+                .padding(start = 20.dp, top = 13.dp, end = 14.dp, bottom = 14.dp)
+        ) {
             Text(period, color = warm, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 8.sp, letterSpacing = 0.7.sp)
             Text(title, color = primaryText, fontWeight = FontWeight.Black, fontSize = 15.sp, modifier = Modifier.padding(top = 3.dp))
             Text(description, color = secondaryText, fontSize = 11.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 4.dp))
         }
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .shadow(9.dp, CircleShape, ambientColor = Color.Black, spotColor = warm.copy(alpha = 0.65f))
+                .size(13.dp)
+                .background(Color(0xFF18202A), CircleShape)
+                .border(2.dp, warm, CircleShape)
+        )
     }
 }
 
@@ -1073,6 +1334,7 @@ private fun ExperienceItem(period: String, title: String, description: String) {
 private fun TagCloud(tags: List<String>) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
         tags.forEach { tag ->
+            val chipShape = RoundedCornerShape(999.dp)
             Text(
                 tag,
                 color = mint,
@@ -1080,8 +1342,9 @@ private fun TagCloud(tags: List<String>) {
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 9.sp,
                 modifier = Modifier
-                    .background(mint.copy(alpha = 0.08f), RoundedCornerShape(999.dp))
-                    .border(1.dp, mint.copy(alpha = 0.20f), RoundedCornerShape(999.dp))
+                    .shadow(7.dp, chipShape, ambientColor = Color.Black, spotColor = mint.copy(alpha = 0.12f))
+                    .background(premiumInsetBrush(), chipShape)
+                    .border(1.dp, premiumBorderBrush(mint), chipShape)
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             )
         }
@@ -1090,14 +1353,16 @@ private fun TagCloud(tags: List<String>) {
 
 @Composable
 private fun SocialAction(name: String, handle: String, color: Color, onClick: () -> Unit) {
+    val itemShape = RoundedCornerShape(15.dp)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 9.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .shadow(12.dp, itemShape, ambientColor = Color.Black, spotColor = color.copy(alpha = 0.12f))
+            .clip(itemShape)
             .clickable(onClick = onClick)
-            .background(Color.White.copy(alpha = 0.035f))
-            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(14.dp))
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(color), itemShape)
             .padding(13.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

@@ -42,7 +42,7 @@ Reason:
 The portfolio content is presented as an animated workspace: the character walks to the desk, starts typing, and reveals the main navigation around him.
 
 Impact:
-CV, projects, profile, experience, email, and social links remain accessible as regular Compose UI controls. The office always fills the browser viewport without a card wrapper. The scene uses a twelve-frame transparent walk cycle synchronized to travel distance, then switches between identity-locked hand poses so typing remains visible while the seated character, chair, desk, keyboard, lighting, and shadows keep the same perspective. Six compact hamburger controls are positioned from the cropped image's head anchor; section content opens in a separate responsive overlay.
+CV, projects, profile, experience, email, and social links remain accessible as regular Compose UI controls. The office always fills the browser viewport without a card wrapper. David enters from the foreground with a rear-view walk cycle and approaches the chair before the scene crossfades into the seated typing state. A shared mountain-window treatment and Android/KMP/iOS monitor panel stay stable across the animation. Six larger controls keep clear space around the cropped image's head anchor; on desktop, the selected control expands beside David while compact screens use a bottom sheet.
 
 ## Update Policy
 
