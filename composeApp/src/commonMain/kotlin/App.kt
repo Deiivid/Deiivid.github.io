@@ -9,7 +9,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,10 +52,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -61,18 +71,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidweb_kmp.composeapp.generated.resources.Res
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_01
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_02
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_03
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_04
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_05
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_06
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_07
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_08
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_09
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_10
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_11
-import davidweb_kmp.composeapp.generated.resources.david_walk_premium_12
 import davidweb_kmp.composeapp.generated.resources.image_david
 import davidweb_kmp.composeapp.generated.resources.office_background
 import davidweb_kmp.composeapp.generated.resources.office_david_integrated_v2
@@ -123,9 +121,9 @@ fun App() {
         delay(360)
         walkProgress.animateTo(
             targetValue = 1f,
-            animationSpec = tween(3900, easing = LinearEasing)
+            animationSpec = tween(3600, easing = LinearEasing)
         )
-        delay(720)
+        delay(520)
         menusVisible = true
     }
 
@@ -211,7 +209,7 @@ private fun CinematicStage(
         }
         if (walkProgress in 0.001f..0.985f) {
             Text(
-                "ENTRANDO  ${((walkProgress * 100).toInt()).coerceIn(1, 99).toString().padStart(2, '0')}%",
+                "ACERCÁNDOME  ${((walkProgress * 100).toInt()).coerceIn(1, 99).toString().padStart(2, '0')}%",
                 color = primaryText.copy(alpha = 0.72f),
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.SemiBold,
@@ -319,13 +317,49 @@ private fun IntroCopy(compact: Boolean, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifier = Modifier) {
-    BoxWithConstraints(modifier) {
+    BoxWithConstraints(modifier.clipToBounds()) {
+        val density = LocalDensity.current
+        val portrait = maxHeight > maxWidth
+        val approach = smoothStep(walkProgress / 0.76f)
+        val startMotion = smoothStep(walkProgress / 0.06f)
+        val stopMotion = 1f - smoothStep((walkProgress - 0.68f) / 0.08f)
+        val motionStrength = startMotion * stopMotion
+        val stepPhase = approach * 9f * PI.toFloat()
+        val bob = (
+            -abs(sin(stepPhase.toDouble())).toFloat() *
+                (if (portrait) 2.6f else 4.8f) * motionStrength
+            ).dp
+        val sway = (
+            sin(stepPhase.toDouble()).toFloat() *
+                (if (portrait) 1.4f else 2.6f) * motionStrength
+            ).dp
+        val roll = sin(stepPhase.toDouble()).toFloat() * 0.14f * motionStrength
+        val hiddenReset = smoothStep((walkProgress - 0.81f) / 0.04f)
+        val cameraMix = if (walkProgress < 0.81f) approach else 1f - hiddenReset
+        val targetZoom = when {
+            portrait -> 1.09f
+            maxHeight < 700.dp -> 1.13f
+            else -> 1.18f
+        }
+        val cameraZoom = 1.01f + (targetZoom - 1.01f) * cameraMix
+        val panX = maxWidth * (-0.014f * cameraMix)
+        val panY = maxHeight * ((if (portrait) -0.035f else -0.07f) * cameraMix)
+        val translationXPx = with(density) { (panX + sway).toPx() }
+        val translationYPx = with(density) { (panY + bob).toPx() }
+        val blinkAlpha = when {
+            walkProgress < 0.76f -> 0f
+            walkProgress < 0.81f -> smoothStep((walkProgress - 0.76f) / 0.05f)
+            walkProgress < 0.86f -> 1f
+            walkProgress < 0.94f -> 1f - smoothStep((walkProgress - 0.86f) / 0.08f)
+            else -> 0f
+        }
+        val seated = walkProgress >= 0.84f
+        val typing = walkProgress >= 0.93f
         var typingFrame by remember { mutableIntStateOf(0) }
-        val seated = walkProgress >= 0.88f
 
-        LaunchedEffect(seated) {
+        LaunchedEffect(typing) {
             typingFrame = 0
-            while (seated) {
+            while (typing) {
                 delay(210)
                 typingFrame = (typingFrame + 1) % 3
             }
@@ -336,17 +370,17 @@ private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifie
             contentDescription = null,
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = cameraZoom
+                    scaleY = cameraZoom
+                    translationX = translationXPx
+                    translationY = translationYPx
+                    rotationZ = roll
+                    transformOrigin = TransformOrigin.Center
+                }
         )
-        if (walkProgress < 0.995f) {
-            WalkingCharacterLayer(
-                walkProgress = walkProgress,
-                compact = compact,
-                sceneWidth = maxWidth,
-                sceneHeight = maxHeight,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
         if (seated) {
             val typingPainters = listOf(
                 painterResource(Res.drawable.office_david_integrated_v2),
@@ -358,8 +392,24 @@ private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifie
                 contentDescription = "David Navarro tecleando en su ordenador",
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.Center,
-                alpha = ((walkProgress - 0.88f) / 0.10f).coerceIn(0f, 1f),
                 modifier = Modifier.fillMaxSize()
+            )
+        }
+        if (!seated) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.28f * motionStrength)
+                    .background(
+                        Brush.horizontalGradient(
+                            colorStops = arrayOf(
+                                0f to Color.Black.copy(alpha = 0.72f),
+                                0.18f to Color.Transparent,
+                                0.82f to Color.Transparent,
+                                1f to Color.Black.copy(alpha = 0.72f)
+                            )
+                        )
+                    )
             )
         }
         Box(
@@ -385,75 +435,18 @@ private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifie
                     )
                 )
         )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(blinkAlpha)
+                .background(Color.Black)
+        )
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-private fun WalkingCharacterLayer(
-    walkProgress: Float,
-    compact: Boolean,
-    sceneWidth: Dp,
-    sceneHeight: Dp,
-    modifier: Modifier = Modifier
-) {
-    val frames = listOf(
-        painterResource(Res.drawable.david_walk_premium_01),
-        painterResource(Res.drawable.david_walk_premium_02),
-        painterResource(Res.drawable.david_walk_premium_03),
-        painterResource(Res.drawable.david_walk_premium_04),
-        painterResource(Res.drawable.david_walk_premium_05),
-        painterResource(Res.drawable.david_walk_premium_06),
-        painterResource(Res.drawable.david_walk_premium_07),
-        painterResource(Res.drawable.david_walk_premium_08),
-        painterResource(Res.drawable.david_walk_premium_09),
-        painterResource(Res.drawable.david_walk_premium_10),
-        painterResource(Res.drawable.david_walk_premium_11),
-        painterResource(Res.drawable.david_walk_premium_12)
-    )
-    val baseCharacterHeight = if (compact) {
-        (sceneHeight * 0.55f).coerceIn(380.dp, 460.dp)
-    } else {
-        (sceneHeight * 0.72f).coerceIn(500.dp, 600.dp)
-    }
-    val characterHeight = baseCharacterHeight * (1f + 0.055f * walkProgress)
-    val characterWidth = characterHeight * (480f / 510f)
-    val startX = -characterWidth * 0.72f
-    val endX = sceneWidth * 0.50f - characterWidth * 0.50f
-    val characterX = startX + (endX - startX) * walkProgress
-    val travelled = (characterX - startX).value
-    val fullStride = characterHeight.value * 0.74f
-    val frameIndex = ((travelled / fullStride * frames.size).toInt().coerceAtLeast(0)) % frames.size
-    val cyclePhase = frameIndex.toDouble() / frames.size
-    val verticalBob = (-2.6f * abs(sin(cyclePhase * 2.0 * PI)).toFloat()).dp
-    val floorPadding = if (compact) 18.dp else 26.dp
-    val shadowWidth = characterHeight * 0.25f
-    val shadowHeight = characterHeight * 0.026f
-    val shadowX = characterX + characterWidth * 0.50f - shadowWidth * 0.50f
-    val walkAlpha = ((1f - walkProgress) / 0.10f).coerceIn(0f, 1f)
-
-    Box(modifier = modifier) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .offset(x = shadowX, y = -floorPadding + 4.dp)
-                .width(shadowWidth)
-                .height(shadowHeight)
-                .alpha(walkAlpha)
-                .background(Color.Black.copy(alpha = 0.52f), CircleShape)
-        )
-        Image(
-            painter = frames[frameIndex],
-            contentDescription = "David Navarro caminando hacia su mesa",
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .offset(x = characterX, y = -floorPadding + verticalBob)
-                .width(characterWidth)
-                .height(characterHeight)
-                .alpha(walkAlpha)
-        )
-    }
+private fun smoothStep(value: Float): Float {
+    val progress = value.coerceIn(0f, 1f)
+    return progress * progress * (3f - 2f * progress)
 }
 
 @Composable
@@ -505,25 +498,79 @@ private fun HeadOrbitMenu(
         val scaledHeight = if (viewAspect > sourceAspect) maxWidth / sourceAspect else maxHeight
         val headX = maxWidth * 0.50f
         val headY = scaledHeight * 0.36f - (scaledHeight - maxHeight) / 2f
-        val menuWidth = if (compact) (maxWidth * 0.32f).coerceIn(116.dp, 140.dp) else 216.dp
-        val menuHeight = if (compact) 48.dp else 54.dp
-        val clearSpace = if (compact) 46.dp else 82.dp
-        val rowStep = if (compact) 60.dp else 72.dp
-        val edge = if (compact) 10.dp else 28.dp
-        val leftX = (headX - clearSpace - menuWidth).coerceAtLeast(edge)
-        val rightX = (headX + clearSpace).coerceAtMost(maxWidth - edge - menuWidth)
+        val narrow = maxWidth < 430.dp
+        val menuWidth = when {
+            narrow -> 124.dp
+            compact -> (maxWidth * 0.30f).coerceIn(120.dp, 136.dp)
+            else -> 236.dp
+        }
+        val menuHeight = if (compact) 50.dp else 66.dp
+        val clearSpace = when {
+            narrow -> 58.dp
+            compact -> 72.dp
+            else -> 112.dp
+        }
+        val rowStep = if (compact) 59.dp else 80.dp
+        val edge = if (compact) 8.dp else 24.dp
+        val arcShift = if (compact) 8.dp else 24.dp
+        val leftBase = (headX - clearSpace - menuWidth).coerceAtLeast(edge)
+        val rightBase = (headX + clearSpace).coerceAtMost(maxWidth - edge - menuWidth)
         val centerY = (headY - menuHeight / 2f).coerceIn(
             82.dp + rowStep,
             maxHeight - menuHeight - edge - rowStep
         )
         val rows = listOf(centerY - rowStep, centerY, centerY + rowStep)
+        val leftXs = rows.indices.map { row ->
+            (leftBase - if (row == 1) arcShift else 0.dp).coerceAtLeast(edge)
+        }
+        val rightXs = rows.indices.map { row ->
+            (rightBase + if (row == 1) arcShift else 0.dp).coerceAtMost(maxWidth - edge - menuWidth)
+        }
         val leftSections = listOf(PortfolioSection.CV, PortfolioSection.ABOUT, PortfolioSection.CONTACT)
         val rightSections = listOf(PortfolioSection.PROJECTS, PortfolioSection.EXPERIENCE, PortfolioSection.SOCIAL)
+        val nodeSize = if (compact) 38.dp else 48.dp
+        val faceRadius = if (compact) 62.dp else 88.dp
+        val connectorRise = if (compact) 30.dp else 44.dp
+
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            rows.forEachIndexed { row, y ->
+                listOf(
+                    Triple(leftXs[row], true, leftSections[row]),
+                    Triple(rightXs[row], false, rightSections[row])
+                ).forEach { (x, menuOnLeft, _) ->
+                    val startX = if (menuOnLeft) x + menuWidth else x
+                    val startY = y + menuHeight / 2f
+                    val endX = headX + if (menuOnLeft) -faceRadius else faceRadius
+                    val endY = headY + connectorRise * (row - 1).toFloat()
+                    val start = Offset(startX.toPx(), startY.toPx())
+                    val end = Offset(endX.toPx(), endY.toPx())
+                    val direction = end.x - start.x
+                    val connector = Path().apply {
+                        moveTo(start.x, start.y)
+                        cubicTo(
+                            start.x + direction * 0.46f,
+                            start.y,
+                            end.x - direction * 0.18f,
+                            end.y,
+                            end.x,
+                            end.y
+                        )
+                    }
+                    drawPath(
+                        path = connector,
+                        color = accent.copy(alpha = 0.38f),
+                        style = Stroke(width = 1.dp.toPx())
+                    )
+                    drawCircle(accent.copy(alpha = 0.18f), radius = 6.dp.toPx(), center = end)
+                    drawCircle(accent.copy(alpha = 0.92f), radius = 2.5.dp.toPx(), center = end)
+                }
+            }
+        }
 
         rows.forEachIndexed { row, y ->
             listOf(
-                Triple(leftSections[row], leftX, true),
-                Triple(rightSections[row], rightX, false)
+                Triple(leftSections[row], leftXs[row], true),
+                Triple(rightSections[row], rightXs[row], false)
             ).forEachIndexed { side, (section, x, menuOnLeft) ->
                 val revealIndex = row * 2 + side
                 Box(
@@ -534,7 +581,11 @@ private fun HeadOrbitMenu(
                 ) {
                     AnimatedVisibility(
                         visible = revealedCount > revealIndex,
-                        enter = fadeIn(tween(260)) + scaleIn(tween(300), initialScale = 0.90f),
+                        enter = fadeIn(tween(260)) +
+                            scaleIn(tween(320), initialScale = 0.94f) +
+                            slideInHorizontally(tween(340)) { width ->
+                                if (menuOnLeft) width / 4 else -width / 4
+                            },
                         modifier = Modifier.fillMaxSize()
                     ) {
                         HeadMenuButton(
@@ -567,94 +618,217 @@ private fun HeadMenuButton(
         PortfolioSection.CONTACT -> "EMAIL"
         PortfolioSection.SOCIAL -> "REDES"
     }
+    val descriptor = when (section) {
+        PortfolioSection.CV -> "TRAYECTORIA"
+        PortfolioSection.PROJECTS -> "APPS + CÓDIGO"
+        PortfolioSection.ABOUT -> "PERFIL"
+        PortfolioSection.EXPERIENCE -> "RECORRIDO"
+        PortfolioSection.CONTACT -> "CONTACTO"
+        PortfolioSection.SOCIAL -> "LINKS"
+    }
+    val nodeSize = if (compact) 38.dp else 48.dp
+    val plateShape = if (menuOnLeft) {
+        RoundedCornerShape(topStart = 17.dp, bottomStart = 17.dp, topEnd = 8.dp, bottomEnd = 8.dp)
+    } else {
+        RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp, topEnd = 17.dp, bottomEnd = 17.dp)
+    }
 
-    Box(
+    BoxWithConstraints(
         modifier = modifier
-            .shadow(22.dp, RoundedCornerShape(16.dp), ambientColor = Color.Black, spotColor = Color.Black)
-            .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
-            .background(
-                Brush.horizontalGradient(
-                    if (menuOnLeft) {
-                        listOf(Color(0xF50A111A), Color(0xF0122633))
-                    } else {
-                        listOf(Color(0xF0122633), Color(0xF50A111A))
-                    }
-                )
-            )
-            .border(1.dp, accent.copy(alpha = 0.24f), RoundedCornerShape(16.dp))
     ) {
+        val plateWidth = maxWidth - nodeSize / 2f
         Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Brush.horizontalGradient(listOf(Color.Transparent, Color.White.copy(alpha = 0.18f), Color.Transparent)))
+                .align(if (menuOnLeft) Alignment.CenterStart else Alignment.CenterEnd)
+                .width(plateWidth)
+                .fillMaxSize()
+                .shadow(24.dp, plateShape, ambientColor = Color.Black, spotColor = Color.Black)
+                .clip(plateShape)
+                .background(
+                    Brush.horizontalGradient(
+                        if (menuOnLeft) {
+                            listOf(Color(0xF20A1018), Color(0xF4111D28))
+                        } else {
+                            listOf(Color(0xF4111D28), Color(0xF20A1018))
+                        }
+                    )
+                )
+                .border(1.dp, Color.White.copy(alpha = 0.13f), plateShape)
+        ) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(Color.Transparent, Color.White.copy(alpha = 0.20f), Color.Transparent)
+                        )
+                    )
+            )
+            Box(
+                modifier = Modifier
+                    .align(if (menuOnLeft) Alignment.CenterEnd else Alignment.CenterStart)
+                    .width(2.dp)
+                    .height(if (compact) 20.dp else 28.dp)
+                    .background(accent.copy(alpha = 0.74f), RoundedCornerShape(99.dp))
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .fillMaxWidth()
+                    .padding(
+                        start = if (menuOnLeft) 14.dp else nodeSize / 2f + 13.dp,
+                        end = if (menuOnLeft) nodeSize / 2f + 13.dp else 14.dp
+                    )
+            ) {
+                Text(
+                    label,
+                    color = primaryText,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = if (compact) 9.sp else 13.sp,
+                    letterSpacing = if (compact) 0.sp else 0.3.sp,
+                    maxLines = 1
+                )
+                if (!compact) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            descriptor,
+                            color = secondaryText.copy(alpha = 0.74f),
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 7.sp,
+                            letterSpacing = 0.7.sp,
+                            maxLines = 1
+                        )
+                        Text(
+                            section.number,
+                            color = primaryText.copy(alpha = 0.30f),
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 7.sp
+                        )
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .align(if (menuOnLeft) Alignment.CenterStart else Alignment.CenterEnd)
+                    .padding(horizontal = 8.dp)
+                    .size(4.dp)
+                    .background(amber.copy(alpha = 0.92f), CircleShape)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .align(if (menuOnLeft) Alignment.CenterEnd else Alignment.CenterStart)
+                .size(nodeSize + 10.dp)
+                .background(accent.copy(alpha = 0.06f), CircleShape)
         )
         Box(
             modifier = Modifier
                 .align(if (menuOnLeft) Alignment.CenterEnd else Alignment.CenterStart)
-                .width(2.dp)
-                .height(if (compact) 25.dp else 30.dp)
-                .background(accent, RoundedCornerShape(99.dp))
-        )
-        Row(
-            modifier = Modifier.fillMaxSize().padding(horizontal = if (compact) 9.dp else 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 9.dp)
+                .size(nodeSize)
+                .shadow(14.dp, CircleShape, ambientColor = Color.Black, spotColor = Color.Black)
+                .clip(CircleShape)
+                .background(
+                    Brush.radialGradient(
+                        listOf(Color(0xFF183241), Color(0xFF0A1119))
+                    )
+                )
+                .border(1.dp, Color.White.copy(alpha = 0.28f), CircleShape),
+            contentAlignment = Alignment.Center
         ) {
-            if (!menuOnLeft) HamburgerIcon(compact)
-            if (!compact) MenuNumber(section.number)
-            Text(
-                label,
-                color = primaryText,
-                fontWeight = FontWeight.Bold,
-                fontSize = if (compact) 9.sp else 13.sp,
-                letterSpacing = if (compact) 0.1.sp else 0.35.sp,
-                maxLines = 1,
-                modifier = Modifier.weight(1f)
+            Box(
+                modifier = Modifier
+                    .size(nodeSize - 7.dp)
+                    .border(1.dp, accent.copy(alpha = 0.16f), CircleShape)
             )
-            if (menuOnLeft) HamburgerIcon(compact)
+            MenuSymbol(section = section, compact = compact)
         }
     }
 }
 
 @Composable
-private fun HamburgerIcon(compact: Boolean) {
-    Box(
-        modifier = Modifier
-            .size(if (compact) 26.dp else 30.dp)
-            .background(Color(0xFF0C202D), RoundedCornerShape(if (compact) 8.dp else 9.dp))
-            .border(1.dp, accent.copy(alpha = 0.24f), RoundedCornerShape(if (compact) 8.dp else 9.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 4.dp)
-        ) {
-            Box(Modifier.width(if (compact) 10.dp else 12.dp).height(1.dp).background(accent, RoundedCornerShape(9.dp)))
-            Box(Modifier.width(if (compact) 15.dp else 17.dp).height(1.dp).background(accent, RoundedCornerShape(9.dp)))
-            Box(Modifier.width(if (compact) 8.dp else 10.dp).height(1.dp).background(accent, RoundedCornerShape(9.dp)))
+private fun MenuSymbol(section: PortfolioSection, compact: Boolean) {
+    val symbolSize = if (compact) 17.dp else 21.dp
+    Canvas(modifier = Modifier.size(symbolSize)) {
+        val color = primaryText.copy(alpha = 0.92f)
+        val stroke = Stroke(width = if (compact) 1.2.dp.toPx() else 1.35.dp.toPx())
+        when (section) {
+            PortfolioSection.CV -> {
+                val left = size.width * 0.24f
+                val top = size.height * 0.12f
+                val width = size.width * 0.52f
+                val height = size.height * 0.76f
+                drawRect(color, Offset(left, top), Size(width, height), style = stroke)
+                drawLine(color, Offset(size.width * 0.35f, size.height * 0.47f), Offset(size.width * 0.65f, size.height * 0.47f), stroke.width)
+                drawLine(color, Offset(size.width * 0.35f, size.height * 0.64f), Offset(size.width * 0.61f, size.height * 0.64f), stroke.width)
+            }
+            PortfolioSection.PROJECTS -> {
+                val cell = size.width * 0.27f
+                val gap = size.width * 0.13f
+                val start = size.width * 0.16f
+                repeat(2) { row ->
+                    repeat(2) { column ->
+                        drawRect(
+                            color,
+                            Offset(start + column * (cell + gap), start + row * (cell + gap)),
+                            Size(cell, cell),
+                            style = stroke
+                        )
+                    }
+                }
+            }
+            PortfolioSection.ABOUT -> {
+                drawCircle(color, radius = size.width * 0.16f, center = Offset(size.width * 0.50f, size.height * 0.32f), style = stroke)
+                drawArc(
+                    color = color,
+                    startAngle = 205f,
+                    sweepAngle = 130f,
+                    useCenter = false,
+                    topLeft = Offset(size.width * 0.18f, size.height * 0.42f),
+                    size = Size(size.width * 0.64f, size.height * 0.46f),
+                    style = stroke
+                )
+            }
+            PortfolioSection.EXPERIENCE -> {
+                drawLine(color, Offset(size.width * 0.31f, size.height * 0.13f), Offset(size.width * 0.31f, size.height * 0.87f), stroke.width)
+                listOf(0.24f, 0.50f, 0.76f).forEachIndexed { index, y ->
+                    drawCircle(color, radius = size.width * 0.07f, center = Offset(size.width * 0.31f, size.height * y), style = stroke)
+                    drawLine(
+                        color,
+                        Offset(size.width * 0.43f, size.height * y),
+                        Offset(size.width * if (index == 1) 0.86f else 0.74f, size.height * y),
+                        stroke.width
+                    )
+                }
+            }
+            PortfolioSection.CONTACT -> {
+                val topLeft = Offset(size.width * 0.10f, size.height * 0.22f)
+                val envelopeSize = Size(size.width * 0.80f, size.height * 0.58f)
+                drawRect(color, topLeft, envelopeSize, style = stroke)
+                drawLine(color, topLeft, Offset(size.width * 0.50f, size.height * 0.56f), stroke.width)
+                drawLine(color, Offset(size.width * 0.90f, size.height * 0.22f), Offset(size.width * 0.50f, size.height * 0.56f), stroke.width)
+            }
+            PortfolioSection.SOCIAL -> {
+                val nodes = listOf(
+                    Offset(size.width * 0.50f, size.height * 0.18f),
+                    Offset(size.width * 0.22f, size.height * 0.72f),
+                    Offset(size.width * 0.78f, size.height * 0.72f)
+                )
+                drawLine(color, nodes[0], nodes[1], stroke.width)
+                drawLine(color, nodes[0], nodes[2], stroke.width)
+                drawLine(color, nodes[1], nodes[2], stroke.width)
+                nodes.forEach { node ->
+                    drawCircle(color, radius = size.width * 0.105f, center = node, style = stroke)
+                }
+            }
         }
-    }
-}
-
-@Composable
-private fun MenuNumber(number: String) {
-    Box(
-        modifier = Modifier
-            .size(24.dp)
-            .background(accent.copy(alpha = 0.10f), RoundedCornerShape(8.dp))
-            .border(1.dp, accent.copy(alpha = 0.18f), RoundedCornerShape(8.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            number,
-            color = accent,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Bold,
-            fontSize = 8.sp
-        )
     }
 }
 
