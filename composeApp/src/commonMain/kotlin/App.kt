@@ -1,21 +1,26 @@
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,1466 +31,907 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.zIndex
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import davidweb_kmp.composeapp.generated.resources.Res
-import davidweb_kmp.composeapp.generated.resources.android_logo
-import davidweb_kmp.composeapp.generated.resources.cleancode
-import davidweb_kmp.composeapp.generated.resources.github_logo
-import davidweb_kmp.composeapp.generated.resources.icon_code
-import davidweb_kmp.composeapp.generated.resources.icon_deployed_code
-import davidweb_kmp.composeapp.generated.resources.icon_hub
-import davidweb_kmp.composeapp.generated.resources.icon_layers
-import davidweb_kmp.composeapp.generated.resources.icon_science
-import davidweb_kmp.composeapp.generated.resources.icon_sync
-import davidweb_kmp.composeapp.generated.resources.icon_timeline_architecture
-import davidweb_kmp.composeapp.generated.resources.icon_timeline_bank
-import davidweb_kmp.composeapp.generated.resources.icon_timeline_phone
-import davidweb_kmp.composeapp.generated.resources.icon_timeline_school
-import davidweb_kmp.composeapp.generated.resources.icon_timeline_training
-import davidweb_kmp.composeapp.generated.resources.image_david
-import davidweb_kmp.composeapp.generated.resources.kotlin_logo
-import davidweb_kmp.composeapp.generated.resources.medium_logo
-import davidweb_kmp.composeapp.generated.resources.permission_protect
-import davidweb_kmp.composeapp.generated.resources.icon_timer
-import davidweb_kmp.composeapp.generated.resources.icon_bug
-import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
-import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import davidweb_kmp.composeapp.generated.resources.Res
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_01
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_02
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_03
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_04
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_05
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_06
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_07
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_08
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_09
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_10
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_11
+import davidweb_kmp.composeapp.generated.resources.david_walk_premium_12
+import davidweb_kmp.composeapp.generated.resources.image_david
+import davidweb_kmp.composeapp.generated.resources.office_background
+import davidweb_kmp.composeapp.generated.resources.office_david_integrated_v2
+import davidweb_kmp.composeapp.generated.resources.office_david_typing_01
+import davidweb_kmp.composeapp.generated.resources.office_david_typing_02
 import kotlinx.coroutines.delay
-import kotlin.math.sqrt
-import kotlin.random.Random
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.sin
 
-private val pageBg = Color(0xFF0A1328)
-private val cardBg = Color(0xFF131C34)
-private val border = Color(0x22FFFFFF)
-private val textPrimary = Color(0xFFF8FAFC)
-private val textSecondary = Color(0xFF94A3B8)
-private val accent = Color(0xFF256AF4)
-private val skillsCardMinHeight = 116.dp
+private val night = Color(0xFF070A10)
+private val surface = Color(0xEE11161F)
+private val accent = Color(0xFF62D5FF)
+private val amber = Color(0xFFF2B879)
+private val primaryText = Color(0xFFF4F7FB)
+private val secondaryText = Color(0xFF9AA7B8)
+private val violet = accent
+private val mint = accent
+private val warm = amber
+private const val contactEmail = "davidnavarrom3@gmail.com"
 
-@OptIn(ExperimentalResourceApi::class)
+private enum class PortfolioSection(
+    val number: String,
+    val label: String,
+    val subtitle: String
+) {
+    CV("01", "Mi CV", "Trayectoria y stack"),
+    PROJECTS("02", "Mis proyectos", "Apps y código"),
+    ABOUT("03", "Sobre mí", "Perfil profesional"),
+    EXPERIENCE("04", "Experiencia", "Mi recorrido"),
+    CONTACT("05", "Email", "Hablemos"),
+    SOCIAL("06", "Redes sociales", "Código y artículos")
+}
+
 @Composable
 fun App() {
-    val scroll = rememberScrollState()
-    var showGame by remember { mutableStateOf(false) }
+    var introKey by remember { mutableIntStateOf(0) }
+    var menusVisible by remember { mutableStateOf(false) }
+    var activeSection by remember { mutableStateOf<PortfolioSection?>(null) }
+    val walkProgress = remember(introKey) { Animatable(0f) }
+
+    LaunchedEffect(introKey) {
+        menusVisible = false
+        activeSection = null
+        walkProgress.snapTo(0f)
+        delay(360)
+        walkProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(3900, easing = LinearEasing)
+        )
+        delay(720)
+        menusVisible = true
+    }
 
     MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = pageBg) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                Column(
-                    modifier = Modifier
-                        .widthIn(max = 960.dp)
-                        .fillMaxWidth()
-                        .verticalScroll(scroll)
-                        .padding(horizontal = 24.dp, vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(40.dp)
-                ) {
-                    Header()
-                    HeroSection()
-                    SkillsSection()
-                    TimelineSection()
-                    ProjectsSection()
-                    GameSection(onOpen = { showGame = true })
-                    ContactSection()
-                    Footer()
+        Surface(color = night, modifier = Modifier.fillMaxSize()) {
+            PortfolioExperience(
+                walkProgress = walkProgress.value,
+                menusVisible = menusVisible,
+                activeSection = activeSection,
+                onSectionSelected = { activeSection = it },
+                onBack = { activeSection = null },
+                onReplay = {
+                    activeSection = null
+                    introKey++
                 }
-                if (showGame) {
-                    GameModal(
-                        modifier = Modifier.zIndex(10f),
-                        onClose = { showGame = false }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun Header() {
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val compact = maxWidth < 720.dp
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(pageBg)
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    AnimatedHeaderIcon(
-                        icon = Res.drawable.android_logo,
-                        size = 28.dp,
-                        bounce = true
-                    )
-                    AnimatedHeaderIcon(
-                        icon = Res.drawable.kotlin_logo,
-                        size = 22.dp,
-                        bounce = false
-                    )
-                    Text("David Navarro", color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                }
-                if (!compact) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                        HeaderLabel("Home")
-                        HeaderLabel("Skills")
-                        HeaderLabel("Timeline")
-                        HeaderLabel("Projects")
-                        HeaderLabel("Game")
-                        HeaderLabel("Contact")
-                    }
-                }
-            }
-            if (compact) {
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    HeaderLabelSmall("Home")
-                    HeaderLabelSmall("Skills")
-                    HeaderLabelSmall("Timeline")
-                    HeaderLabelSmall("Projects")
-                    HeaderLabelSmall("Game")
-                    HeaderLabelSmall("Contact")
-                }
-            }
-            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(border))
-        }
-    }
-}
-
-@Composable
-private fun HeaderLabel(text: String) {
-    Text(text, color = textSecondary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-}
-
-@Composable
-private fun HeaderLabelSmall(text: String) {
-    Text(text, color = textSecondary, fontWeight = FontWeight.Medium, fontSize = 12.sp)
-}
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-private fun HeroSection() {
-    val uriHandler = LocalUriHandler.current
-
-    SectionBlock {
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            val availableWidth = maxWidth
-            val mobile = availableWidth < 864.dp
-            val compact = availableWidth < 480.dp
-            if (mobile) {
-                Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                    HeroText(uriHandler, compact)
-                    HeroImage(availableWidth)
-                }
-            } else {
-                val imageWidth = 340.dp
-                val gap = 40.dp
-                val textWidth = (availableWidth - imageWidth - gap).coerceAtLeast(320.dp)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(30.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.width(textWidth)) {
-                        HeroText(uriHandler, compact)
-                    }
-                    HeroImage()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun HeroText(uriHandler: androidx.compose.ui.platform.UriHandler, isCompact: Boolean) {
-    val titleSize = if (isCompact) 36.sp else 48.sp
-    val bodySize = if (isCompact) 16.sp else 18.sp
-
-    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        TypingTitle(text = "Android Developer", fontSize = titleSize)
-        Text(
-            "Passionate about building modern Android apps (Kotlin · Compose · KMP) with great UX and performance.",
-            color = textSecondary,
-            fontSize = bodySize,
-            lineHeight = (bodySize.value + 6).sp
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Button(
-                onClick = { uriHandler.openUri("/assets/cv/cv.pdf") },
-                colors = ButtonDefaults.buttonColors(containerColor = accent),
-                shape = RoundedCornerShape(10.dp)
-            ) { Text("Download CV", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp) }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconLinkButton(icon = Res.drawable.github_logo, onClick = { uriHandler.openUri("https://github.com/Deiivid") })
-                IconLinkButton(icon = Res.drawable.medium_logo, onClick = { uriHandler.openUri("https://medium.com/@davidnavarrom3") })
-            }
+            )
         }
     }
 }
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun HeroImage(maxWidth: androidx.compose.ui.unit.Dp? = null) {
-    val outerRadius = 22.dp
-    val imageWidth = maxWidth?.coerceAtMost(340.dp) ?: 340.dp
-    Box(
-        modifier = Modifier
-            .width(imageWidth)
-            .aspectRatio(1f)
-            .shadow(22.dp, RoundedCornerShape(outerRadius), clip = false)
-            .border(1.dp, border, RoundedCornerShape(outerRadius))
-            .clip(RoundedCornerShape(outerRadius))
-            .background(Color(0x111B2A))
-    ) {
-        Image(
-            painter = painterResource(Res.drawable.image_david),
-            contentDescription = "David Navarro",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-    }
-}
+private fun PortfolioExperience(
+    walkProgress: Float,
+    menusVisible: Boolean,
+    activeSection: PortfolioSection?,
+    onSectionSelected: (PortfolioSection) -> Unit,
+    onBack: () -> Unit,
+    onReplay: () -> Unit
+) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize().background(night)) {
+        val compact = maxWidth < 700.dp || maxHeight < 560.dp
 
-@Composable
-private fun SkillsSection() {
-    SectionBlock {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SectionTitle("Key Skills")
-            Text(
-                "A selection of my preferred tools and technologies for building high-quality Android applications.",
-                color = textSecondary,
-                fontSize = 16.sp
-            )
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val gap = 12.dp
-                val columns = when {
-                    maxWidth >= 860.dp -> 3
-                    maxWidth >= 560.dp -> 2
-                    else -> 1
-                }
-                val cardWidth = if (columns == 1) maxWidth else {
-                    (maxWidth - gap * (columns - 1).toFloat()) / columns.toFloat()
-                }
-
-                Column(verticalArrangement = Arrangement.spacedBy(gap)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                        SkillCard(Res.drawable.icon_code, "Kotlin & Java", "Primary languages for Android development.", Modifier.width(cardWidth))
-                        if (columns > 1) SkillCard(Res.drawable.icon_layers, "Jetpack Compose", "Modern declarative UI toolkit.", Modifier.width(cardWidth))
-                        if (columns > 2) SkillCard(Res.drawable.icon_sync, "Coroutines & Flow", "Asynchronous and reactive programming.", Modifier.width(cardWidth))
-                    }
-                    if (columns == 1) {
-                        SkillCard(Res.drawable.icon_layers, "Jetpack Compose", "Modern declarative UI toolkit.", Modifier.fillMaxWidth())
-                        SkillCard(Res.drawable.icon_sync, "Coroutines & Flow", "Asynchronous and reactive programming.", Modifier.fillMaxWidth())
-                    }
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                        SkillCard(Res.drawable.icon_hub, "Koin / Dagger-Hilt", "Dependency injection frameworks.", Modifier.width(cardWidth))
-                        if (columns > 1) SkillCard(Res.drawable.icon_deployed_code, "CI/CD", "Automated build & delivery pipelines.", Modifier.width(cardWidth))
-                        if (columns > 2) SkillCard(Res.drawable.icon_science, "Unit & UI Testing", "Quality, stability and coverage.", Modifier.width(cardWidth))
-                    }
-                    if (columns == 1) {
-                        SkillCard(Res.drawable.icon_deployed_code, "CI/CD", "Automated build & delivery pipelines.", Modifier.fillMaxWidth())
-                        SkillCard(Res.drawable.icon_science, "Unit & UI Testing", "Quality, stability and coverage.", Modifier.fillMaxWidth())
-                    }
-                }
-            }
-
-            val extras = listOf(
-                "KMP",
-                "Retrofit",
-                "SQL",
-                "Firebase",
-                "Git",
-                "GitHub Actions",
-                "Detekt",
-                "Koin",
-                "Clean Architecture"
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text("Also comfortable with", color = accent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            SkillsPills(extras)
-        }
-    }
-}
-
-@Composable
-private fun SkillCard(icon: DrawableResource, title: String, subtitle: String, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .heightIn(min = skillsCardMinHeight)
-            .border(1.dp, border, RoundedCornerShape(14.dp))
-            .background(Color(0xFF121A2E), RoundedCornerShape(14.dp))
-            .padding(14.dp)
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
-            Image(
-                painter = painterResource(icon),
-                contentDescription = null,
-                modifier = Modifier.size(28.dp)
-            )
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(subtitle, color = textSecondary, fontSize = 14.sp)
-            }
-        }
-    }
-}
-
-@Composable
-private fun SkillPill(text: String) {
-    Box(
-        modifier = Modifier
-            .background(Color(0xFF161D2E), RoundedCornerShape(999.dp))
-            .padding(horizontal = 14.dp, vertical = 8.dp)
-    ) {
-        Text(text, color = textPrimary.copy(alpha = 0.9f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun SkillsPills(items: List<String>) {
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        items.forEach { SkillPill(it) }
-    }
-}
-
-@Composable
-private fun TimelineSection() {
-    SectionBlock {
-        val entries = listOf(
-            TimelineEntry(
-                period = "Currently",
-                title = "Hiberus – Android Developer supporting a banking sector client",
-                subtitle = "Developing integrations using Jetpack Compose.",
-                icon = Res.drawable.icon_timeline_bank,
-                iconBg = Color(0xFF0F5D4A),
-                iconTint = Color(0xFF8EF0C5),
-                chipTone = Color(0xFF0F5D4A),
-                chips = listOf("Android", "Jetpack Compose")
-            ),
-            TimelineEntry(
-                period = "2024",
-                title = "Specialization and Clean Architecture",
-                subtitle = "Focused on Clean Architecture, personal projects, and advanced mobile development.",
-                icon = Res.drawable.icon_timeline_architecture,
-                iconBg = Color(0xFF203B7A),
-                iconTint = Color(0xFF93C5FD),
-                chipTone = Color(0xFF203B7A),
-                chips = listOf("Clean Architecture", "MVVM", "Proyectos personales")
-            ),
-            TimelineEntry(
-                period = "2021 - 2023",
-                title = "Immersion in Mobile Development",
-                subtitle = "First professional steps, project leadership, and creation of a personal library.",
-                icon = Res.drawable.icon_timeline_phone,
-                iconBg = Color(0xFF0F5D4A),
-                iconTint = Color(0xFF8EF0C5),
-                chipTone = Color(0xFF0F5D4A),
-                chips = listOf("Java", "Kotlin", "Jetpack Compose", "Libreria")
-            ),
-            TimelineEntry(
-                period = "2021",
-                title = "Hiberus Heroes y Heroinas",
-                subtitle = "Intensive training program specialized in Mobile application development with the MEAN Stack.",
-                icon = Res.drawable.icon_timeline_training,
-                iconBg = Color(0xFF203B7A),
-                iconTint = Color(0xFF93C5FD),
-                chipTone = Color(0xFF203B7A),
-                chips = listOf("MEAN", "Javascript", "Training")
-            ),
-            TimelineEntry(
-                period = "2019 - 2021",
-                title = "Transition to DAM",
-                subtitle = "From Systems Technician to Higher Degree in Multiplatform Application Development.",
-                icon = Res.drawable.icon_timeline_school,
-                iconBg = Color(0xFF0F5D4A),
-                iconTint = Color(0xFF8EF0C5),
-                chipTone = Color(0xFF0F5D4A),
-                chips = listOf("Java", "Bases de datos", "Sistemas")
-            )
+        CinematicStage(
+            walkProgress = walkProgress,
+            compact = compact,
+            onReplay = onReplay,
+            modifier = Modifier.fillMaxSize()
         )
 
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            SectionTitleLarge("Timeline")
-            TimelineList(entries)
-        }
-    }
-}
-
-@Composable
-private fun TimelineList(entries: List<TimelineEntry>) {
-    val lineX = 28.dp
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .drawBehind {
-                val x = lineX.toPx()
-                drawLine(
-                    color = border,
-                    start = Offset(x, 0f),
-                    end = Offset(x, size.height),
-                    strokeWidth = 1.dp.toPx()
-                )
-            },
-        verticalArrangement = Arrangement.spacedBy(18.dp)
-    ) {
-        entries.forEach { TimelineItemRow(it) }
-    }
-}
-
-private data class TimelineEntry(
-    val period: String,
-    val title: String,
-    val subtitle: String,
-    val icon: DrawableResource,
-    val iconBg: Color,
-    val iconTint: Color,
-    val chipTone: Color,
-    val chips: List<String>
-)
-
-@Composable
-private fun TimelineItemRow(entry: TimelineEntry) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Box(
-            modifier = Modifier.width(56.dp),
-            contentAlignment = Alignment.TopCenter
-        ) {
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .background(entry.iconBg, RoundedCornerShape(999.dp))
-                .border(1.dp, border, RoundedCornerShape(999.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(entry.icon),
-                contentDescription = null,
-                modifier = Modifier.size(22.dp),
-                colorFilter = ColorFilter.tint(entry.iconTint)
+        if (menusVisible && activeSection == null) {
+            HeadOrbitMenu(
+                compact = compact,
+                onSectionSelected = onSectionSelected,
+                modifier = Modifier.fillMaxSize()
             )
         }
-        }
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(entry.period, color = textSecondary, fontSize = 13.sp)
-            Text(entry.title, color = textPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-            Text(entry.subtitle, color = textSecondary, fontSize = 14.sp)
-            ChipsRow(entry.chips, entry.chipTone)
-        }
-    }
-}
 
-@Composable
-private fun ChipsRow(chips: List<String>, tone: Color) {
-    val rows = chips.chunked(3)
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 6.dp)) {
-        rows.forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                row.forEach { Chip(it, tone) }
-            }
+        activeSection?.let { section ->
+            PortfolioDetailOverlay(
+                section = section,
+                compact = compact,
+                onBack = onBack,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
 
 @Composable
-private fun Chip(text: String, tone: Color) {
-    Box(
-        modifier = Modifier
-            .background(tone.copy(alpha = 0.22f), RoundedCornerShape(999.dp))
-            .padding(horizontal = 10.dp, vertical = 5.dp)
-    ) {
-        Text(text, color = tone.copy(alpha = 0.9f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-private fun ProjectsSection() {
-    val uriHandler = LocalUriHandler.current
-    SectionBlock {
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            SectionTitle("My Projects")
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val stack = maxWidth < 860.dp
-                if (stack) {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        ProjectCardStack(
-                            title = "PermissionProtect",
-                            description = "Android app to review, control and learn about your app permissions. Built with Kotlin & Jetpack Compose.",
-                            image = Res.drawable.permission_protect,
-                            chips = listOf("Jetpack Compose", "Kotlin / Java"),
-                            button1 = "Google Play" to "https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es",
-                            button2 = "Web" to "https://deiivid.github.io/PermissionProtectWeb/",
-                            onOpen = uriHandler::openUri
-                        )
-                        ProjectCardCustomStack(
-                            title = "Jetpack Compose Glassmorphism library",
-                            description = "For applying glassmorphism effects — blurring both background and content. Android 12+ uses RenderEffect, while Android 11 and below rely on a native C++/NDK.",
-                            header = { GlassmorphismHeader() },
-                            chips = listOf("Jetpack Compose", "Kotlin / Java", "C++ / NDK"),
-                            button1 = "GitHub" to "https://github.com/Deiivid/Glassmorphism-Compose",
-                            button2 = "README" to "https://github.com/Deiivid/Glassmorphism-Compose#readme",
-                            onOpen = uriHandler::openUri
-                        )
-                        ProjectCardStack(
-                            title = "Clean Architecture Compose",
-                            description = "A multi-module Android project demonstrating a layered Clean Architecture pattern — separation of concerns between domain, data, and presentation layers using Jetpack Compose.",
-                            image = Res.drawable.cleancode,
-                            chips = listOf("Jetpack Compose", "Kotlin", "Clean Architecture", "Koin", "Detekt"),
-                            button1 = "GitHub" to "https://github.com/Deiivid/Clean_Arquitecture_Compose",
-                            button2 = "README" to "https://github.com/Deiivid/Clean_Arquitecture_Compose#readme",
-                            onOpen = uriHandler::openUri
-                        )
-                    }
-                } else {
-                    val gap = 16.dp
-                    val cardWidth = (maxWidth - gap) / 2f
-                    Column(verticalArrangement = Arrangement.spacedBy(gap)) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(gap),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            ProjectCard(
-                                title = "PermissionProtect",
-                                description = "Android app to review, control and learn about your app permissions. Built with Kotlin & Jetpack Compose.",
-                                image = Res.drawable.permission_protect,
-                                chips = listOf("Jetpack Compose", "Kotlin / Java"),
-                                button1 = "Google Play" to "https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es",
-                                button2 = "Web" to "https://deiivid.github.io/PermissionProtectWeb/",
-                                onOpen = uriHandler::openUri,
-                                modifier = Modifier.width(cardWidth)
-                            )
-                            ProjectCardCustom(
-                                title = "Jetpack Compose Glassmorphism library",
-                                description = "For applying glassmorphism effects — blurring both background and content.",
-                                header = { GlassmorphismHeader() },
-                                chips = listOf("Jetpack Compose", "Kotlin / Java", "C++ / NDK"),
-                                button1 = "GitHub" to "https://github.com/Deiivid/Glassmorphism-Compose",
-                                button2 = "README" to "https://github.com/Deiivid/Glassmorphism-Compose#readme",
-                                onOpen = uriHandler::openUri,
-                                modifier = Modifier.width(cardWidth)
-                            )
-                        }
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(gap),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            ProjectCard(
-                                title = "Clean Architecture Compose",
-                                description = "A multi-module Android project demonstrating a layered Clean Architecture pattern — separation of concerns between domain, data, and presentation layers using Jetpack Compose.",
-                                image = Res.drawable.cleancode,
-                                chips = listOf("Jetpack Compose", "Kotlin", "Clean Architecture", "Koin", "Detekt"),
-                                button1 = "GitHub" to "https://github.com/Deiivid/Clean_Arquitecture_Compose",
-                                button2 = "README" to "https://github.com/Deiivid/Clean_Arquitecture_Compose#readme",
-                                onOpen = uriHandler::openUri,
-                                modifier = Modifier.width(cardWidth)
-                            )
-                            Spacer(modifier = Modifier.width(cardWidth))
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-private fun ProjectCard(
-    title: String,
-    description: String,
-    image: DrawableResource,
-    chips: List<String> = emptyList(),
-    button1: Pair<String, String>,
-    button2: Pair<String, String>,
-    onOpen: (String) -> Unit,
+private fun CinematicStage(
+    walkProgress: Float,
+    compact: Boolean,
+    onReplay: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val cardShape = RoundedCornerShape(16.dp)
-    val imageShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-    Box(
-        modifier = modifier
-            .border(1.dp, border, cardShape)
-            .background(cardBg, cardShape)
-            .clip(cardShape)
+    BoxWithConstraints(
+        modifier = modifier.background(night)
     ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-                    .clip(imageShape)
-            ) {
-                Image(
-                    painter = painterResource(image),
-                    contentDescription = title,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                Box(modifier = Modifier.fillMaxSize().border(1.dp, border, imageShape))
-            }
-            Column(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
-                if (chips.isNotEmpty()) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        chips.forEach { Chip(it, accent) }
-                    }
-                }
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val gap = 10.dp
-                    val btnWidth = (maxWidth - gap) / 2f
-                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                        Button(
-                            modifier = Modifier.width(btnWidth),
-                            onClick = { onOpen(button1.second) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                            shape = RoundedCornerShape(10.dp)
-                        ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
-                        Button(
-                            modifier = Modifier.width(btnWidth),
-                            onClick = { onOpen(button2.second) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                            shape = RoundedCornerShape(10.dp)
-                        ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-private fun ProjectCardStack(
-    title: String,
-    description: String,
-    image: DrawableResource,
-    chips: List<String> = emptyList(),
-    button1: Pair<String, String>,
-    button2: Pair<String, String>,
-    onOpen: (String) -> Unit
-) {
-    val cardShape = RoundedCornerShape(16.dp)
-    val imageShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, border, cardShape)
-            .background(cardBg, cardShape)
-            .clip(cardShape)
-    ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp)
-                    .clip(imageShape)
-            ) {
-                Image(
-                    painter = painterResource(image),
-                    contentDescription = title,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                Box(modifier = Modifier.fillMaxSize().border(1.dp, border, imageShape))
-            }
-            Column(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
-                if (chips.isNotEmpty()) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        chips.forEach { Chip(it, accent) }
-                    }
-                }
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val gap = 10.dp
-                    val btnWidth = (maxWidth - gap) / 2f
-                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                        Button(
-                            modifier = Modifier.width(btnWidth),
-                            onClick = { onOpen(button1.second) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                            shape = RoundedCornerShape(10.dp)
-                        ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
-                        Button(
-                            modifier = Modifier.width(btnWidth),
-                            onClick = { onOpen(button2.second) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                            shape = RoundedCornerShape(10.dp)
-                        ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun GlassmorphismHeader(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(260.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                Brush.linearGradient(
-                    listOf(Color(0xFF0B1220), Color(0xFF111827), Color(0xFF1F2937))
-                )
-            )
-            .border(1.dp, border, RoundedCornerShape(12.dp))
-    ) {
-        Box(
-            modifier = Modifier
-                .size(220.dp)
-                .offset(x = (-48).dp, y = (-72).dp)
-                .background(Color(0x40256AF4), RoundedCornerShape(999.dp))
+        OfficeScene(walkProgress = walkProgress, compact = compact, modifier = Modifier.fillMaxSize())
+        TopBar(
+            compact = compact,
+            onReplay = onReplay,
+            modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth()
         )
-        Box(
-            modifier = Modifier
-                .size(240.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = 40.dp, y = 40.dp)
-                .background(Color(0x333DDC84), RoundedCornerShape(999.dp))
-        )
-        Box(
-            modifier = Modifier
-                .size(width = 220.dp, height = 120.dp)
-                .offset(x = 28.dp, y = 24.dp)
-                .background(Color(0x26FFFFFF), RoundedCornerShape(14.dp))
-                .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(14.dp))
-        )
-        Box(
-            modifier = Modifier
-                .size(width = 140.dp, height = 80.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = (-24).dp, y = (-24).dp)
-                .background(Color(0x26FFFFFF), RoundedCornerShape(14.dp))
-                .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(14.dp))
-        )
-    }
-}
-
-@Composable
-private fun ProjectCardCustom(
-    title: String,
-    description: String,
-    header: @Composable () -> Unit,
-    chips: List<String>,
-    button1: Pair<String, String>,
-    button2: Pair<String, String>,
-    onOpen: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val cardShape = RoundedCornerShape(16.dp)
-    val imageShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-    Box(
-        modifier = modifier
-            .border(1.dp, border, cardShape)
-            .background(cardBg, cardShape)
-            .clip(cardShape)
-    ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-                    .clip(imageShape)
-            ) {
-                header()
-                Box(modifier = Modifier.fillMaxSize().border(1.dp, border, imageShape))
-            }
-            Column(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    chips.forEach { Chip(it, accent) }
-                }
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val gap = 10.dp
-                    val btnWidth = (maxWidth - gap) / 2f
-                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                        Button(
-                            modifier = Modifier.width(btnWidth),
-                            onClick = { onOpen(button1.second) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                            shape = RoundedCornerShape(10.dp)
-                        ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
-                        Button(
-                            modifier = Modifier.width(btnWidth),
-                            onClick = { onOpen(button2.second) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                            shape = RoundedCornerShape(10.dp)
-                        ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProjectCardCustomStack(
-    title: String,
-    description: String,
-    header: @Composable () -> Unit,
-    chips: List<String>,
-    button1: Pair<String, String>,
-    button2: Pair<String, String>,
-    onOpen: (String) -> Unit
-) {
-    val cardShape = RoundedCornerShape(16.dp)
-    val imageShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, border, cardShape)
-            .background(cardBg, cardShape)
-            .clip(cardShape)
-    ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-                    .clip(imageShape)
-            ) {
-                header()
-                Box(modifier = Modifier.fillMaxSize().border(1.dp, border, imageShape))
-            }
-            Column(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(title, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text(description, color = textSecondary, fontSize = 14.sp, lineHeight = 20.sp)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    chips.forEach { Chip(it, accent) }
-                }
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val gap = 10.dp
-                    val btnWidth = (maxWidth - gap) / 2f
-                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
-                        Button(
-                            modifier = Modifier.width(btnWidth),
-                            onClick = { onOpen(button1.second) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                            shape = RoundedCornerShape(10.dp)
-                        ) { Text(button1.first, color = Color.White, fontSize = 14.sp) }
-                        Button(
-                            modifier = Modifier.width(btnWidth),
-                            onClick = { onOpen(button2.second) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF223252)),
-                            shape = RoundedCornerShape(10.dp)
-                        ) { Text(button2.first, color = Color.White, fontSize = 14.sp) }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun GameSection(onOpen: () -> Unit) {
-    SectionCard {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        AnimatedVisibility(
+            visible = walkProgress < 0.12f,
+            enter = fadeIn(tween(300)),
+            exit = fadeOut(tween(280)),
+            modifier = Modifier.align(Alignment.CenterStart)
         ) {
-            SectionTitleLarge("Ready for a Challenge?")
+            IntroCopy(compact = compact, modifier = Modifier.padding(start = if (compact) 22.dp else 48.dp))
+        }
+        if (walkProgress in 0.001f..0.985f) {
             Text(
-                "I built a tiny game to showcase problem-solving with a playful twist.",
-                color = textSecondary,
-                fontSize = 16.sp
+                "ENTRANDO  ${((walkProgress * 100).toInt()).coerceIn(1, 99).toString().padStart(2, '0')}%",
+                color = primaryText.copy(alpha = 0.72f),
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 9.sp,
+                letterSpacing = 1.sp,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(if (compact) 16.dp else 24.dp)
+                    .background(Color.Black.copy(alpha = 0.42f), RoundedCornerShape(999.dp))
+                    .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(999.dp))
+                    .padding(horizontal = 12.dp, vertical = 7.dp)
             )
-            Box(
+        }
+        if (walkProgress >= 0.90f) {
+            TypingStatus(
                 modifier = Modifier
-                    .width(260.dp)
-                    .height(520.dp)
-                    .border(10.dp, Color.Black, RoundedCornerShape(36.dp))
-                    .background(Color(0xFF0B162C), RoundedCornerShape(36.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Tap “Play Now”", color = textSecondary, fontSize = 14.sp)
-            }
-            Button(
-                onClick = onOpen,
-                colors = ButtonDefaults.buttonColors(containerColor = accent),
-                shape = RoundedCornerShape(12.dp)
-            ) { Text("Play Now", color = Color(0xFF061127), fontWeight = FontWeight.Bold, fontSize = 16.sp) }
-        }
-    }
-}
-
-private enum class BugType { NORMAL, GOLDEN, GREEN }
-
-private data class Bug(
-    var x: Float,
-    var y: Float,
-    var vx: Float,
-    var vy: Float,
-    val r: Float,
-    val type: BugType
-)
-
-@Composable
-private fun GameModal(modifier: Modifier = Modifier, onClose: () -> Unit) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xB3000000))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { onClose() },
-        contentAlignment = Alignment.Center
-    ) {
-        val phoneWidth = 320.dp
-        val phoneHeight = phoneWidth * (19.5f / 9f)
-
-        Box(
-            modifier = Modifier
-                .size(phoneWidth, phoneHeight)
-                .background(Color.Black, RoundedCornerShape(40.dp))
-                .padding(10.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { }
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFF0B162C), RoundedCornerShape(30.dp))
-            ) {
-                GameCanvas()
-            }
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp)
-                    .size(32.dp)
-                    .background(accent, RoundedCornerShape(999.dp))
-                    .clickable { onClose() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text("X", color = Color(0xFF061127), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            }
-        }
-    }
-}
-
-@Composable
-private fun GameCanvas() {
-    var running by remember { mutableStateOf(false) }
-    var timeLeft by remember { mutableIntStateOf(30) }
-    var score by remember { mutableIntStateOf(0) }
-    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
-    var frameTime by remember { mutableStateOf(0L) }
-    val bugs = remember { mutableListOf<Bug>() }
-    val baseBugs = 6
-    val maxBugs = 60
-    val goldenChance = 0.06f
-    val greenChance = 0.08f
-
-    fun chooseType(): BugType {
-        val r = Random.nextFloat()
-        return when {
-            r < goldenChance -> BugType.GOLDEN
-            r < goldenChance + greenChance -> BugType.GREEN
-            else -> BugType.NORMAL
-        }
-    }
-
-    fun spawnBug(w: Float, h: Float, type: BugType = chooseType()): Bug {
-        val baseR = 12f
-        val r = when (type) {
-            BugType.GOLDEN -> baseR * 1.15f
-            BugType.GREEN -> baseR * 1.05f
-            BugType.NORMAL -> baseR
-        }
-        val vx = Random.nextFloat() * 1.6f - 0.8f
-        val vy = Random.nextFloat() * 1.6f - 0.8f
-        val x = r + Random.nextFloat() * (w - r * 2f)
-        val y = r + 48f + Random.nextFloat() * (h - r * 2f - 48f)
-        return Bug(x, y, vx, vy, r, type)
-    }
-
-    fun refillBase(w: Float, h: Float) {
-        bugs.clear()
-        repeat(baseBugs) { bugs.add(spawnBug(w, h, BugType.NORMAL)) }
-    }
-
-    fun resetGame() {
-        score = 0
-        timeLeft = 30
-        val w = canvasSize.width.toFloat()
-        val h = canvasSize.height.toFloat()
-        if (w > 0 && h > 0) {
-            refillBase(w, h)
-        }
-    }
-
-    LaunchedEffect(running, canvasSize) {
-        if (!running || canvasSize == IntSize.Zero) return@LaunchedEffect
-        var last = 0L
-        while (running) {
-            val now = withFrameNanos { it }
-            val dt = if (last == 0L) 0f else (now - last) / 1_000_000_000f
-            last = now
-
-            val w = canvasSize.width.toFloat()
-            val h = canvasSize.height.toFloat()
-            for (b in bugs) {
-                b.x += b.vx * 140f * dt
-                b.y += b.vy * 140f * dt
-                if (b.x - b.r < 0f || b.x + b.r > w) b.vx *= -1f
-                if (b.y - b.r < 40f || b.y + b.r > h) b.vy *= -1f
-            }
-            frameTime = now
-        }
-    }
-
-    LaunchedEffect(running) {
-        if (!running) return@LaunchedEffect
-        while (running && timeLeft > 0) {
-            delay(1000)
-            timeLeft -= 1
-        }
-        if (timeLeft <= 0) running = false
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxSize()
-                .onSizeChanged { canvasSize = it }
-                .pointerInput(running) {
-                    detectTapGestures { pos ->
-                        if (!running) return@detectTapGestures
-                        val w = canvasSize.width.toFloat()
-                        val h = canvasSize.height.toFloat()
-                        for (i in bugs.indices.reversed()) {
-                            val b = bugs[i]
-                            val dx = pos.x - b.x
-                            val dy = pos.y - b.y
-                            if (sqrt(dx * dx + dy * dy) <= b.r) {
-                                when (b.type) {
-                                    BugType.GOLDEN -> {
-                                        val aliveCount = bugs.size
-                                        score += 5 + kotlin.math.max(0, aliveCount - 1)
-                                        if (w > 0 && h > 0) refillBase(w, h)
-                                    }
-                                    BugType.GREEN -> {
-                                        score += 3
-                                        bugs.removeAt(i)
-                                        val toAdd = kotlin.math.min(20, maxBugs - bugs.size)
-                                        repeat(toAdd) { bugs.add(spawnBug(w, h, BugType.NORMAL)) }
-                                    }
-                                    BugType.NORMAL -> {
-                                        score += 1
-                                        bugs[i] = spawnBug(w, h)
-                                    }
-                                }
-                                break
-                            }
-                        }
-                    }
-                }
-        ) {
-            frameTime // read to trigger redraws
-            drawRect(Color(0xFF0B1626))
-            for (b in bugs) {
-                val bodyColor = when (b.type) {
-                    BugType.GOLDEN -> Color(0xFFFACC15)
-                    BugType.GREEN -> Color(0xFF22C55E)
-                    BugType.NORMAL -> Color(0xFFE11D48)
-                }
-                val headColor = when (b.type) {
-                    BugType.GOLDEN -> Color(0xFFB45309)
-                    BugType.GREEN -> Color(0xFF065F46)
-                    BugType.NORMAL -> Color(0xFF7F1D1D)
-                }
-                drawCircle(bodyColor, radius = b.r, center = Offset(b.x, b.y))
-                drawCircle(headColor, radius = b.r * 0.55f, center = Offset(b.x, b.y - b.r * 0.8f))
-                if (b.type != BugType.NORMAL) {
-                    drawCircle(
-                        color = if (b.type == BugType.GOLDEN) Color(0x66FACC15) else Color(0x6634D399),
-                        radius = b.r * 1.35f,
-                        center = Offset(b.x, b.y),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
-                }
-            }
-        }
-
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Pill(icon = Res.drawable.icon_timer, text = "${timeLeft}s")
-            Pill(icon = Res.drawable.icon_bug, text = "$score")
-        }
-
-        if (!running) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0x66000000)),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        if (timeLeft <= 0) "Time's up!" else "Bug Smasher",
-                        color = textPrimary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                    Text(
-                        if (timeLeft <= 0) "Final score: $score" else "Tap the bugs before the time runs out.",
-                        color = textSecondary,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 10.dp)
-                    )
-                    Button(
-                        onClick = {
-                            resetGame()
-                            running = true
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = accent),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Text(if (timeLeft <= 0) "Play again" else "Start", color = Color(0xFF061127), fontSize = 14.sp)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-@OptIn(ExperimentalResourceApi::class)
-private fun Pill(icon: DrawableResource, text: String) {
-    Box(
-        modifier = Modifier
-            .background(Color(0x66000000), RoundedCornerShape(999.dp))
-            .padding(horizontal = 10.dp, vertical = 4.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Image(
-                painter = painterResource(icon),
-                contentDescription = null,
-                modifier = Modifier.size(14.dp),
-                colorFilter = ColorFilter.tint(Color.White)
+                    .align(Alignment.BottomEnd)
+                    .padding(if (compact) 14.dp else 24.dp)
             )
-            Text(text, color = textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        }
+        if (!compact && walkProgress < 0.90f) {
+            Text(
+                "ANDROID · KOTLIN · KMP",
+                color = secondaryText.copy(alpha = 0.58f),
+                fontFamily = FontFamily.Monospace,
+                fontSize = 9.sp,
+                letterSpacing = 1.sp,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 27.dp)
+            )
         }
     }
 }
 
 @Composable
-private fun ContactSection() {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
-
-    SectionBlock {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            SectionTitle("Get In Touch")
-            Text("Have a project in mind or just want to say hi? Feel free to reach out!", color = textSecondary, fontSize = 16.sp)
-            Column(
-                modifier = Modifier.widthIn(max = 520.dp).fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") },
-                    placeholder = { Text("Your Name") },
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF222F49),
-                        unfocusedContainerColor = Color(0xFF222F49),
-                        focusedIndicatorColor = accent,
-                        unfocusedIndicatorColor = Color(0xFF2D3C5B),
-                        focusedLabelColor = textPrimary,
-                        unfocusedLabelColor = textSecondary,
-                        focusedTextColor = textPrimary,
-                        unfocusedTextColor = textPrimary,
-                        focusedPlaceholderColor = textSecondary,
-                        unfocusedPlaceholderColor = textSecondary,
-                        cursorColor = accent
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    placeholder = { Text("you@example.com") },
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF222F49),
-                        unfocusedContainerColor = Color(0xFF222F49),
-                        focusedIndicatorColor = accent,
-                        unfocusedIndicatorColor = Color(0xFF2D3C5B),
-                        focusedLabelColor = textPrimary,
-                        unfocusedLabelColor = textSecondary,
-                        focusedTextColor = textPrimary,
-                        unfocusedTextColor = textPrimary,
-                        focusedPlaceholderColor = textSecondary,
-                        unfocusedPlaceholderColor = textSecondary,
-                        cursorColor = accent
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = message,
-                    onValueChange = { message = it },
-                    label = { Text("Message") },
-                    placeholder = { Text("Your message here...") },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF222F49),
-                        unfocusedContainerColor = Color(0xFF222F49),
-                        focusedIndicatorColor = accent,
-                        unfocusedIndicatorColor = Color(0xFF2D3C5B),
-                        focusedLabelColor = textPrimary,
-                        unfocusedLabelColor = textSecondary,
-                        focusedTextColor = textPrimary,
-                        unfocusedTextColor = textPrimary,
-                        focusedPlaceholderColor = textSecondary,
-                        unfocusedPlaceholderColor = textSecondary,
-                        cursorColor = accent
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth().height(140.dp)
-                )
-                Button(
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(containerColor = accent),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Send Message", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun Footer() {
+private fun TopBar(compact: Boolean, onReplay: () -> Unit, modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        modifier = modifier.padding(horizontal = if (compact) 14.dp else 24.dp, vertical = if (compact) 13.dp else 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("© 2024 David Navarro. All rights reserved.", color = textSecondary, fontSize = 12.sp)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(8.dp).background(accent, RoundedCornerShape(999.dp)))
-            Text("KMP + Compose UI", color = textSecondary, fontSize = 12.sp)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(if (compact) 34.dp else 38.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(Color(0xB20B111A))
+                    .border(1.dp, accent.copy(alpha = 0.42f), RoundedCornerShape(11.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("DN", color = primaryText, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+            }
+            Column {
+                Text("DAVID NAVARRO", color = primaryText, fontWeight = FontWeight.Bold, fontSize = if (compact) 12.sp else 14.sp)
+                if (!compact) {
+                    Text("MOBILE ENGINEER", color = accent, fontFamily = FontFamily.Monospace, fontSize = 8.sp, letterSpacing = 1.sp)
+                }
+            }
         }
+        Text(
+            if (compact) "REPETIR" else "REPLAY",
+            color = primaryText.copy(alpha = 0.76f),
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 9.sp,
+            letterSpacing = 0.8.sp,
+            modifier = Modifier
+                .clip(RoundedCornerShape(999.dp))
+                .clickable(onClick = onReplay)
+                .background(Color.Black.copy(alpha = 0.30f))
+                .border(1.dp, Color.White.copy(alpha = 0.13f), RoundedCornerShape(999.dp))
+                .padding(horizontal = if (compact) 11.dp else 14.dp, vertical = 8.dp)
+        )
     }
 }
 
 @Composable
-private fun SectionCard(content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, border, RoundedCornerShape(18.dp))
-            .background(cardBg, RoundedCornerShape(18.dp))
-            .padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        content = content
-    )
-}
-
-@Composable
-private fun SectionBlock(content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        content = content
-    )
-}
-
-@Composable
-private fun SectionTitle(text: String) {
-    Text(text, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 22.sp)
-}
-
-@Composable
-private fun SectionTitleLarge(text: String) {
-    Text(text, color = textPrimary, fontWeight = FontWeight.ExtraBold, fontSize = 32.sp)
+private fun IntroCopy(compact: Boolean, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.widthIn(max = if (compact) 285.dp else 460.dp)) {
+        Text(
+            "ANDROID ENGINEER / KMP",
+            color = accent,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold,
+            fontSize = if (compact) 9.sp else 10.sp,
+            letterSpacing = 1.4.sp
+        )
+        Text(
+            if (compact) "Productos móviles\nque se sienten bien." else "Diseño y construyo\nproductos móviles\nque duran.",
+            color = primaryText,
+            fontWeight = FontWeight.Black,
+            fontSize = if (compact) 30.sp else 50.sp,
+            lineHeight = if (compact) 34.sp else 52.sp,
+            modifier = Modifier.padding(top = 10.dp)
+        )
+        Text(
+            "Kotlin, Compose y arquitectura pensada para crecer.",
+            color = secondaryText,
+            fontSize = if (compact) 12.sp else 14.sp,
+            lineHeight = if (compact) 18.sp else 21.sp,
+            modifier = Modifier.widthIn(max = 340.dp).padding(top = 13.dp)
+        )
+    }
 }
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun AnimatedHeaderIcon(icon: DrawableResource, size: androidx.compose.ui.unit.Dp, bounce: Boolean) {
-    val transition = rememberInfiniteTransition(label = "headerIcon")
-    val alpha by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.35f,
-        animationSpec = infiniteRepeatable(animation = tween(1200), repeatMode = RepeatMode.Reverse),
-        label = "iconAlpha"
+private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifier = Modifier) {
+    BoxWithConstraints(modifier) {
+        var typingFrame by remember { mutableIntStateOf(0) }
+        val seated = walkProgress >= 0.88f
+
+        LaunchedEffect(seated) {
+            typingFrame = 0
+            while (seated) {
+                delay(210)
+                typingFrame = (typingFrame + 1) % 3
+            }
+        }
+
+        Image(
+            painter = painterResource(Res.drawable.office_background),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        )
+        if (walkProgress < 0.995f) {
+            WalkingCharacterLayer(
+                walkProgress = walkProgress,
+                compact = compact,
+                sceneWidth = maxWidth,
+                sceneHeight = maxHeight,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        if (seated) {
+            val typingPainters = listOf(
+                painterResource(Res.drawable.office_david_integrated_v2),
+                painterResource(Res.drawable.office_david_typing_01),
+                painterResource(Res.drawable.office_david_typing_02)
+            )
+            Image(
+                painter = typingPainters[typingFrame],
+                contentDescription = "David Navarro tecleando en su ordenador",
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.Center,
+                alpha = ((walkProgress - 0.88f) / 0.10f).coerceIn(0f, 1f),
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.horizontalGradient(
+                        colorStops = arrayOf(
+                            0f to Color.Black.copy(alpha = if (compact) 0.24f else 0.44f),
+                            0.42f to Color.Black.copy(alpha = if (compact) 0.08f else 0.12f),
+                            0.72f to Color.Transparent,
+                            1f to Color.Black.copy(alpha = 0.08f)
+                        )
+                    )
+                )
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Black.copy(alpha = 0.18f), Color.Transparent, Color.Black.copy(alpha = 0.22f))
+                    )
+                )
+        )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun WalkingCharacterLayer(
+    walkProgress: Float,
+    compact: Boolean,
+    sceneWidth: Dp,
+    sceneHeight: Dp,
+    modifier: Modifier = Modifier
+) {
+    val frames = listOf(
+        painterResource(Res.drawable.david_walk_premium_01),
+        painterResource(Res.drawable.david_walk_premium_02),
+        painterResource(Res.drawable.david_walk_premium_03),
+        painterResource(Res.drawable.david_walk_premium_04),
+        painterResource(Res.drawable.david_walk_premium_05),
+        painterResource(Res.drawable.david_walk_premium_06),
+        painterResource(Res.drawable.david_walk_premium_07),
+        painterResource(Res.drawable.david_walk_premium_08),
+        painterResource(Res.drawable.david_walk_premium_09),
+        painterResource(Res.drawable.david_walk_premium_10),
+        painterResource(Res.drawable.david_walk_premium_11),
+        painterResource(Res.drawable.david_walk_premium_12)
     )
-    val offsetY by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = if (bounce) -6f else 0f,
-        animationSpec = infiniteRepeatable(animation = tween(600), repeatMode = RepeatMode.Reverse),
-        label = "iconBounce"
-    )
-    Image(
-        painter = painterResource(icon),
-        contentDescription = null,
-        modifier = Modifier
-            .size(size)
-            .offset(y = offsetY.dp)
-            .graphicsLayer(alpha = alpha)
-    )
+    val baseCharacterHeight = if (compact) {
+        (sceneHeight * 0.55f).coerceIn(380.dp, 460.dp)
+    } else {
+        (sceneHeight * 0.72f).coerceIn(500.dp, 600.dp)
+    }
+    val characterHeight = baseCharacterHeight * (1f + 0.055f * walkProgress)
+    val characterWidth = characterHeight * (480f / 510f)
+    val startX = -characterWidth * 0.72f
+    val endX = sceneWidth * 0.50f - characterWidth * 0.50f
+    val characterX = startX + (endX - startX) * walkProgress
+    val travelled = (characterX - startX).value
+    val fullStride = characterHeight.value * 0.74f
+    val frameIndex = ((travelled / fullStride * frames.size).toInt().coerceAtLeast(0)) % frames.size
+    val cyclePhase = frameIndex.toDouble() / frames.size
+    val verticalBob = (-2.6f * abs(sin(cyclePhase * 2.0 * PI)).toFloat()).dp
+    val floorPadding = if (compact) 18.dp else 26.dp
+    val shadowWidth = characterHeight * 0.25f
+    val shadowHeight = characterHeight * 0.026f
+    val shadowX = characterX + characterWidth * 0.50f - shadowWidth * 0.50f
+    val walkAlpha = ((1f - walkProgress) / 0.10f).coerceIn(0f, 1f)
+
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .offset(x = shadowX, y = -floorPadding + 4.dp)
+                .width(shadowWidth)
+                .height(shadowHeight)
+                .alpha(walkAlpha)
+                .background(Color.Black.copy(alpha = 0.52f), CircleShape)
+        )
+        Image(
+            painter = frames[frameIndex],
+            contentDescription = "David Navarro caminando hacia su mesa",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .offset(x = characterX, y = -floorPadding + verticalBob)
+                .width(characterWidth)
+                .height(characterHeight)
+                .alpha(walkAlpha)
+        )
+    }
 }
 
 @Composable
-private fun TypingTitle(text: String, fontSize: androidx.compose.ui.unit.TextUnit) {
-    var content by remember { mutableStateOf("") }
-    var index by remember { mutableIntStateOf(0) }
-    var forward by remember { mutableStateOf(true) }
-    val cursorAlpha by rememberInfiniteTransition(label = "cursorBlink").animateFloat(
-        initialValue = 0f,
+private fun TypingStatus(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "typing-status")
+    val pulse by transition.animateFloat(
+        initialValue = 0.42f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(animation = tween(750), repeatMode = RepeatMode.Reverse),
-        label = "cursorAlpha"
+        animationSpec = infiniteRepeatable(tween(520), RepeatMode.Reverse),
+        label = "typing-pulse"
     )
-    val density = LocalDensity.current
-    val cursorHeight = with(density) { fontSize.toDp() + 6.dp }
+    Row(
+        modifier = modifier
+            .background(Color(0xC90A1018), RoundedCornerShape(999.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(999.dp))
+            .padding(horizontal = 12.dp, vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Box(Modifier.size(6.dp).background(accent.copy(alpha = pulse), CircleShape))
+        Text(
+            "TECLEANDO · PORTFOLIO ONLINE",
+            color = primaryText.copy(alpha = 0.78f),
+            fontFamily = FontFamily.Monospace,
+            fontSize = 8.sp,
+            letterSpacing = 0.9.sp
+        )
+    }
+}
 
-    LaunchedEffect(text) {
-        while (true) {
-            content = text.take(index)
-            if (forward) {
-                if (index < text.length) {
-                    index++
-                    delay(80)
-                } else {
-                    delay(1200)
-                    forward = false
-                }
-            } else {
-                if (index > 0) {
-                    index--
-                    delay(50)
-                } else {
-                    forward = true
-                    delay(300)
+@Composable
+private fun HeadOrbitMenu(
+    compact: Boolean,
+    onSectionSelected: (PortfolioSection) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var revealedCount by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        PortfolioSection.entries.indices.forEach { index ->
+            delay(if (index == 0) 80 else 65)
+            revealedCount = index + 1
+        }
+    }
+
+    BoxWithConstraints(modifier) {
+        val sourceAspect = 1672f / 941f
+        val viewAspect = maxWidth.value / maxHeight.value
+        val scaledHeight = if (viewAspect > sourceAspect) maxWidth / sourceAspect else maxHeight
+        val headX = maxWidth * 0.50f
+        val headY = scaledHeight * 0.36f - (scaledHeight - maxHeight) / 2f
+        val menuWidth = if (compact) (maxWidth * 0.32f).coerceIn(116.dp, 140.dp) else 216.dp
+        val menuHeight = if (compact) 48.dp else 54.dp
+        val clearSpace = if (compact) 46.dp else 82.dp
+        val rowStep = if (compact) 60.dp else 72.dp
+        val edge = if (compact) 10.dp else 28.dp
+        val leftX = (headX - clearSpace - menuWidth).coerceAtLeast(edge)
+        val rightX = (headX + clearSpace).coerceAtMost(maxWidth - edge - menuWidth)
+        val centerY = (headY - menuHeight / 2f).coerceIn(
+            82.dp + rowStep,
+            maxHeight - menuHeight - edge - rowStep
+        )
+        val rows = listOf(centerY - rowStep, centerY, centerY + rowStep)
+        val leftSections = listOf(PortfolioSection.CV, PortfolioSection.ABOUT, PortfolioSection.CONTACT)
+        val rightSections = listOf(PortfolioSection.PROJECTS, PortfolioSection.EXPERIENCE, PortfolioSection.SOCIAL)
+
+        rows.forEachIndexed { row, y ->
+            listOf(
+                Triple(leftSections[row], leftX, true),
+                Triple(rightSections[row], rightX, false)
+            ).forEachIndexed { side, (section, x, menuOnLeft) ->
+                val revealIndex = row * 2 + side
+                Box(
+                    modifier = Modifier
+                        .offset(x = x, y = y)
+                        .width(menuWidth)
+                        .height(menuHeight)
+                ) {
+                    AnimatedVisibility(
+                        visible = revealedCount > revealIndex,
+                        enter = fadeIn(tween(260)) + scaleIn(tween(300), initialScale = 0.90f),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        HeadMenuButton(
+                            section = section,
+                            compact = compact,
+                            menuOnLeft = menuOnLeft,
+                            onClick = { onSectionSelected(section) },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
     }
+}
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(content, color = textPrimary, fontWeight = FontWeight.Black, fontSize = fontSize)
+@Composable
+private fun HeadMenuButton(
+    section: PortfolioSection,
+    compact: Boolean,
+    menuOnLeft: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val label = when (section) {
+        PortfolioSection.CV -> "MI CV"
+        PortfolioSection.PROJECTS -> "PROYECTOS"
+        PortfolioSection.ABOUT -> "SOBRE MÍ"
+        PortfolioSection.EXPERIENCE -> "EXPERIENCIA"
+        PortfolioSection.CONTACT -> "EMAIL"
+        PortfolioSection.SOCIAL -> "REDES"
+    }
+
+    Box(
+        modifier = modifier
+            .shadow(22.dp, RoundedCornerShape(16.dp), ambientColor = Color.Black, spotColor = Color.Black)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .background(
+                Brush.horizontalGradient(
+                    if (menuOnLeft) {
+                        listOf(Color(0xF50A111A), Color(0xF0122633))
+                    } else {
+                        listOf(Color(0xF0122633), Color(0xF50A111A))
+                    }
+                )
+            )
+            .border(1.dp, accent.copy(alpha = 0.24f), RoundedCornerShape(16.dp))
+    ) {
         Box(
             modifier = Modifier
-                .padding(start = 4.dp)
-                .width(2.dp)
-                .height(cursorHeight)
-                .background(accent)
-                .graphicsLayer(alpha = cursorAlpha)
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(Brush.horizontalGradient(listOf(Color.Transparent, Color.White.copy(alpha = 0.18f), Color.Transparent)))
         )
+        Box(
+            modifier = Modifier
+                .align(if (menuOnLeft) Alignment.CenterEnd else Alignment.CenterStart)
+                .width(2.dp)
+                .height(if (compact) 25.dp else 30.dp)
+                .background(accent, RoundedCornerShape(99.dp))
+        )
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = if (compact) 9.dp else 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 9.dp)
+        ) {
+            if (!menuOnLeft) HamburgerIcon(compact)
+            if (!compact) MenuNumber(section.number)
+            Text(
+                label,
+                color = primaryText,
+                fontWeight = FontWeight.Bold,
+                fontSize = if (compact) 9.sp else 13.sp,
+                letterSpacing = if (compact) 0.1.sp else 0.35.sp,
+                maxLines = 1,
+                modifier = Modifier.weight(1f)
+            )
+            if (menuOnLeft) HamburgerIcon(compact)
+        }
+    }
+}
+
+@Composable
+private fun HamburgerIcon(compact: Boolean) {
+    Box(
+        modifier = Modifier
+            .size(if (compact) 26.dp else 30.dp)
+            .background(Color(0xFF0C202D), RoundedCornerShape(if (compact) 8.dp else 9.dp))
+            .border(1.dp, accent.copy(alpha = 0.24f), RoundedCornerShape(if (compact) 8.dp else 9.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 4.dp)
+        ) {
+            Box(Modifier.width(if (compact) 10.dp else 12.dp).height(1.dp).background(accent, RoundedCornerShape(9.dp)))
+            Box(Modifier.width(if (compact) 15.dp else 17.dp).height(1.dp).background(accent, RoundedCornerShape(9.dp)))
+            Box(Modifier.width(if (compact) 8.dp else 10.dp).height(1.dp).background(accent, RoundedCornerShape(9.dp)))
+        }
+    }
+}
+
+@Composable
+private fun MenuNumber(number: String) {
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .background(accent.copy(alpha = 0.10f), RoundedCornerShape(8.dp))
+            .border(1.dp, accent.copy(alpha = 0.18f), RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            number,
+            color = accent,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold,
+            fontSize = 8.sp
+        )
+    }
+}
+
+@Composable
+private fun PortfolioDetailOverlay(
+    section: PortfolioSection,
+    compact: Boolean,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    if (compact) {
+                        Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.30f), Color.Black.copy(alpha = 0.74f)))
+                    } else {
+                        Brush.horizontalGradient(listOf(Color.Black.copy(alpha = 0.66f), Color.Black.copy(alpha = 0.30f), Color.Transparent))
+                    }
+                )
+        )
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(tween(240)) + slideInVertically(tween(300), initialOffsetY = { if (compact) 36 else 12 }),
+            modifier = if (compact) {
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(12.dp)
+            } else {
+                Modifier
+                    .align(Alignment.CenterStart)
+                    .width(430.dp)
+                    .padding(start = 34.dp, top = 88.dp, bottom = 24.dp)
+            }
+        ) {
+            PortfolioDetailPanel(
+                section = section,
+                onBack = onBack,
+                compact = compact,
+                maxHeight = if (compact) maxHeight * 0.62f else maxHeight - 112.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+private fun PortfolioDetailPanel(
+    section: PortfolioSection,
+    onBack: () -> Unit,
+    compact: Boolean,
+    maxHeight: Dp,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .heightIn(max = maxHeight)
+            .shadow(30.dp, RoundedCornerShape(if (compact) 22.dp else 20.dp), ambientColor = Color.Black, spotColor = Color.Black)
+            .clip(RoundedCornerShape(if (compact) 22.dp else 20.dp))
+            .background(Brush.verticalGradient(listOf(Color(0xFA0C141E), surface)))
+            .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(if (compact) 22.dp else 20.dp))
+            .verticalScroll(rememberScrollState())
+            .padding(if (compact) 18.dp else 22.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable(onClick = onBack)
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 11.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                Text("←", color = accent, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text("MENÚ", color = primaryText, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 9.sp)
+            }
+            Text(
+                "${section.number} / PORTFOLIO",
+                color = accent,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+                fontSize = 9.sp,
+                letterSpacing = 0.8.sp
+            )
+        }
+        Text(
+            section.label,
+            color = primaryText,
+            fontWeight = FontWeight.Black,
+            fontSize = if (compact) 27.sp else 31.sp,
+            modifier = Modifier.padding(top = 18.dp, bottom = 18.dp)
+        )
+        SectionContent(section)
     }
 }
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun IconLinkButton(icon: DrawableResource, onClick: () -> Unit) {
+private fun SectionContent(section: PortfolioSection) {
+    val uriHandler = LocalUriHandler.current
+    when (section) {
+        PortfolioSection.CV -> {
+            SectionLead("Mi formación, experiencia y tecnologías en un único documento.")
+            PrimaryAction("ABRIR CV") { uriHandler.openUri("/assets/cv/cv.pdf") }
+        }
+        PortfolioSection.PROJECTS -> {
+            SectionLead("Proyectos Android creados para resolver problemas reales y explorar nuevas ideas.")
+            ProjectItem(
+                title = "PermissionProtect",
+                description = "Control y aprendizaje sobre los permisos de las aplicaciones Android.",
+                tags = "Kotlin · Jetpack Compose",
+                onClick = { uriHandler.openUri("https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es") }
+            )
+            ProjectItem(
+                title = "Glassmorphism Compose",
+                description = "Librería de efectos glassmorphism con RenderEffect y soporte NDK.",
+                tags = "Compose · Kotlin · C++",
+                onClick = { uriHandler.openUri("https://github.com/Deiivid/Glassmorphism-Compose") }
+            )
+            ProjectItem(
+                title = "Clean Architecture Compose",
+                description = "Proyecto multimódulo con separación de dominio, datos y presentación.",
+                tags = "Clean Architecture · Koin · Detekt",
+                onClick = { uriHandler.openUri("https://github.com/Deiivid/Clean_Arquitecture_Compose") }
+            )
+        }
+        PortfolioSection.ABOUT -> {
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(Res.drawable.image_david),
+                    contentDescription = "David Navarro",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(82.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .border(1.dp, accent.copy(alpha = 0.45f), RoundedCornerShape(18.dp))
+                )
+                Column {
+                    Text("Android Developer", color = accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Text("Kotlin · Compose · KMP", color = primaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                }
+            }
+            SectionLead(
+                "Me apasiona crear aplicaciones modernas, mantenibles y rápidas, cuidando tanto la arquitectura como la experiencia de usuario.",
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            TagCloud(listOf("Kotlin", "Jetpack Compose", "KMP", "Coroutines", "Flow", "Clean Architecture", "Testing", "CI/CD"))
+        }
+        PortfolioSection.EXPERIENCE -> {
+            ExperienceItem("ACTUALMENTE", "Hiberus", "Android Developer para cliente del sector bancario · Jetpack Compose")
+            ExperienceItem("2024", "Especialización", "Clean Architecture, proyectos personales y desarrollo móvil avanzado")
+            ExperienceItem("2021 — 2023", "Desarrollo móvil", "Primeros pasos profesionales, liderazgo de proyectos y creación de una librería")
+            ExperienceItem("2021", "Hiberus Héroes y Heroínas", "Formación intensiva en desarrollo de aplicaciones")
+            ExperienceItem("2019 — 2021", "DAM", "Técnico Superior en Desarrollo de Aplicaciones Multiplataforma")
+        }
+        PortfolioSection.CONTACT -> {
+            SectionLead("¿Tienes una idea, un proyecto o simplemente quieres saludar? Escríbeme.")
+            Text(contactEmail, color = primaryText, fontWeight = FontWeight.Black, fontSize = 15.sp)
+            PrimaryAction("ENVIAR EMAIL", modifier = Modifier.padding(top = 16.dp)) {
+                uriHandler.openUri("mailto:$contactEmail?subject=Contacto%20desde%20tu%20portfolio")
+            }
+        }
+        PortfolioSection.SOCIAL -> {
+            SectionLead("Código, artículos y todo lo que voy construyendo.")
+            SocialAction("GitHub", "@Deiivid", accent) { uriHandler.openUri("https://github.com/Deiivid") }
+            SocialAction("Medium", "@davidnavarrom3", amber) { uriHandler.openUri("https://medium.com/@davidnavarrom3") }
+        }
+    }
+}
+
+@Composable
+private fun SectionLead(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        color = secondaryText,
+        fontSize = 13.sp,
+        lineHeight = 19.sp,
+        modifier = modifier.padding(bottom = 16.dp)
+    )
+}
+
+@Composable
+private fun PrimaryAction(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF222F49)),
-        shape = RoundedCornerShape(10.dp),
-        contentPadding = PaddingValues(0.dp),
-        modifier = Modifier.size(48.dp)
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(containerColor = accent),
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
     ) {
-        Image(
-            painter = painterResource(icon),
-            contentDescription = null,
-            modifier = Modifier.size(22.dp)
+        Text(text, color = Color(0xFF06131A), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = 10.sp)
+    }
+}
+
+@Composable
+private fun ProjectItem(title: String, description: String, tags: String, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 9.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .background(Color.White.copy(alpha = 0.035f))
+            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(14.dp))
+            .padding(13.dp)
+    ) {
+        Text(title, color = primaryText, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        Text(description, color = secondaryText, fontSize = 11.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 4.dp))
+        Text(tags, color = violet, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold, fontSize = 8.sp, modifier = Modifier.padding(top = 8.dp))
+    }
+}
+
+@Composable
+private fun ExperienceItem(period: String, title: String, description: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(11.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .size(8.dp)
+                .background(warm, CircleShape)
         )
+        Column {
+            Text(period, color = warm, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 8.sp, letterSpacing = 0.7.sp)
+            Text(title, color = primaryText, fontWeight = FontWeight.Black, fontSize = 15.sp, modifier = Modifier.padding(top = 3.dp))
+            Text(description, color = secondaryText, fontSize = 11.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 4.dp))
+        }
+    }
+}
+
+@Composable
+private fun TagCloud(tags: List<String>) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+        tags.forEach { tag ->
+            Text(
+                tag,
+                color = mint,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 9.sp,
+                modifier = Modifier
+                    .background(mint.copy(alpha = 0.08f), RoundedCornerShape(999.dp))
+                    .border(1.dp, mint.copy(alpha = 0.20f), RoundedCornerShape(999.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SocialAction(name: String, handle: String, color: Color, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 9.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .background(Color.White.copy(alpha = 0.035f))
+            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(14.dp))
+            .padding(13.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(name, color = primaryText, fontWeight = FontWeight.Black, fontSize = 14.sp)
+            Text(handle, color = color, fontFamily = FontFamily.Monospace, fontSize = 9.sp)
+        }
+        Text("ABRIR  ↗", color = color, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = 8.sp)
     }
 }

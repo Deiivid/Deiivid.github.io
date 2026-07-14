@@ -36,6 +36,14 @@ The repository now uses `AGENTS.md` for top-level operating rules, `docs/project
 Impact:
 Future edits should keep those layers aligned instead of duplicating the same rules in several places. Keep `ai/` readable and reusable, but avoid adding sensitive, local-only, or machine-specific data there.
 
+### 5. The portfolio uses a cinematic 2.5D office as its primary navigation
+
+Reason:
+The portfolio content is presented as an animated workspace: the character walks to the desk, starts typing, and reveals the main navigation around him.
+
+Impact:
+CV, projects, profile, experience, email, and social links remain accessible as regular Compose UI controls. The office always fills the browser viewport without a card wrapper. The scene uses a twelve-frame transparent walk cycle synchronized to travel distance, then switches between identity-locked hand poses so typing remains visible while the seated character, chair, desk, keyboard, lighting, and shadows keep the same perspective. Six compact hamburger controls are positioned from the cropped image's head anchor; section content opens in a separate responsive overlay.
+
 ## Update Policy
 
 Add an entry here when a migration or architecture decision would otherwise be rediscovered later.
