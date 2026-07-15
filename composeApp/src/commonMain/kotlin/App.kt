@@ -59,9 +59,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -69,19 +71,23 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidweb_kmp.composeapp.generated.resources.Res
-import davidweb_kmp.composeapp.generated.resources.david_walk_rear_01
-import davidweb_kmp.composeapp.generated.resources.david_walk_rear_02
-import davidweb_kmp.composeapp.generated.resources.david_walk_rear_03
-import davidweb_kmp.composeapp.generated.resources.david_walk_rear_04
-import davidweb_kmp.composeapp.generated.resources.david_walk_rear_05
-import davidweb_kmp.composeapp.generated.resources.david_walk_rear_06
 import davidweb_kmp.composeapp.generated.resources.image_david
+import davidweb_kmp.composeapp.generated.resources.monitor_dashboard_ambient_v2
 import davidweb_kmp.composeapp.generated.resources.office_background
-import davidweb_kmp.composeapp.generated.resources.office_david_integrated_v2
-import davidweb_kmp.composeapp.generated.resources.office_david_typing_01
-import davidweb_kmp.composeapp.generated.resources.office_david_typing_02
-import davidweb_kmp.composeapp.generated.resources.office_window_mountains
+import davidweb_kmp.composeapp.generated.resources.office_pov_approach_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_grab_chair_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_pull_chair_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_seated_centered_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_settle_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_sit_down_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_approach_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_grab_chair_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_pull_chair_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_seated_centered_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_settle_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_sit_down_premium
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
@@ -158,9 +164,9 @@ fun App() {
         delay(120)
         walkProgress.animateTo(
             targetValue = 1f,
-            animationSpec = tween(2350, easing = LinearEasing)
+            animationSpec = tween(4500, easing = LinearEasing)
         )
-        delay(180)
+        delay(140)
         menusVisible = true
     }
 
@@ -201,20 +207,11 @@ private fun PortfolioExperience(
             modifier = Modifier.fillMaxSize()
         )
 
-        if (menusVisible && (!compact || activeSection == null)) {
-            HeadOrbitMenu(
+        if (menusVisible) {
+            MonitorPortfolioMenu(
                 compact = compact,
                 activeSection = activeSection,
                 onSectionSelected = onSectionSelected,
-                onBack = onBack,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        if (compact) activeSection?.let { section ->
-            PortfolioDetailOverlay(
-                section = section,
-                compact = compact,
                 onBack = onBack,
                 modifier = Modifier.fillMaxSize()
             )
@@ -246,9 +243,15 @@ private fun CinematicStage(
         ) {
             IntroCopy(compact = compact, modifier = Modifier.padding(start = if (compact) 22.dp else 48.dp))
         }
-        if (walkProgress in 0.001f..0.82f) {
+        if (walkProgress in 0.001f..0.90f) {
+            val approachLabel = when {
+                walkProgress < 0.40f -> "ACERCÁNDOME"
+                walkProgress < 0.59f -> "COGIENDO LA SILLA"
+                walkProgress < 0.70f -> "COLOCANDO LA SILLA"
+                else -> "SENTÁNDOME"
+            }
             Text(
-                "ACERCÁNDOME  ${((walkProgress * 100).toInt()).coerceIn(1, 99).toString().padStart(2, '0')}%",
+                approachLabel,
                 color = primaryText.copy(alpha = 0.72f),
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.SemiBold,
@@ -262,14 +265,14 @@ private fun CinematicStage(
                     .padding(horizontal = 12.dp, vertical = 7.dp)
             )
         }
-        if (walkProgress >= 0.82f) {
+        if (walkProgress >= 0.90f) {
             TypingStatus(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(if (compact) 14.dp else 24.dp)
             )
         }
-        if (!compact && walkProgress < 0.82f) {
+        if (!compact && walkProgress < 0.90f) {
             Text(
                 "ANDROID · KOTLIN · KMP",
                 color = secondaryText.copy(alpha = 0.58f),
@@ -357,69 +360,93 @@ private fun IntroCopy(compact: Boolean, modifier: Modifier = Modifier) {
 @Composable
 private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier.clipToBounds()) {
-        val sourceWidth = 1672f
-        val sourceHeight = 941f
-        val coverScale = maxOf(maxWidth.value / sourceWidth, maxHeight.value / sourceHeight)
-        val cropX = ((sourceWidth * coverScale).dp - maxWidth) / 2f
-        val cropY = ((sourceHeight * coverScale).dp - maxHeight) / 2f
-        fun sourceX(value: Float) = (value * coverScale).dp - cropX
-        fun sourceY(value: Float) = (value * coverScale).dp - cropY
-        fun sourceSize(value: Float) = (value * coverScale).dp
+        val portrait = maxHeight > maxWidth
+        val walking = smoothStep(walkProgress / 0.38f)
+        val stepStrength = smoothStep(walkProgress / 0.05f) *
+            (1f - smoothStep((walkProgress - 0.34f) / 0.06f))
+        val stepPhase = walking * 5.5f * PI.toFloat()
+        val footfall = abs(sin(stepPhase.toDouble())).toFloat()
+        val stepBob = -footfall * (if (portrait) 5f else 8f) * stepStrength
+        val stepSway = sin(stepPhase.toDouble()).toFloat() *
+            (if (portrait) 3.5f else 5.5f) * stepStrength
+        val backgroundAlpha = 1f - smoothStep((walkProgress - 0.26f) / 0.08f)
+        val approachAlpha = frameAlpha(walkProgress, 0.26f, 0.34f, 0.39f, 0.47f)
+        val grabAlpha = frameAlpha(walkProgress, 0.39f, 0.47f, 0.50f, 0.58f)
+        val pullAlpha = frameAlpha(walkProgress, 0.50f, 0.58f, 0.60f, 0.68f)
+        val sitAlpha = frameAlpha(walkProgress, 0.60f, 0.68f, 0.72f, 0.80f)
+        val settleAlpha = frameAlpha(walkProgress, 0.72f, 0.80f, 0.83f, 0.91f)
+        val seatedAlpha = smoothStep((walkProgress - 0.83f) / 0.08f)
+        val approach = smoothStep((walkProgress - 0.26f) / 0.21f)
+        val grab = smoothStep((walkProgress - 0.39f) / 0.19f)
+        val pull = smoothStep((walkProgress - 0.50f) / 0.18f)
+        val sitting = smoothStep((walkProgress - 0.60f) / 0.20f)
+        val settling = smoothStep((walkProgress - 0.72f) / 0.19f)
+        val seated = smoothStep((walkProgress - 0.83f) / 0.17f)
+        val seatCompression = sin(sitting * PI.toFloat()).toFloat()
 
-        val seatedAlpha = smoothStep((walkProgress - 0.68f) / 0.06f)
-        val typing = walkProgress >= 0.88f
-        var typingFrame by remember { mutableIntStateOf(0) }
-
-        LaunchedEffect(typing) {
-            typingFrame = 0
-            while (typing) {
-                delay(210)
-                typingFrame = (typingFrame + 1) % 3
-            }
-        }
-
-        Image(
-            painter = painterResource(Res.drawable.office_background),
+        PovFrame(
+            resource = Res.drawable.office_background,
             contentDescription = null,
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
+            alpha = backgroundAlpha,
+            scale = 1.005f + walking * 0.11f + footfall * 0.004f,
+            translationX = maxWidth * (-0.025f * walking) + stepSway.dp,
+            translationY = maxHeight * (-0.012f * walking) + stepBob.dp,
+            rotation = stepSway * 0.045f,
+            transformOrigin = TransformOrigin(0.58f, 0.56f)
         )
-        if (seatedAlpha > 0f) {
-            val typingPainters = listOf(
-                painterResource(Res.drawable.office_david_integrated_v2),
-                painterResource(Res.drawable.office_david_typing_01),
-                painterResource(Res.drawable.office_david_typing_02)
-            )
-            Image(
-                painter = typingPainters[typingFrame],
-                contentDescription = "David Navarro tecleando en su ordenador",
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize().alpha(seatedAlpha)
-            )
-        }
-
-        WindowBackdropOverlay(
-            x = sourceX(370f),
-            y = sourceY(95f),
-            width = sourceSize(291f),
-            height = sourceSize(444f),
-            dividerX = sourceSize(97f),
-            dividerWidth = sourceSize(9f)
+        PovFrame(
+            resource = Res.drawable.office_pov_approach_premium,
+            contentDescription = "Acercándose en primera persona a la silla",
+            alpha = approachAlpha,
+            scale = 1f + approach * 0.055f,
+            translationX = stepSway.dp * 0.25f,
+            translationY = stepBob.dp * 0.30f,
+            rotation = stepSway * 0.018f,
+            transformOrigin = TransformOrigin(0.50f, 0.56f)
         )
-        MonitorPlatformOverlay(
-            x = sourceX(1007f),
-            y = sourceY(354f),
-            width = sourceSize(226f),
-            height = sourceSize(145f)
+        PovFrame(
+            resource = Res.drawable.office_pov_grab_chair_premium,
+            contentDescription = "Cogiendo el respaldo de la silla en primera persona",
+            alpha = grabAlpha,
+            scale = 1f + grab * 0.012f,
+            translationY = maxHeight * (0.004f * grab),
+            rotation = grab * 0.08f
         )
-        ApproachingCharacterLayer(
-            walkProgress = walkProgress,
-            sceneWidth = maxWidth,
-            sceneHeight = maxHeight,
-            targetX = sourceX(810f),
-            targetY = sourceY(838f)
+        PovFrame(
+            resource = Res.drawable.office_pov_pull_chair_premium,
+            contentDescription = "Desplazando la silla hacia atrás en primera persona",
+            alpha = pullAlpha,
+            scale = 1f + pull * 0.018f,
+            translationX = maxWidth * (0.008f * pull),
+            translationY = maxHeight * (0.012f * pull),
+            rotation = pull * 0.32f,
+            transformOrigin = TransformOrigin(0.56f, 0.58f)
+        )
+        PovFrame(
+            resource = Res.drawable.office_pov_sit_down_premium,
+            contentDescription = "Sentándose y apoyando las manos en los reposabrazos",
+            alpha = sitAlpha,
+            scale = 1f + sitting * 0.012f,
+            translationX = maxWidth * (-0.006f * seatCompression),
+            translationY = maxHeight * (0.018f * seatCompression),
+            rotation = -0.22f * seatCompression,
+            transformOrigin = TransformOrigin(0.50f, 0.62f)
+        )
+        PovFrame(
+            resource = Res.drawable.office_pov_settle_premium,
+            contentDescription = "Acercando la silla y las manos al teclado",
+            alpha = settleAlpha,
+            scale = 1f + settling * 0.022f,
+            translationY = maxHeight * (-0.008f * settling + 0.006f * seatCompression),
+            transformOrigin = TransformOrigin(0.50f, 0.52f)
+        )
+        PovFrame(
+            resource = Res.drawable.office_pov_seated_centered_premium,
+            contentDescription = "Vista frontal sentado y centrado ante el monitor",
+            alpha = seatedAlpha,
+            scale = 1f + seated * 0.08f,
+            translationY = maxHeight * (-0.004f * seated),
+            transformOrigin = TransformOrigin(0.50f, 0.46f)
         )
 
         Box(
@@ -450,153 +477,47 @@ private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifie
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun WindowBackdropOverlay(
-    x: Dp,
-    y: Dp,
-    width: Dp,
-    height: Dp,
-    dividerX: Dp,
-    dividerWidth: Dp
+private fun PovFrame(
+    resource: DrawableResource,
+    contentDescription: String?,
+    alpha: Float,
+    scale: Float,
+    translationX: Dp = 0.dp,
+    translationY: Dp = 0.dp,
+    rotation: Float = 0f,
+    transformOrigin: TransformOrigin = TransformOrigin(0.5f, 0.5f)
 ) {
-    Box(
-        modifier = Modifier
-            .offset(x = x, y = y)
-            .width(width)
-            .height(height)
-            .clip(RoundedCornerShape(2.dp))
-    ) {
-        Image(
-            painter = painterResource(Res.drawable.office_window_mountains),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color(0x29165478), Color(0x38102032), Color(0x65101722))
-                    )
-                )
-        )
-        Box(
-            modifier = Modifier
-                .offset(x = dividerX)
-                .width(dividerWidth)
-                .fillMaxSize()
-                .background(Color(0xE30B1119))
-        )
-    }
-}
-
-@Composable
-private fun MonitorPlatformOverlay(x: Dp, y: Dp, width: Dp, height: Dp) {
-    Box(
-        modifier = Modifier
-            .offset(x = x, y = y)
-            .width(width)
-            .height(height)
-            .graphicsLayer { rotationZ = -4.1f }
-            .clip(RoundedCornerShape(3.dp))
-            .background(
-                Brush.linearGradient(
-                    listOf(Color(0xFF07131F), Color(0xFF0A2230), Color(0xFF07111B))
-                )
-            )
-            .border(1.dp, accent.copy(alpha = 0.32f), RoundedCornerShape(3.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp)
-    ) {
-        Text(
-            "MOBILE PLATFORM",
-            color = primaryText.copy(alpha = 0.50f),
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Bold,
-            fontSize = 5.sp,
-            letterSpacing = 0.7.sp
-        )
-        Row(
-            modifier = Modifier.align(Alignment.Center).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            PlatformMark("ANDROID", Color(0xFF72E08A))
-            PlatformMark("KMP", Color(0xFFC98CFF))
-            PlatformMark("iOS", Color(0xFFAEDCFF))
-        }
-    }
-}
-
-@Composable
-private fun PlatformMark(label: String, color: Color) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .border(1.dp, color.copy(alpha = 0.90f), CircleShape)
-        )
-        Text(
-            label,
-            color = color,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Bold,
-            fontSize = 5.sp,
-            modifier = Modifier.padding(top = 7.dp)
-        )
-    }
-}
-
-@OptIn(ExperimentalResourceApi::class)
-@Composable
-private fun ApproachingCharacterLayer(
-    walkProgress: Float,
-    sceneWidth: Dp,
-    sceneHeight: Dp,
-    targetX: Dp,
-    targetY: Dp
-) {
-    val approach = smoothStep((walkProgress - 0.015f) / 0.66f)
-    val alpha = 1f - smoothStep((walkProgress - 0.66f) / 0.08f)
     if (alpha <= 0f) return
-
-    val frames = listOf(
-        painterResource(Res.drawable.david_walk_rear_01),
-        painterResource(Res.drawable.david_walk_rear_04),
-        painterResource(Res.drawable.david_walk_rear_02),
-        painterResource(Res.drawable.david_walk_rear_06),
-        painterResource(Res.drawable.david_walk_rear_03),
-        painterResource(Res.drawable.david_walk_rear_05)
-    )
-    val frame = frames[((approach * 18f).toInt()).coerceAtLeast(0) % frames.size]
-    val phase = approach * 12f * PI.toFloat()
-    val stepSway = sin(phase.toDouble()).toFloat()
-    val finalSize = (sceneHeight * 0.70f).coerceIn(430.dp, 610.dp)
-    val characterSize = finalSize * (1.28f - approach * 0.28f)
-    val startX = sceneWidth * 0.56f
-    val startY = sceneHeight + finalSize * 0.44f
-    val controlX = sceneWidth * 0.56f
-    val controlY = sceneHeight * 0.93f
-    val positionX = quadraticBezier(startX, controlX, targetX, approach)
-    val positionY = quadraticBezier(startY, controlY, targetY, approach)
-
+    val density = LocalDensity.current
     Image(
-        painter = frame,
-        contentDescription = "David Navarro acercándose a su escritorio",
-        contentScale = ContentScale.Fit,
+        painter = painterResource(resource),
+        contentDescription = contentDescription,
+        contentScale = ContentScale.Crop,
+        alignment = Alignment.Center,
+        alpha = alpha,
         modifier = Modifier
-            .offset(
-                x = positionX - characterSize / 2f + (stepSway * 5f).dp,
-                y = positionY - characterSize - (abs(stepSway) * 4f).dp
-            )
-            .size(characterSize)
-            .alpha(alpha)
-            .graphicsLayer { rotationZ = stepSway * 0.65f }
+            .fillMaxSize()
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                this.translationX = with(density) { translationX.toPx() }
+                this.translationY = with(density) { translationY.toPx() }
+                rotationZ = rotation
+                this.transformOrigin = transformOrigin
+            }
     )
 }
 
-private fun quadraticBezier(start: Dp, control: Dp, end: Dp, progress: Float): Dp {
-    val inverse = 1f - progress
-    return start * (inverse * inverse) + control * (2f * inverse * progress) + end * (progress * progress)
+private fun frameAlpha(
+    progress: Float,
+    enterStart: Float,
+    enterEnd: Float,
+    exitStart: Float,
+    exitEnd: Float
+): Float {
+    val entering = smoothStep((progress - enterStart) / (enterEnd - enterStart))
+    val leaving = 1f - smoothStep((progress - exitStart) / (exitEnd - exitStart))
+    return (entering * leaving).coerceIn(0f, 1f)
 }
 
 private fun smoothStep(value: Float): Float {
@@ -623,13 +544,482 @@ private fun TypingStatus(modifier: Modifier = Modifier) {
     ) {
         Box(Modifier.size(6.dp).background(accent.copy(alpha = pulse), CircleShape))
         Text(
-            "TECLEANDO · PORTFOLIO ONLINE",
+            "PORTFOLIO · ONLINE",
             color = primaryText.copy(alpha = 0.78f),
             fontFamily = FontFamily.Monospace,
             fontSize = 8.sp,
             letterSpacing = 0.9.sp
         )
     }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun MonitorPortfolioMenu(
+    compact: Boolean,
+    activeSection: PortfolioSection?,
+    onSectionSelected: (PortfolioSection) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(modifier) {
+        val portrait = maxHeight > maxWidth
+        val screenWidth = if (portrait) {
+            maxWidth * 0.92f
+        } else {
+            (maxWidth * 0.35f).coerceIn(if (compact) 300.dp else 520.dp, 900.dp)
+        }
+        val screenHeight = if (portrait) {
+            (screenWidth / 2.08f).coerceAtMost(maxHeight * 0.31f)
+        } else {
+            (screenWidth / 2.08f).coerceAtMost(maxHeight * 0.34f)
+        }
+        val screenTop = maxHeight * 0.245f
+        val screenShiftX = 0.dp
+        val screenShape = RoundedCornerShape(if (compact) 14.dp else 20.dp)
+        val bentoLayout = screenWidth >= 660.dp && screenHeight >= 300.dp
+        val tileGap = if (bentoLayout) 10.dp else 6.dp
+
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(tween(260)) + scaleIn(tween(320), initialScale = 0.97f),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(x = screenShiftX, y = screenTop)
+                .width(screenWidth)
+                .height(screenHeight)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .shadow(34.dp, screenShape, ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.30f))
+                    .clip(screenShape)
+                    .background(Color(0xFF060D16))
+                    .border(1.dp, premiumBorderBrush(), screenShape)
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.monitor_dashboard_ambient_v2),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().alpha(if (compact) 0.36f else 0.48f)
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    Color(0xA607111C),
+                                    Color(0xC808111B),
+                                    Color(0xEE050A12)
+                                )
+                            )
+                        )
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(
+                                    Color.Transparent,
+                                    accent.copy(alpha = 0.88f),
+                                    Color(0xFF72E0C0).copy(alpha = 0.70f),
+                                    amber.copy(alpha = 0.48f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+                if (activeSection == null) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(if (bentoLayout) 16.dp else 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(tileGap)
+                    ) {
+                        MonitorDashboardHeader(compact = !bentoLayout)
+                        if (bentoLayout) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().weight(1.18f),
+                                horizontalArrangement = Arrangement.spacedBy(tileGap)
+                            ) {
+                                listOf(PortfolioSection.CV, PortfolioSection.PROJECTS).forEach { section ->
+                                    MonitorMenuTile(
+                                        section = section,
+                                        featured = true,
+                                        compact = false,
+                                        onClick = { onSectionSelected(section) },
+                                        modifier = Modifier.weight(1f).fillMaxSize()
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth().weight(0.86f),
+                                horizontalArrangement = Arrangement.spacedBy(tileGap)
+                            ) {
+                                listOf(
+                                    PortfolioSection.ABOUT,
+                                    PortfolioSection.EXPERIENCE,
+                                    PortfolioSection.CONTACT,
+                                    PortfolioSection.SOCIAL
+                                ).forEach { section ->
+                                    MonitorMenuTile(
+                                        section = section,
+                                        featured = false,
+                                        compact = false,
+                                        onClick = { onSectionSelected(section) },
+                                        modifier = Modifier.weight(1f).fillMaxSize()
+                                    )
+                                }
+                            }
+                        } else {
+                            PortfolioSection.entries.chunked(2).forEachIndexed { rowIndex, rowSections ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().weight(1f),
+                                    horizontalArrangement = Arrangement.spacedBy(tileGap)
+                                ) {
+                                    rowSections.forEach { section ->
+                                        MonitorMenuTile(
+                                            section = section,
+                                            featured = rowIndex == 0,
+                                            compact = true,
+                                            onClick = { onSectionSelected(section) },
+                                            modifier = Modifier.weight(1f).fillMaxSize()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    PortfolioDetailPanel(
+                        section = activeSection,
+                        onBack = onBack,
+                        compact = true,
+                        maxHeight = screenHeight,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MonitorDashboardHeader(compact: Boolean) {
+    val transition = rememberInfiniteTransition(label = "monitor-online")
+    val pulse by transition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(780), RepeatMode.Reverse),
+        label = "monitor-online-pulse"
+    )
+    Row(
+        modifier = Modifier.fillMaxWidth().height(if (compact) 30.dp else 40.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(if (compact) 7.dp else 10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(if (compact) 28.dp else 36.dp)
+                    .clip(RoundedCornerShape(if (compact) 8.dp else 11.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(Color(0xFF153044), Color(0xFF0A1724))
+                        )
+                    )
+                    .border(1.dp, accent.copy(alpha = 0.52f), RoundedCornerShape(if (compact) 8.dp else 11.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "DN",
+                    color = primaryText,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Black,
+                    fontSize = if (compact) 8.sp else 10.sp
+                )
+            }
+            Column {
+                Text(
+                    "DAVID NAVARRO",
+                    color = primaryText,
+                    fontWeight = FontWeight.Black,
+                    fontSize = if (compact) 8.sp else 11.sp,
+                    letterSpacing = 0.3.sp
+                )
+                Text(
+                    "ANDROID · KMP · COMPOSE",
+                    color = accent.copy(alpha = 0.78f),
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = if (compact) 5.sp else 7.sp,
+                    letterSpacing = 0.65.sp,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+        }
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(999.dp))
+                .background(Color(0x9B0B1722))
+                .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(999.dp))
+                .padding(horizontal = if (compact) 7.dp else 10.dp, vertical = if (compact) 4.dp else 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Box(
+                Modifier
+                    .size(if (compact) 4.dp else 6.dp)
+                    .background(Color(0xFF72E0C0).copy(alpha = pulse), CircleShape)
+            )
+            Text(
+                if (compact) "ONLINE" else "PORTFOLIO · ONLINE",
+                color = primaryText.copy(alpha = 0.80f),
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+                fontSize = if (compact) 5.sp else 7.sp,
+                letterSpacing = 0.6.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun MonitorMenuTile(
+    section: PortfolioSection,
+    featured: Boolean,
+    compact: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val highlight = monitorSectionAccent(section)
+    val shape = RoundedCornerShape(if (compact) 10.dp else 15.dp)
+    Box(
+        modifier = modifier
+            .shadow(
+                if (featured) 18.dp else 10.dp,
+                shape,
+                ambientColor = Color.Black,
+                spotColor = highlight.copy(alpha = 0.18f)
+            )
+            .clip(shape)
+            .clickable(onClick = onClick)
+            .background(
+                Brush.linearGradient(
+                    listOf(
+                        Color(0xE9162736),
+                        Color(0xE30B1622),
+                        Color(0xF309111B)
+                    )
+                )
+            )
+            .border(1.dp, premiumBorderBrush(highlight), shape)
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(if (featured) 3.dp else 2.dp)
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            Color.Transparent,
+                            highlight.copy(alpha = 0.92f),
+                            highlight.copy(alpha = 0.28f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+        if (compact) {
+            Row(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                MonitorSectionIcon(section, highlight, compact = true)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        section.label.uppercase(),
+                        color = primaryText,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 9.sp,
+                        maxLines = 1
+                    )
+                    Text(
+                        section.subtitle.uppercase(),
+                        color = secondaryText.copy(alpha = 0.72f),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 5.sp,
+                        maxLines = 1,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+                Text(
+                    section.number,
+                    color = highlight,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 6.sp
+                )
+            }
+        } else if (featured) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(if (compact) 9.dp else 13.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MonitorSectionIcon(section, highlight, compact = compact)
+                    MonitorNumberBadge(section.number, highlight, compact = compact)
+                }
+                Column {
+                    Text(
+                        monitorSectionMeta(section),
+                        color = highlight.copy(alpha = 0.86f),
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = if (compact) 5.sp else 7.sp,
+                        letterSpacing = 0.75.sp
+                    )
+                    Text(
+                        section.label,
+                        color = primaryText,
+                        fontWeight = FontWeight.Black,
+                        fontSize = if (compact) 10.sp else 15.sp,
+                        maxLines = 1,
+                        modifier = Modifier.padding(top = if (compact) 2.dp else 4.dp)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = if (compact) 2.dp else 5.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            section.subtitle.uppercase(),
+                            color = secondaryText.copy(alpha = 0.76f),
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = if (compact) 5.sp else 7.sp,
+                            maxLines = 1
+                        )
+                        Text(
+                            "ABRIR  ↗",
+                            color = highlight,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Black,
+                            fontSize = if (compact) 5.sp else 7.sp
+                        )
+                    }
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(10.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MonitorSectionIcon(section, highlight, compact = true)
+                    Text(
+                        section.number,
+                        color = highlight.copy(alpha = 0.72f),
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 7.sp
+                    )
+                }
+                Column {
+                    Text(
+                        section.label.uppercase(),
+                        color = primaryText,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 10.sp,
+                        maxLines = 1
+                    )
+                    Text(
+                        section.subtitle.uppercase(),
+                        color = secondaryText.copy(alpha = 0.72f),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 6.sp,
+                        maxLines = 1,
+                        modifier = Modifier.padding(top = 3.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MonitorSectionIcon(section: PortfolioSection, color: Color, compact: Boolean) {
+    val iconSize = if (compact) 28.dp else 38.dp
+    Box(
+        modifier = Modifier
+            .size(iconSize + 6.dp)
+            .background(color.copy(alpha = 0.08f), CircleShape)
+            .border(1.dp, color.copy(alpha = 0.16f), CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(iconSize)
+                .background(
+                    Brush.radialGradient(
+                        listOf(color.copy(alpha = 0.18f), Color(0xFF0A131D))
+                    ),
+                    CircleShape
+                )
+                .border(1.dp, color.copy(alpha = 0.52f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            MenuSymbol(section = section, compact = compact)
+        }
+    }
+}
+
+@Composable
+private fun MonitorNumberBadge(number: String, color: Color, compact: Boolean) {
+    Text(
+        number,
+        color = color,
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Black,
+        fontSize = if (compact) 6.sp else 8.sp,
+        modifier = Modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(color.copy(alpha = 0.10f))
+            .border(1.dp, color.copy(alpha = 0.28f), RoundedCornerShape(999.dp))
+            .padding(horizontal = if (compact) 6.dp else 8.dp, vertical = if (compact) 3.dp else 5.dp)
+    )
+}
+
+private fun monitorSectionMeta(section: PortfolioSection): String = when (section) {
+    PortfolioSection.CV -> "DOCUMENTO · PERFIL"
+    PortfolioSection.PROJECTS -> "APPS · CÓDIGO"
+    PortfolioSection.ABOUT -> "IDENTIDAD"
+    PortfolioSection.EXPERIENCE -> "TRAYECTORIA"
+    PortfolioSection.CONTACT -> "CONTACTO"
+    PortfolioSection.SOCIAL -> "COMUNIDAD"
+}
+
+private fun monitorSectionAccent(section: PortfolioSection): Color = when (section) {
+    PortfolioSection.CV -> accent
+    PortfolioSection.PROJECTS -> Color(0xFF8EC5FF)
+    PortfolioSection.ABOUT -> Color(0xFF72E0C0)
+    PortfolioSection.EXPERIENCE -> amber
+    PortfolioSection.CONTACT -> Color(0xFF63B7FF)
+    PortfolioSection.SOCIAL -> Color(0xFFC99BFF)
 }
 
 @Composable
