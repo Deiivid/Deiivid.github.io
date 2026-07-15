@@ -42,7 +42,7 @@ Reason:
 The portfolio content is presented as an animated workspace: the character walks to the desk, starts typing, and reveals the main navigation around him.
 
 Impact:
-CV, projects, profile, experience, email, and social links remain accessible as regular Compose UI controls. The office always fills the browser viewport without a card wrapper. The experience stays in first person: step motion starts from the wide office, then dedicated arrival and seated POV frames provide real perspective changes behind the chair and at the keyboard. Once seated, the camera centers the monitor and a responsive bento dashboard presents the six controls over a restrained generated ambient texture; all text, icons, actions, and section content remain native Compose UI. Section content replaces the monitor menu in place. The source city window remains unobstructed and David is not rendered again in third person.
+CV, projects, profile, experience, email, and social links remain accessible as regular Compose UI controls. The office always fills the browser viewport without a card wrapper. The first-person entrance is delivered as one lightweight 30 fps camera take instead of swapping full-screen stills: the walking cadence, forward movement, body turn, seated dip, focus shift, and final settle are continuous, with the perspective change hidden inside the natural sitting motion. Once seated, Compose takes over on the matching final frame, centers the monitor, and presents the six controls as a responsive bento dashboard; all text, icons, actions, and section content remain native Compose UI. Section content replaces the monitor menu in place. The source city window remains unobstructed and David is not rendered again in third person.
 
 ## Update Policy
 

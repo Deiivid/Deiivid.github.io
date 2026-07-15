@@ -1,6 +1,4 @@
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -73,26 +71,11 @@ import androidx.compose.ui.unit.sp
 import davidweb_kmp.composeapp.generated.resources.Res
 import davidweb_kmp.composeapp.generated.resources.image_david
 import davidweb_kmp.composeapp.generated.resources.monitor_dashboard_ambient_v2
-import davidweb_kmp.composeapp.generated.resources.office_background
-import davidweb_kmp.composeapp.generated.resources.office_pov_approach_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_grab_chair_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_pull_chair_premium
 import davidweb_kmp.composeapp.generated.resources.office_pov_seated_centered_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_settle_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_sit_down_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_approach_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_grab_chair_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_pull_chair_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_seated_centered_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_settle_premium
-import davidweb_kmp.composeapp.generated.resources.office_pov_sit_down_premium
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.sin
 
 private val night = Color(0xFF070A10)
 private val surface = Color(0xEE11161F)
@@ -151,36 +134,24 @@ private data class OrbitPlacement(
 )
 
 @Composable
-fun App() {
-    var introKey by remember { mutableIntStateOf(0) }
-    var menusVisible by remember { mutableStateOf(false) }
+fun App(
+    introProgress: Float = 1f,
+    onReplayIntro: () -> Unit = {}
+) {
     var activeSection by remember { mutableStateOf<PortfolioSection?>(null) }
-    val walkProgress = remember(introKey) { Animatable(0f) }
-
-    LaunchedEffect(introKey) {
-        menusVisible = false
-        activeSection = null
-        walkProgress.snapTo(0f)
-        delay(120)
-        walkProgress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(4500, easing = LinearEasing)
-        )
-        delay(140)
-        menusVisible = true
-    }
+    val menusVisible = introProgress >= 0.995f
 
     MaterialTheme {
-        Surface(color = night, modifier = Modifier.fillMaxSize()) {
+        Surface(color = Color.Transparent, modifier = Modifier.fillMaxSize()) {
             PortfolioExperience(
-                walkProgress = walkProgress.value,
+                walkProgress = introProgress,
                 menusVisible = menusVisible,
                 activeSection = activeSection,
                 onSectionSelected = { activeSection = it },
                 onBack = { activeSection = null },
                 onReplay = {
                     activeSection = null
-                    introKey++
+                    onReplayIntro()
                 }
             )
         }
@@ -197,7 +168,7 @@ private fun PortfolioExperience(
     onBack: () -> Unit,
     onReplay: () -> Unit
 ) {
-    BoxWithConstraints(modifier = Modifier.fillMaxSize().background(night)) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val compact = maxWidth < 700.dp || maxHeight < 560.dp
 
         CinematicStage(
@@ -227,9 +198,9 @@ private fun CinematicStage(
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(
-        modifier = modifier.background(night)
+        modifier = modifier
     ) {
-        OfficeScene(walkProgress = walkProgress, compact = compact, modifier = Modifier.fillMaxSize())
+        FinalOfficeScene(walkProgress = walkProgress, compact = compact, modifier = Modifier.fillMaxSize())
         TopBar(
             compact = compact,
             onReplay = onReplay,
@@ -243,28 +214,6 @@ private fun CinematicStage(
         ) {
             IntroCopy(compact = compact, modifier = Modifier.padding(start = if (compact) 22.dp else 48.dp))
         }
-        if (walkProgress in 0.001f..0.90f) {
-            val approachLabel = when {
-                walkProgress < 0.40f -> "ACERCÁNDOME"
-                walkProgress < 0.59f -> "COGIENDO LA SILLA"
-                walkProgress < 0.70f -> "COLOCANDO LA SILLA"
-                else -> "SENTÁNDOME"
-            }
-            Text(
-                approachLabel,
-                color = primaryText.copy(alpha = 0.72f),
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 9.sp,
-                letterSpacing = 1.sp,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(if (compact) 16.dp else 24.dp)
-                    .background(Color.Black.copy(alpha = 0.42f), RoundedCornerShape(999.dp))
-                    .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(999.dp))
-                    .padding(horizontal = 12.dp, vertical = 7.dp)
-            )
-        }
         if (walkProgress >= 0.90f) {
             TypingStatus(
                 modifier = Modifier
@@ -272,21 +221,15 @@ private fun CinematicStage(
                     .padding(if (compact) 14.dp else 24.dp)
             )
         }
-        if (!compact && walkProgress < 0.90f) {
-            Text(
-                "ANDROID · KOTLIN · KMP",
-                color = secondaryText.copy(alpha = 0.58f),
-                fontFamily = FontFamily.Monospace,
-                fontSize = 9.sp,
-                letterSpacing = 1.sp,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 27.dp)
-            )
-        }
     }
 }
 
 @Composable
-private fun TopBar(compact: Boolean, onReplay: () -> Unit, modifier: Modifier = Modifier) {
+private fun TopBar(
+    compact: Boolean,
+    onReplay: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier.padding(horizontal = if (compact) 14.dp else 24.dp, vertical = if (compact) 13.dp else 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -358,100 +301,26 @@ private fun IntroCopy(compact: Boolean, modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifier = Modifier) {
+private fun FinalOfficeScene(
+    walkProgress: Float,
+    compact: Boolean,
+    modifier: Modifier = Modifier
+) {
     BoxWithConstraints(modifier.clipToBounds()) {
-        val portrait = maxHeight > maxWidth
-        val walking = smoothStep(walkProgress / 0.38f)
-        val stepStrength = smoothStep(walkProgress / 0.05f) *
-            (1f - smoothStep((walkProgress - 0.34f) / 0.06f))
-        val stepPhase = walking * 5.5f * PI.toFloat()
-        val footfall = abs(sin(stepPhase.toDouble())).toFloat()
-        val stepBob = -footfall * (if (portrait) 5f else 8f) * stepStrength
-        val stepSway = sin(stepPhase.toDouble()).toFloat() *
-            (if (portrait) 3.5f else 5.5f) * stepStrength
-        val backgroundAlpha = 1f - smoothStep((walkProgress - 0.26f) / 0.08f)
-        val approachAlpha = frameAlpha(walkProgress, 0.26f, 0.34f, 0.39f, 0.47f)
-        val grabAlpha = frameAlpha(walkProgress, 0.39f, 0.47f, 0.50f, 0.58f)
-        val pullAlpha = frameAlpha(walkProgress, 0.50f, 0.58f, 0.60f, 0.68f)
-        val sitAlpha = frameAlpha(walkProgress, 0.60f, 0.68f, 0.72f, 0.80f)
-        val settleAlpha = frameAlpha(walkProgress, 0.72f, 0.80f, 0.83f, 0.91f)
-        val seatedAlpha = smoothStep((walkProgress - 0.83f) / 0.08f)
-        val approach = smoothStep((walkProgress - 0.26f) / 0.21f)
-        val grab = smoothStep((walkProgress - 0.39f) / 0.19f)
-        val pull = smoothStep((walkProgress - 0.50f) / 0.18f)
-        val sitting = smoothStep((walkProgress - 0.60f) / 0.20f)
-        val settling = smoothStep((walkProgress - 0.72f) / 0.19f)
-        val seated = smoothStep((walkProgress - 0.83f) / 0.17f)
-        val seatCompression = sin(sitting * PI.toFloat()).toFloat()
-
-        PovFrame(
-            resource = Res.drawable.office_background,
-            contentDescription = null,
-            alpha = backgroundAlpha,
-            scale = 1.005f + walking * 0.11f + footfall * 0.004f,
-            translationX = maxWidth * (-0.025f * walking) + stepSway.dp,
-            translationY = maxHeight * (-0.012f * walking) + stepBob.dp,
-            rotation = stepSway * 0.045f,
-            transformOrigin = TransformOrigin(0.58f, 0.56f)
-        )
-        PovFrame(
-            resource = Res.drawable.office_pov_approach_premium,
-            contentDescription = "Acercándose en primera persona a la silla",
-            alpha = approachAlpha,
-            scale = 1f + approach * 0.055f,
-            translationX = stepSway.dp * 0.25f,
-            translationY = stepBob.dp * 0.30f,
-            rotation = stepSway * 0.018f,
-            transformOrigin = TransformOrigin(0.50f, 0.56f)
-        )
-        PovFrame(
-            resource = Res.drawable.office_pov_grab_chair_premium,
-            contentDescription = "Cogiendo el respaldo de la silla en primera persona",
-            alpha = grabAlpha,
-            scale = 1f + grab * 0.012f,
-            translationY = maxHeight * (0.004f * grab),
-            rotation = grab * 0.08f
-        )
-        PovFrame(
-            resource = Res.drawable.office_pov_pull_chair_premium,
-            contentDescription = "Desplazando la silla hacia atrás en primera persona",
-            alpha = pullAlpha,
-            scale = 1f + pull * 0.018f,
-            translationX = maxWidth * (0.008f * pull),
-            translationY = maxHeight * (0.012f * pull),
-            rotation = pull * 0.32f,
-            transformOrigin = TransformOrigin(0.56f, 0.58f)
-        )
-        PovFrame(
-            resource = Res.drawable.office_pov_sit_down_premium,
-            contentDescription = "Sentándose y apoyando las manos en los reposabrazos",
-            alpha = sitAlpha,
-            scale = 1f + sitting * 0.012f,
-            translationX = maxWidth * (-0.006f * seatCompression),
-            translationY = maxHeight * (0.018f * seatCompression),
-            rotation = -0.22f * seatCompression,
-            transformOrigin = TransformOrigin(0.50f, 0.62f)
-        )
-        PovFrame(
-            resource = Res.drawable.office_pov_settle_premium,
-            contentDescription = "Acercando la silla y las manos al teclado",
-            alpha = settleAlpha,
-            scale = 1f + settling * 0.022f,
-            translationY = maxHeight * (-0.008f * settling + 0.006f * seatCompression),
-            transformOrigin = TransformOrigin(0.50f, 0.52f)
-        )
+        val finalAlpha = ((walkProgress - 0.97f) / 0.025f).coerceIn(0f, 1f)
         PovFrame(
             resource = Res.drawable.office_pov_seated_centered_premium,
             contentDescription = "Vista frontal sentado y centrado ante el monitor",
-            alpha = seatedAlpha,
-            scale = 1f + seated * 0.08f,
-            translationY = maxHeight * (-0.004f * seated),
+            alpha = finalAlpha,
+            scale = 1.08f,
+            translationY = maxHeight * -0.004f,
             transformOrigin = TransformOrigin(0.50f, 0.46f)
         )
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .alpha(finalAlpha)
                 .background(
                     Brush.horizontalGradient(
                         colorStops = arrayOf(
@@ -466,6 +335,7 @@ private fun OfficeScene(walkProgress: Float, compact: Boolean, modifier: Modifie
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .alpha(finalAlpha)
                 .background(
                     Brush.verticalGradient(
                         listOf(Color.Black.copy(alpha = 0.14f), Color.Transparent, Color.Black.copy(alpha = 0.24f))
@@ -487,10 +357,11 @@ private fun PovFrame(
     rotation: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin(0.5f, 0.5f)
 ) {
+    val painter = painterResource(resource)
     if (alpha <= 0f) return
     val density = LocalDensity.current
     Image(
-        painter = painterResource(resource),
+        painter = painter,
         contentDescription = contentDescription,
         contentScale = ContentScale.Crop,
         alignment = Alignment.Center,
@@ -506,23 +377,6 @@ private fun PovFrame(
                 this.transformOrigin = transformOrigin
             }
     )
-}
-
-private fun frameAlpha(
-    progress: Float,
-    enterStart: Float,
-    enterEnd: Float,
-    exitStart: Float,
-    exitEnd: Float
-): Float {
-    val entering = smoothStep((progress - enterStart) / (enterEnd - enterStart))
-    val leaving = 1f - smoothStep((progress - exitStart) / (exitEnd - exitStart))
-    return (entering * leaving).coerceIn(0f, 1f)
-}
-
-private fun smoothStep(value: Float): Float {
-    val progress = value.coerceIn(0f, 1f)
-    return progress * progress * (3f - 2f * progress)
 }
 
 @Composable
@@ -564,17 +418,26 @@ private fun MonitorPortfolioMenu(
 ) {
     BoxWithConstraints(modifier) {
         val portrait = maxHeight > maxWidth
-        val screenWidth = if (portrait) {
-            maxWidth * 0.92f
+        val viewAspect = maxWidth.value / maxHeight.value
+        val sourceAspect = 16f / 9f
+        val verticalCropScale = maxOf(1f, viewAspect / sourceAspect)
+        val screenWidthFraction = if (viewAspect < sourceAspect) {
+            (0.615f / viewAspect).coerceIn(0.35f, if (portrait) 0.96f else 0.84f)
         } else {
-            (maxWidth * 0.35f).coerceIn(if (compact) 300.dp else 520.dp, 900.dp)
+            0.35f
         }
+        val screenWidth = (maxWidth * screenWidthFraction).coerceIn(220.dp, 1200.dp)
         val screenHeight = if (portrait) {
-            (screenWidth / 2.08f).coerceAtMost(maxHeight * 0.31f)
+            (screenWidth / 2.16f).coerceAtMost(maxHeight * 0.31f)
         } else {
-            (screenWidth / 2.08f).coerceAtMost(maxHeight * 0.34f)
+            (screenWidth / 2.16f).coerceAtMost(maxHeight * 0.46f)
         }
-        val screenTop = maxHeight * 0.245f
+        val screenTopFraction = if (portrait) {
+            0.245f
+        } else {
+            0.245f * verticalCropScale - (verticalCropScale - 1f) * 0.5f
+        }
+        val screenTop = maxHeight * screenTopFraction
         val screenShiftX = 0.dp
         val screenShape = RoundedCornerShape(if (compact) 14.dp else 20.dp)
         val bentoLayout = screenWidth >= 660.dp && screenHeight >= 300.dp

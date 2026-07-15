@@ -21,9 +21,23 @@
       font-family: "Space Grotesk", sans-serif;
     }
 
+    #portfolio-intro {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      object-fit: cover;
+      background: #080D1B;
+      pointer-events: auto;
+      transition: opacity 140ms ease-out;
+    }
+
     #root {
       position: fixed;
       inset: 0;
+      z-index: 1;
       width: 100vw;
       height: 100vh;
       height: 100dvh;
@@ -36,6 +50,17 @@
   </style>
 </head>
 <body>
+<video
+  id="portfolio-intro"
+  autoplay
+  muted
+  playsinline
+  preload="auto"
+  poster="./portfolio_intro_poster.jpg"
+  aria-hidden="true"
+>
+  <source src="./portfolio_intro_single_take.mp4" type="video/mp4"/>
+</video>
 <div id="root"></div>
 <script type="application/javascript" src="composeApp.js"></script>
 </body>
