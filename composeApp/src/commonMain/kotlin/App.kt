@@ -77,7 +77,7 @@ import davidweb_kmp.composeapp.generated.resources.github_logo
 import davidweb_kmp.composeapp.generated.resources.image_david
 import davidweb_kmp.composeapp.generated.resources.medium_logo
 import davidweb_kmp.composeapp.generated.resources.monitor_dashboard_ambient_v2
-import davidweb_kmp.composeapp.generated.resources.office_pov_seated_lily58_premium_v7
+import davidweb_kmp.composeapp.generated.resources.office_pov_seated_lily58_premium_v8
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -319,7 +319,7 @@ private fun FinalOfficeScene(
 ) {
     BoxWithConstraints(modifier.clipToBounds()) {
         PovFrame(
-            resource = Res.drawable.office_pov_seated_lily58_premium_v7,
+            resource = Res.drawable.office_pov_seated_lily58_premium_v8,
             contentDescription = "Vista en primera persona ante un Aurora Lily58 low-profile inalámbrico, un Mac Mini y un móvil Android",
             alpha = 1f,
             scale = 1f
