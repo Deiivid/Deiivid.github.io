@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
+  <link rel="preload" as="image" href="./desk_funko_trio_v1.png"/>
   <style>
     html, body {
       width: 100%;
@@ -28,10 +29,47 @@
       width: 100vw;
       height: 100vh;
       height: 100dvh;
-      object-fit: cover;
       background: #080D1B;
       pointer-events: auto;
       transition: opacity 90ms linear;
+      overflow: hidden;
+    }
+
+    .portfolio-intro-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      will-change: opacity, transform;
+    }
+
+    .portfolio-intro-frame:nth-child(1) { animation: intro-frame-one 8.2s linear both; }
+    .portfolio-intro-frame:nth-child(2) { animation: intro-frame-two 8.2s linear both; }
+    .portfolio-intro-frame:nth-child(3) { animation: intro-frame-three 8.2s linear both; }
+    .portfolio-intro-frame:nth-child(4) { animation: intro-frame-four 8.2s linear both; }
+
+    @keyframes intro-frame-one {
+      0%, 17% { opacity: 1; transform: scale(1); }
+      29%, 100% { opacity: 0; transform: scale(1.045); }
+    }
+
+    @keyframes intro-frame-two {
+      0%, 17% { opacity: 0; transform: scale(1); }
+      29%, 39% { opacity: 1; transform: scale(1.025); }
+      50%, 100% { opacity: 0; transform: scale(1.055); }
+    }
+
+    @keyframes intro-frame-three {
+      0%, 39% { opacity: 0; transform: scale(1); }
+      51%, 59% { opacity: 1; transform: scale(1.02); }
+      70%, 100% { opacity: 0; transform: scale(1.05); }
+    }
+
+    @keyframes intro-frame-four {
+      0%, 59% { opacity: 0; transform: scale(1.025); }
+      71%, 100% { opacity: 1; transform: scale(1); }
     }
 
     #root {
@@ -44,23 +82,50 @@
       overflow: hidden;
     }
 
+    #desk-props-plane {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 3;
+      width: max(100vw, 177.7778dvh);
+      height: max(100dvh, 56.25vw);
+      overflow: hidden;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    #desk-collectibles {
+      position: absolute;
+      left: 28.5%;
+      top: 41.8%;
+      width: 10.6%;
+      height: auto;
+      filter:
+        brightness(0.72)
+        saturate(0.88)
+        contrast(1.06)
+        drop-shadow(0 0.55vw 0.42vw rgba(0, 0, 0, 0.68));
+      transform-origin: center bottom;
+      will-change: left, top, width;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
     canvas {
       display: block;
     }
   </style>
 </head>
 <body>
-<video
-  id="portfolio-intro"
-  autoplay
-  muted
-  playsinline
-  preload="auto"
-  poster="./portfolio_intro_poster_rear_v6.jpg"
-  aria-hidden="true"
->
-  <source src="./portfolio_intro_rear_continuous_v8.mp4" type="video/mp4"/>
-</video>
+<div id="desk-props-plane" aria-hidden="true">
+  <img id="desk-collectibles" src="./desk_funko_trio_v1.png" alt=""/>
+</div>
+<div id="portfolio-intro" aria-hidden="true">
+  <img class="portfolio-intro-frame" src="./portfolio_intro_frame_01_menu.png" alt=""/>
+  <img class="portfolio-intro-frame" src="./portfolio_intro_frame_02_grab_chair_lily58_v2.png" alt=""/>
+  <img class="portfolio-intro-frame" src="./portfolio_intro_frame_03_pull_chair_lily58_v2.png" alt=""/>
+  <img class="portfolio-intro-frame" src="./portfolio_intro_frame_04_seated.png" alt=""/>
+</div>
 <div id="root"></div>
 <script type="application/javascript" src="composeApp.js"></script>
 </body>
