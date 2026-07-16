@@ -1,9 +1,11 @@
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -56,6 +58,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -68,10 +71,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import davidweb_kmp.composeapp.generated.resources.Res
+import davidweb_kmp.composeapp.generated.resources.github_logo
 import davidweb_kmp.composeapp.generated.resources.image_david
+import davidweb_kmp.composeapp.generated.resources.medium_logo
 import davidweb_kmp.composeapp.generated.resources.monitor_dashboard_ambient_v2
-import davidweb_kmp.composeapp.generated.resources.office_pov_seated_centered_premium
+import davidweb_kmp.composeapp.generated.resources.office_pov_seated_lily58_premium_v7
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -125,6 +131,13 @@ private enum class PortfolioSection(
     CONTACT("05", "Email", "Hablemos"),
     SOCIAL("06", "Redes sociales", "Código y artículos")
 }
+
+private data class MonitorGeometry(
+    val width: Dp,
+    val height: Dp,
+    val top: Dp,
+    val shiftX: Dp
+)
 
 private data class OrbitPlacement(
     val section: PortfolioSection,
@@ -200,21 +213,21 @@ private fun CinematicStage(
     BoxWithConstraints(
         modifier = modifier
     ) {
-        FinalOfficeScene(walkProgress = walkProgress, compact = compact, modifier = Modifier.fillMaxSize())
+        FinalOfficeScene(modifier = Modifier.fillMaxSize())
         TopBar(
             compact = compact,
             onReplay = onReplay,
             modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth()
         )
-        AnimatedVisibility(
-            visible = walkProgress < 0.12f,
-            enter = fadeIn(tween(300)),
-            exit = fadeOut(tween(280)),
-            modifier = Modifier.align(Alignment.CenterStart)
-        ) {
-            IntroCopy(compact = compact, modifier = Modifier.padding(start = if (compact) 22.dp else 48.dp))
+        if (walkProgress < 0.12f) {
+            IntroCopy(
+                compact = compact,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = if (compact) 22.dp else 48.dp)
+            )
         }
-        if (walkProgress >= 0.90f) {
+        if (walkProgress >= 0.995f) {
             TypingStatus(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -302,47 +315,36 @@ private fun IntroCopy(compact: Boolean, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun FinalOfficeScene(
-    walkProgress: Float,
-    compact: Boolean,
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(modifier.clipToBounds()) {
-        val finalAlpha = ((walkProgress - 0.97f) / 0.025f).coerceIn(0f, 1f)
         PovFrame(
-            resource = Res.drawable.office_pov_seated_centered_premium,
-            contentDescription = "Vista frontal sentado y centrado ante el monitor",
-            alpha = finalAlpha,
-            scale = 1.08f,
-            translationY = maxHeight * -0.004f,
-            transformOrigin = TransformOrigin(0.50f, 0.46f)
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(finalAlpha)
-                .background(
-                    Brush.horizontalGradient(
-                        colorStops = arrayOf(
-                            0f to Color.Black.copy(alpha = if (compact) 0.22f else 0.36f),
-                            0.42f to Color.Black.copy(alpha = if (compact) 0.06f else 0.10f),
-                            0.72f to Color.Transparent,
-                            1f to Color.Black.copy(alpha = 0.08f)
-                        )
-                    )
-                )
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(finalAlpha)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.Black.copy(alpha = 0.14f), Color.Transparent, Color.Black.copy(alpha = 0.24f))
-                    )
-                )
+            resource = Res.drawable.office_pov_seated_lily58_premium_v7,
+            contentDescription = "Vista en primera persona ante un Aurora Lily58 low-profile inalámbrico, un Mac Mini y un móvil Android",
+            alpha = 1f,
+            scale = 1f
         )
     }
+}
+
+private fun ultrawideMonitorGeometry(maxWidth: Dp, maxHeight: Dp): MonitorGeometry {
+    val sourceWidth = 3344f
+    val sourceHeight = 1882f
+    val monitorLeft = 1136f
+    val monitorTop = 498f
+    val monitorWidth = 1074f
+    val monitorHeight = 520f
+    val cropScale = maxOf(maxWidth.value / sourceWidth, maxHeight.value / sourceHeight)
+    val croppedLeft = (sourceWidth * cropScale - maxWidth.value) / 2f
+    val croppedTop = (sourceHeight * cropScale - maxHeight.value) / 2f
+    val monitorCenter = (monitorLeft + monitorWidth / 2f) * cropScale - croppedLeft
+
+    return MonitorGeometry(
+        width = (monitorWidth * cropScale).dp,
+        height = (monitorHeight * cropScale).dp,
+        top = (monitorTop * cropScale - croppedTop).dp,
+        shiftX = (monitorCenter - maxWidth.value / 2f).dp
+    )
 }
 
 @OptIn(ExperimentalResourceApi::class)
@@ -358,7 +360,6 @@ private fun PovFrame(
     transformOrigin: TransformOrigin = TransformOrigin(0.5f, 0.5f)
 ) {
     val painter = painterResource(resource)
-    if (alpha <= 0f) return
     val density = LocalDensity.current
     Image(
         painter = painter,
@@ -417,40 +418,16 @@ private fun MonitorPortfolioMenu(
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(modifier) {
-        val portrait = maxHeight > maxWidth
-        val viewAspect = maxWidth.value / maxHeight.value
-        val sourceAspect = 16f / 9f
-        val verticalCropScale = maxOf(1f, viewAspect / sourceAspect)
-        val screenWidthFraction = if (viewAspect < sourceAspect) {
-            (0.615f / viewAspect).coerceIn(0.35f, if (portrait) 0.96f else 0.84f)
-        } else {
-            0.35f
-        }
-        val screenWidth = (maxWidth * screenWidthFraction).coerceIn(220.dp, 1200.dp)
-        val screenHeight = if (portrait) {
-            (screenWidth / 2.16f).coerceAtMost(maxHeight * 0.31f)
-        } else {
-            (screenWidth / 2.16f).coerceAtMost(maxHeight * 0.46f)
-        }
-        val screenTopFraction = if (portrait) {
-            0.245f
-        } else {
-            0.245f * verticalCropScale - (verticalCropScale - 1f) * 0.5f
-        }
-        val screenTop = maxHeight * screenTopFraction
-        val screenShiftX = 0.dp
-        val screenShape = RoundedCornerShape(if (compact) 14.dp else 20.dp)
-        val bentoLayout = screenWidth >= 660.dp && screenHeight >= 300.dp
-        val tileGap = if (bentoLayout) 10.dp else 6.dp
-
+        val geometry = ultrawideMonitorGeometry(maxWidth, maxHeight)
+        val screenShape = RoundedCornerShape(if (compact) 10.dp else 16.dp)
         AnimatedVisibility(
             visible = true,
             enter = fadeIn(tween(260)) + scaleIn(tween(320), initialScale = 0.97f),
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(x = screenShiftX, y = screenTop)
-                .width(screenWidth)
-                .height(screenHeight)
+                .offset(x = geometry.shiftX, y = geometry.top)
+                .width(geometry.width)
+                .height(geometry.height)
         ) {
             Box(
                 modifier = Modifier
@@ -496,77 +473,1394 @@ private fun MonitorPortfolioMenu(
                             )
                         )
                 )
-                if (activeSection == null) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(if (bentoLayout) 16.dp else 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(tileGap)
-                    ) {
-                        MonitorDashboardHeader(compact = !bentoLayout)
-                        if (bentoLayout) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().weight(1.18f),
-                                horizontalArrangement = Arrangement.spacedBy(tileGap)
-                            ) {
-                                listOf(PortfolioSection.CV, PortfolioSection.PROJECTS).forEach { section ->
-                                    MonitorMenuTile(
-                                        section = section,
-                                        featured = true,
-                                        compact = false,
-                                        onClick = { onSectionSelected(section) },
-                                        modifier = Modifier.weight(1f).fillMaxSize()
-                                    )
-                                }
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth().weight(0.86f),
-                                horizontalArrangement = Arrangement.spacedBy(tileGap)
-                            ) {
-                                listOf(
-                                    PortfolioSection.ABOUT,
-                                    PortfolioSection.EXPERIENCE,
-                                    PortfolioSection.CONTACT,
-                                    PortfolioSection.SOCIAL
-                                ).forEach { section ->
-                                    MonitorMenuTile(
-                                        section = section,
-                                        featured = false,
-                                        compact = false,
-                                        onClick = { onSectionSelected(section) },
-                                        modifier = Modifier.weight(1f).fillMaxSize()
-                                    )
-                                }
-                            }
-                        } else {
-                            PortfolioSection.entries.chunked(2).forEachIndexed { rowIndex, rowSections ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().weight(1f),
-                                    horizontalArrangement = Arrangement.spacedBy(tileGap)
-                                ) {
-                                    rowSections.forEach { section ->
-                                        MonitorMenuTile(
-                                            section = section,
-                                            featured = rowIndex == 0,
-                                            compact = true,
-                                            onClick = { onSectionSelected(section) },
-                                            modifier = Modifier.weight(1f).fillMaxSize()
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    PortfolioDetailPanel(
-                        section = activeSection,
-                        onBack = onBack,
-                        compact = true,
-                        maxHeight = screenHeight,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                MonitorOrbitNavigation(
+                    activeSection = activeSection,
+                    viewportCompact = compact,
+                    onSectionSelected = onSectionSelected,
+                    onBack = onBack,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
+}
+
+@Composable
+private fun MonitorOrbitNavigation(
+    activeSection: PortfolioSection?,
+    viewportCompact: Boolean,
+    onSectionSelected: (PortfolioSection) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(modifier) {
+        val dense = viewportCompact || maxWidth < 760.dp || maxHeight < 360.dp
+        val edge = if (dense) 8.dp else 20.dp
+        val nodeWidth = if (dense) {
+            (maxWidth * 0.28f).coerceIn(138.dp, 180.dp)
+        } else {
+            (maxWidth * 0.25f).coerceIn(220.dp, 280.dp)
+        }
+        val nodeHeight = if (dense) 50.dp else 86.dp
+        val hubSize = if (dense) {
+            (minOf(maxWidth, maxHeight) * 0.30f).coerceIn(66.dp, 88.dp)
+        } else {
+            (minOf(maxWidth, maxHeight) * 0.25f).coerceIn(116.dp, 142.dp)
+        }
+        val hubX = (maxWidth - hubSize) / 2f
+        val hubY = (maxHeight - hubSize) / 2f
+        val horizontalGap = if (dense) 8.dp else (maxWidth * 0.035f).coerceIn(28.dp, 46.dp)
+        val leftX = hubX - nodeWidth - horizontalGap
+        val rightX = hubX + hubSize + horizontalGap
+        val topY = edge
+        val middleY = (maxHeight - nodeHeight) / 2f
+        val bottomY = maxHeight - edge - nodeHeight
+        val placements = listOf(
+            OrbitPlacement(PortfolioSection.CV, leftX, topY, true),
+            OrbitPlacement(PortfolioSection.PROJECTS, rightX, topY, false),
+            OrbitPlacement(PortfolioSection.ABOUT, leftX, middleY, true),
+            OrbitPlacement(PortfolioSection.EXPERIENCE, rightX, middleY, false),
+            OrbitPlacement(PortfolioSection.CONTACT, leftX, bottomY, true),
+            OrbitPlacement(PortfolioSection.SOCIAL, rightX, bottomY, false)
+        )
+        val transition = updateTransition(targetState = activeSection, label = "monitor-orbit-selection")
+        var renderedSection by remember { mutableStateOf<PortfolioSection?>(activeSection) }
+        LaunchedEffect(activeSection) {
+            if (activeSection != null) {
+                renderedSection = activeSection
+            } else if (renderedSection != null) {
+                delay(380)
+                renderedSection = null
+            }
+        }
+        val orbitAlpha by transition.animateFloat(
+            transitionSpec = {
+                if (targetState == null) tween(durationMillis = 140, delayMillis = 220) else tween(110)
+            },
+            label = "monitor-orbit-alpha"
+        ) { selected -> if (selected == null) 1f else 0f }
+        val detailProgress by transition.animateFloat(
+            transitionSpec = { tween(360) },
+            label = "monitor-orbit-detail-progress"
+        ) { selected -> if (selected == null) 0f else 1f }
+        val nodesEnabled = activeSection == null && renderedSection == null && !transition.isRunning
+        val detailDense = maxWidth < 660.dp || maxHeight < 300.dp
+
+        MonitorOrbitConnectors(
+            placements = placements,
+            nodeWidth = nodeWidth,
+            nodeHeight = nodeHeight,
+            hubX = hubX,
+            hubY = hubY,
+            hubSize = hubSize,
+            modifier = Modifier.fillMaxSize().alpha(orbitAlpha)
+        )
+        MonitorOrbitHub(
+            dense = dense,
+            modifier = Modifier
+                .offset(x = hubX, y = hubY)
+                .size(hubSize)
+                .graphicsLayer {
+                    alpha = orbitAlpha
+                    scaleX = 0.88f + orbitAlpha * 0.12f
+                    scaleY = 0.88f + orbitAlpha * 0.12f
+                }
+        )
+
+        placements.forEach { placement ->
+            val nodeX by transition.animateDp(
+                transitionSpec = { tween(340) },
+                label = "orbit-node-x-${placement.section.name}"
+            ) { selected ->
+                when {
+                    selected == null -> placement.x
+                    selected == placement.section -> placement.x
+                    else -> hubX + (hubSize - nodeWidth) / 2f
+                }
+            }
+            val nodeY by transition.animateDp(
+                transitionSpec = { tween(340) },
+                label = "orbit-node-y-${placement.section.name}"
+            ) { selected ->
+                when {
+                    selected == null -> placement.y
+                    selected == placement.section -> placement.y
+                    else -> hubY + (hubSize - nodeHeight) / 2f
+                }
+            }
+            val nodeAlpha by transition.animateFloat(
+                transitionSpec = {
+                    if (targetState == null) tween(durationMillis = 180, delayMillis = 180) else tween(110)
+                },
+                label = "orbit-node-alpha-${placement.section.name}"
+            ) { selected -> if (selected == null) 1f else 0f }
+            val nodeScale by transition.animateFloat(
+                transitionSpec = { tween(340) },
+                label = "orbit-node-scale-${placement.section.name}"
+            ) { selected ->
+                when {
+                    selected == null -> 1f
+                    selected == placement.section -> 0.96f
+                    else -> 0.68f
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .offset(x = nodeX, y = nodeY)
+                    .width(nodeWidth)
+                    .height(nodeHeight)
+                    .zIndex(1f)
+                    .graphicsLayer {
+                        alpha = nodeAlpha
+                        scaleX = nodeScale
+                        scaleY = nodeScale
+                    }
+            ) {
+                MonitorOrbitNode(
+                    section = placement.section,
+                    dense = dense,
+                    menuOnLeft = placement.menuOnLeft,
+                    enabled = nodesEnabled,
+                    onClick = { onSectionSelected(placement.section) },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+
+        val displayedSection = activeSection ?: renderedSection
+        displayedSection?.let { section ->
+            val placement = placements.first { it.section == section }
+            val panelWidth = maxWidth - edge * 2f
+            val panelHeight = maxHeight - edge * 2f
+            val expandedX = edge
+            val expandedY = edge
+            val pivotX = (
+                (placement.x + nodeWidth / 2f - expandedX).value / panelWidth.value
+            ).coerceIn(0f, 1f)
+            val pivotY = (
+                (placement.y + nodeHeight / 2f - expandedY).value / panelHeight.value
+            ).coerceIn(0f, 1f)
+            val startScaleX = (nodeWidth.value / panelWidth.value).coerceIn(0.08f, 1f)
+            val startScaleY = (nodeHeight.value / panelHeight.value).coerceIn(0.08f, 1f)
+
+            Box(
+                modifier = Modifier
+                    .offset(x = expandedX, y = expandedY)
+                    .width(panelWidth)
+                    .height(panelHeight)
+                    .zIndex(if (detailProgress > 0.18f) 3f else 0f)
+                    .graphicsLayer {
+                        transformOrigin = TransformOrigin(pivotX, pivotY)
+                        scaleX = startScaleX + (1f - startScaleX) * detailProgress
+                        scaleY = startScaleY + (1f - startScaleY) * detailProgress
+                        alpha = detailProgress
+                    }
+            ) {
+                MonitorSectionDetail(
+                    section = section,
+                    onBack = onBack,
+                    dense = detailDense,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MonitorSectionDetail(
+    section: PortfolioSection,
+    onBack: () -> Unit,
+    dense: Boolean,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(modifier) {
+        val ultraCompact = maxHeight < 180.dp
+        val panelShape = RoundedCornerShape(if (dense) 10.dp else 16.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .shadow(24.dp, panelShape, ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.18f))
+                .clip(panelShape)
+                .background(premiumSurfaceBrush())
+                .border(1.dp, premiumBorderBrush(monitorSectionAccent(section)), panelShape)
+                .padding(
+                    horizontal = if (dense) 10.dp else 18.dp,
+                    vertical = if (ultraCompact) 5.dp else if (dense) 8.dp else 14.dp
+                )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(onClick = onBack)
+                        .background(premiumInsetBrush())
+                        .border(1.dp, accent.copy(alpha = 0.34f), RoundedCornerShape(8.dp))
+                        .padding(
+                            horizontal = if (dense) 7.dp else 10.dp,
+                            vertical = if (ultraCompact) 2.dp else if (dense) 4.dp else 7.dp
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text("←", color = accent, fontWeight = FontWeight.Black, fontSize = if (dense) 8.sp else 11.sp)
+                    Text("MENÚ", color = primaryText, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = if (dense) 6.sp else 8.sp)
+                }
+                Text(
+                    if (ultraCompact) {
+                        "${section.number} · ${section.label.uppercase()}"
+                    } else {
+                        "${section.number} / PORTFOLIO"
+                    },
+                    color = monitorSectionAccent(section),
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Black,
+                    fontSize = if (dense) 6.sp else 8.sp,
+                    letterSpacing = 0.5.sp
+                )
+            }
+            if (!ultraCompact) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = if (dense) 5.dp else 9.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(if (dense) 24.dp else 34.dp)
+                            .background(monitorSectionAccent(section).copy(alpha = 0.10f), CircleShape)
+                            .border(1.dp, monitorSectionAccent(section).copy(alpha = 0.42f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        MenuSymbol(section, compact = true)
+                    }
+                    Column {
+                        Text(
+                            section.label,
+                            color = primaryText,
+                            fontWeight = FontWeight.Black,
+                            fontSize = if (dense) 14.sp else 20.sp
+                        )
+                        Text(
+                            section.subtitle.uppercase(),
+                            color = secondaryText.copy(alpha = 0.72f),
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = if (dense) 5.sp else 7.sp,
+                            letterSpacing = 0.6.sp
+                        )
+                    }
+                }
+            }
+            MonitorWideSectionContent(
+                section = section,
+                dense = dense,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = if (ultraCompact) 3.dp else if (dense) 6.dp else 10.dp)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun MonitorWideSectionContent(
+    section: PortfolioSection,
+    dense: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val uriHandler = LocalUriHandler.current
+    when (section) {
+        PortfolioSection.CV -> Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 14.dp)
+        ) {
+            MonitorFeatureCard(
+                title = "Currículum profesional",
+                subtitle = "Experiencia, formación y stack técnico en un único documento.",
+                section = PortfolioSection.CV,
+                color = accent,
+                dense = dense,
+                modifier = Modifier.weight(0.46f).fillMaxSize()
+            )
+            Row(
+                modifier = Modifier
+                    .weight(0.54f)
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(premiumInsetBrush())
+                    .border(1.dp, premiumBorderBrush(), RoundedCornerShape(10.dp))
+                    .padding(if (dense) 8.dp else 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(if (dense) 7.dp else 12.dp)
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("ANDROID DEVELOPER", color = accent, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = if (dense) 6.sp else 8.sp)
+                    Text("Kotlin · Compose · KMP", color = primaryText, fontWeight = FontWeight.Black, fontSize = if (dense) 10.sp else 14.sp, modifier = Modifier.padding(top = 3.dp))
+                    if (!dense) {
+                        Text("Clean Architecture · Testing · CI/CD", color = secondaryText, fontSize = 10.sp, modifier = Modifier.padding(top = 4.dp))
+                    }
+                }
+                MonitorInlineAction("ABRIR CV") { uriHandler.openUri("/assets/cv/cv.pdf") }
+            }
+        }
+
+        PortfolioSection.PROJECTS -> Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(if (dense) 7.dp else 12.dp)
+        ) {
+            MonitorProjectCard(
+                "PermissionProtect",
+                "Control y aprendizaje sobre los permisos de las aplicaciones Android.",
+                "Kotlin · Jetpack Compose",
+                accent,
+                dense,
+                Modifier.weight(1f).fillMaxSize()
+            ) { uriHandler.openUri("https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es") }
+            MonitorProjectCard(
+                "Glassmorphism Compose",
+                "Librería de efectos glassmorphism con RenderEffect y soporte NDK.",
+                "Compose · Kotlin · C++",
+                Color(0xFF9E8CFF),
+                dense,
+                Modifier.weight(1f).fillMaxSize()
+            ) { uriHandler.openUri("https://github.com/Deiivid/Glassmorphism-Compose") }
+            MonitorProjectCard(
+                "Clean Architecture Compose",
+                "Proyecto multimódulo con separación de dominio, datos y presentación.",
+                "Clean Architecture · Koin · Detekt",
+                Color(0xFF68DDC5),
+                dense,
+                Modifier.weight(1f).fillMaxSize()
+            ) { uriHandler.openUri("https://github.com/Deiivid/Clean_Arquitecture_Compose") }
+        }
+
+        PortfolioSection.ABOUT -> MonitorAboutSection(
+            dense = dense,
+            modifier = modifier
+        )
+
+        PortfolioSection.EXPERIENCE -> Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(if (dense) 7.dp else 12.dp)
+        ) {
+            Column(Modifier.weight(1f).fillMaxSize(), verticalArrangement = Arrangement.spacedBy(if (dense) 5.dp else 8.dp)) {
+                MonitorExperienceCard("ACTUALMENTE", "Hiberus", "Android Developer · Jetpack Compose", dense, Modifier.weight(1f))
+                MonitorExperienceCard("2024", "Especialización", "Clean Architecture y desarrollo móvil avanzado", dense, Modifier.weight(1f))
+                MonitorExperienceCard("2021 — 2023", "Desarrollo móvil", "Primeros proyectos y liderazgo técnico", dense, Modifier.weight(1f))
+            }
+            Column(Modifier.weight(1f).fillMaxSize(), verticalArrangement = Arrangement.spacedBy(if (dense) 5.dp else 8.dp)) {
+                MonitorExperienceCard("2021", "Hiberus Héroes y Heroínas", "Formación intensiva en aplicaciones", dense, Modifier.weight(1f))
+                MonitorExperienceCard("2019 — 2021", "DAM", "Desarrollo de Aplicaciones Multiplataforma", dense, Modifier.weight(1f))
+            }
+        }
+
+        PortfolioSection.CONTACT -> Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 14.dp)
+        ) {
+            MonitorFeatureCard(
+                title = "Hablemos",
+                subtitle = "¿Tienes una idea, un proyecto o simplemente quieres saludar?",
+                section = PortfolioSection.CONTACT,
+                color = accent,
+                dense = dense,
+                modifier = Modifier.weight(0.44f).fillMaxSize()
+            )
+            Row(
+                modifier = Modifier
+                    .weight(0.56f)
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(premiumInsetBrush())
+                    .border(1.dp, premiumBorderBrush(), RoundedCornerShape(10.dp))
+                    .padding(if (dense) 8.dp else 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(if (dense) 7.dp else 12.dp)
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("EMAIL DIRECTO", color = accent, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = if (dense) 6.sp else 8.sp)
+                    Text(contactEmail, color = primaryText, fontWeight = FontWeight.Black, fontSize = if (dense) 10.sp else 15.sp, modifier = Modifier.padding(top = 5.dp))
+                    if (!dense) {
+                        Text("Respuesta personal · Sin formularios", color = secondaryText, fontSize = 10.sp, modifier = Modifier.padding(top = 4.dp))
+                    }
+                }
+                MonitorInlineAction("ENVIAR EMAIL") { uriHandler.openUri("mailto:$contactEmail?subject=Contacto%20desde%20tu%20portfolio") }
+            }
+        }
+
+        PortfolioSection.SOCIAL -> Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else 14.dp)
+        ) {
+            MonitorSocialCard(
+                index = "01",
+                name = "GitHub",
+                handle = "@Deiivid",
+                description = "Código, librerías y proyectos Android construidos en abierto.",
+                eyebrow = "OPEN SOURCE",
+                tags = listOf("ANDROID", "KOTLIN", "LIBRERÍAS"),
+                icon = Res.drawable.github_logo,
+                color = accent,
+                dense = dense,
+                modifier = Modifier.weight(1f).fillMaxSize()
+            ) {
+                uriHandler.openUri("https://github.com/Deiivid")
+            }
+            MonitorSocialCard(
+                index = "02",
+                name = "Medium",
+                handle = "@davidnavarrom3",
+                description = "Ideas y aprendizajes sobre Kotlin, Compose y arquitectura móvil.",
+                eyebrow = "ARTÍCULOS TÉCNICOS",
+                tags = listOf("KOTLIN", "COMPOSE", "ARQUITECTURA"),
+                icon = Res.drawable.medium_logo,
+                color = amber,
+                dense = dense,
+                modifier = Modifier.weight(1f).fillMaxSize()
+            ) {
+                uriHandler.openUri("https://medium.com/@davidnavarrom3")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun MonitorAboutSection(
+    dense: Boolean,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(modifier) {
+        val compactStrip = maxHeight < 100.dp
+        val verticalLayout = maxWidth < 430.dp && maxHeight >= 240.dp
+        val gap = if (dense) 7.dp else 14.dp
+
+        if (compactStrip) {
+            MonitorAboutCompactStrip(Modifier.fillMaxSize())
+        } else if (verticalLayout) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(gap)
+            ) {
+                MonitorAboutIdentityCard(
+                    dense = true,
+                    modifier = Modifier.fillMaxWidth().weight(1.04f)
+                )
+                MonitorAboutStackCard(
+                    dense = true,
+                    modifier = Modifier.fillMaxWidth().weight(0.96f)
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(gap)
+            ) {
+                MonitorAboutIdentityCard(
+                    dense = dense,
+                    modifier = Modifier.fillMaxSize().weight(if (dense) 0.46f else 0.50f)
+                )
+                MonitorAboutStackCard(
+                    dense = dense,
+                    modifier = Modifier.fillMaxSize().weight(if (dense) 0.54f else 0.50f)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun MonitorAboutCompactStrip(modifier: Modifier = Modifier) {
+    val stripShape = RoundedCornerShape(8.dp)
+    Row(
+        modifier = modifier
+            .clip(stripShape)
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(mint), stripShape)
+            .padding(horizontal = 7.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        val avatarShape = RoundedCornerShape(8.dp)
+        Image(
+            painter = painterResource(Res.drawable.image_david),
+            contentDescription = "David Navarro",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(38.dp)
+                .clip(avatarShape)
+                .border(1.dp, premiumBorderBrush(mint), avatarShape)
+        )
+        Column(Modifier.weight(0.9f)) {
+            Text(
+                "David Navarro",
+                color = primaryText,
+                fontWeight = FontWeight.Black,
+                fontSize = 9.sp,
+                maxLines = 1
+            )
+            Text(
+                "Android Developer · KMP",
+                color = mint,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 6.sp,
+                maxLines = 1,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+        Box(
+            Modifier
+                .width(1.dp)
+                .height(34.dp)
+                .background(accent.copy(alpha = 0.24f))
+        )
+        Column(Modifier.weight(1.15f)) {
+            Text(
+                "STACK PRINCIPAL",
+                color = accent,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Black,
+                fontSize = 6.sp,
+                letterSpacing = 0.3.sp
+            )
+            Text(
+                "Kotlin · Compose · KMP",
+                color = primaryText,
+                fontWeight = FontWeight.Bold,
+                fontSize = 7.sp,
+                maxLines = 1,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun MonitorAboutIdentityCard(
+    dense: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val cardShape = RoundedCornerShape(if (dense) 9.dp else 14.dp)
+    Column(
+        modifier = modifier
+            .clip(cardShape)
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(mint), cardShape)
+            .padding(if (dense) 9.dp else 14.dp),
+        verticalArrangement = Arrangement.spacedBy(if (dense) 5.dp else 10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(if (dense) 9.dp else 13.dp)
+        ) {
+            val avatarShape = RoundedCornerShape(if (dense) 10.dp else 16.dp)
+            Image(
+                painter = painterResource(Res.drawable.image_david),
+                contentDescription = "David Navarro",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(if (dense) 44.dp else 76.dp)
+                    .shadow(10.dp, avatarShape, ambientColor = Color.Black, spotColor = mint.copy(alpha = 0.20f))
+                    .clip(avatarShape)
+                    .border(1.dp, premiumBorderBrush(mint), avatarShape)
+            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "ANDROID · KMP",
+                    color = mint,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Black,
+                    fontSize = if (dense) 7.sp else 9.sp,
+                    letterSpacing = if (dense) 0.3.sp else 0.8.sp
+                )
+                Text(
+                    "David Navarro",
+                    color = primaryText,
+                    fontWeight = FontWeight.Black,
+                    fontSize = if (dense) 12.sp else 18.sp,
+                    modifier = Modifier.padding(top = if (dense) 1.dp else 4.dp)
+                )
+                Text(
+                    "Android Developer",
+                    color = secondaryText,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = if (dense) 8.sp else 11.sp,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+        }
+
+        Text(
+            if (dense) {
+                "Apps móviles rápidas y mantenibles."
+            } else {
+                "Diseño y desarrollo productos móviles modernos, rápidos y fáciles de mantener."
+            },
+            color = primaryText.copy(alpha = 0.92f),
+            fontSize = if (dense) 7.sp else 11.sp,
+            lineHeight = if (dense) 9.sp else 15.sp,
+            maxLines = 2,
+            modifier = Modifier.padding(vertical = if (dense) 2.dp else 8.dp)
+        )
+
+        if (!dense) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                MonitorAboutFact(
+                    label = "ESPECIALIDAD",
+                    value = "Android · Compose",
+                    modifier = Modifier.weight(1f)
+                )
+                MonitorAboutFact(
+                    label = "ENFOQUE",
+                    value = "KMP · Arquitectura",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MonitorAboutFact(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    val factShape = RoundedCornerShape(10.dp)
+    Column(
+        modifier = modifier
+            .clip(factShape)
+            .background(Color(0x55101C29))
+            .border(1.dp, mint.copy(alpha = 0.18f), factShape)
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+    ) {
+        Text(
+            label,
+            color = mint,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Black,
+            fontSize = 6.sp,
+            letterSpacing = 0.5.sp
+        )
+        Text(
+            value,
+            color = primaryText,
+            fontWeight = FontWeight.Bold,
+            fontSize = 9.sp,
+            maxLines = 1,
+            modifier = Modifier.padding(top = 3.dp)
+        )
+    }
+}
+
+@Composable
+private fun MonitorAboutStackCard(
+    dense: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val cardShape = RoundedCornerShape(if (dense) 9.dp else 14.dp)
+    val developmentTags = listOf("Kotlin", "Jetpack Compose", "KMP", "Coroutines", "Flow")
+    val qualityTags = listOf("Clean Architecture", "Testing", "CI/CD")
+
+    Column(
+        modifier = modifier
+            .clip(cardShape)
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(accent), cardShape)
+            .padding(if (dense) 9.dp else 14.dp),
+        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 8.dp)
+    ) {
+        Column {
+            Text(
+                "STACK PRINCIPAL",
+                color = accent,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Black,
+                fontSize = if (dense) 7.sp else 10.sp,
+                letterSpacing = if (dense) 0.3.sp else 0.8.sp
+            )
+            Text(
+                if (dense) {
+                    "Stack para producto móvil real."
+                } else {
+                    "Tecnologías que uso para construir producto móvil real."
+                },
+                color = secondaryText,
+                fontSize = if (dense) 7.sp else 11.sp,
+                lineHeight = if (dense) 9.sp else 15.sp,
+                maxLines = if (dense) 1 else 2,
+                modifier = Modifier.padding(top = if (dense) 2.dp else 5.dp)
+            )
+
+            if (dense) {
+                TagCloud(
+                    tags = listOf("Kotlin", "Compose", "KMP"),
+                    dense = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 5.dp)
+                )
+                Text(
+                    "Coroutines · Flow · Clean Architecture · Testing",
+                    color = primaryText.copy(alpha = 0.82f),
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 7.sp,
+                    lineHeight = 9.sp,
+                    maxLines = 2,
+                    modifier = Modifier.padding(top = 5.dp)
+                )
+            } else {
+                MonitorAboutSkillGroup(
+                    label = "DESARROLLO",
+                    tags = developmentTags,
+                    modifier = Modifier.fillMaxWidth().padding(top = 9.dp)
+                )
+                MonitorAboutSkillGroup(
+                    label = "CALIDAD",
+                    tags = qualityTags,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                )
+            }
+        }
+
+    }
+}
+
+@Composable
+private fun MonitorAboutSkillGroup(
+    label: String,
+    tags: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier) {
+        Text(
+            label,
+            color = secondaryText.copy(alpha = 0.78f),
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold,
+            fontSize = 6.sp,
+            letterSpacing = 0.5.sp
+        )
+        TagCloud(
+            tags = tags,
+            dense = false,
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+        )
+    }
+}
+
+@Composable
+private fun MonitorFeatureCard(
+    title: String,
+    subtitle: String,
+    section: PortfolioSection,
+    color: Color,
+    dense: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(color), RoundedCornerShape(10.dp))
+            .padding(if (dense) 10.dp else 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(if (dense) 10.dp else 16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(if (dense) 54.dp else 78.dp)
+                .background(color.copy(alpha = 0.10f), CircleShape)
+                .border(1.dp, color.copy(alpha = 0.52f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) { MenuSymbol(section, compact = false) }
+        Column {
+            Text(title, color = primaryText, fontWeight = FontWeight.Black, fontSize = if (dense) 9.sp else 16.sp, maxLines = 2)
+            Text(
+                subtitle,
+                color = secondaryText,
+                fontSize = if (dense) 5.sp else 10.sp,
+                lineHeight = if (dense) 7.sp else 14.sp,
+                maxLines = 2,
+                modifier = Modifier.padding(top = if (dense) 2.dp else 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun MonitorProjectCard(
+    title: String,
+    description: String,
+    tags: String,
+    color: Color,
+    dense: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(color), RoundedCornerShape(10.dp))
+            .padding(if (dense) 6.dp else 14.dp),
+        verticalArrangement = if (dense) Arrangement.spacedBy(3.dp) else Arrangement.SpaceBetween
+    ) {
+        Box(
+            modifier = Modifier
+                .size(if (dense) 21.dp else 44.dp)
+                .background(color.copy(alpha = 0.10f), CircleShape)
+                .border(1.dp, color.copy(alpha = 0.48f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) { MenuSymbol(PortfolioSection.PROJECTS, compact = true) }
+        Column {
+            Text(title, color = primaryText, fontWeight = FontWeight.Black, fontSize = if (dense) 7.sp else 11.sp, maxLines = if (dense) 2 else 1)
+            Text(description, color = secondaryText, fontSize = if (dense) 5.sp else 8.sp, lineHeight = if (dense) 7.sp else 11.sp, maxLines = if (dense) 1 else 2, modifier = Modifier.padding(top = if (dense) 1.dp else 3.dp))
+            Text(tags, color = color, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = if (dense) 4.sp else 7.sp, maxLines = 1, modifier = Modifier.padding(top = if (dense) 2.dp else 5.dp))
+        }
+        if (!dense) {
+            Text("ABRIR  ↗", color = color, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = 7.sp)
+        }
+    }
+}
+
+@Composable
+private fun MonitorInlineAction(text: String, onClick: () -> Unit) {
+    Text(
+        text,
+        color = Color(0xFF06131A),
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Black,
+        fontSize = 6.sp,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .clickable(onClick = onClick)
+            .background(accent)
+            .padding(horizontal = 9.dp, vertical = 5.dp)
+    )
+}
+
+@Composable
+private fun MonitorExperienceCard(period: String, title: String, description: String, dense: Boolean, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(9.dp))
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(amber), RoundedCornerShape(9.dp))
+            .padding(horizontal = if (dense) 8.dp else 12.dp, vertical = if (dense) 5.dp else 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Box(Modifier.size(if (dense) 7.dp else 9.dp).background(Color(0xFF17202A), CircleShape).border(2.dp, amber, CircleShape))
+        Column {
+            Text(period, color = amber, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = if (dense) 5.sp else 7.sp)
+            Text(title, color = primaryText, fontWeight = FontWeight.Black, fontSize = if (dense) 8.sp else 11.sp, maxLines = 1)
+            Text(description, color = secondaryText, fontSize = if (dense) 6.sp else 8.sp, maxLines = 1)
+        }
+    }
+}
+
+@Composable
+private fun MonitorSocialCard(
+    index: String,
+    name: String,
+    handle: String,
+    description: String,
+    eyebrow: String,
+    tags: List<String>,
+    icon: DrawableResource,
+    color: Color,
+    dense: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(if (dense) 9.dp else 14.dp)
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .clickable(onClick = onClick)
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        color.copy(alpha = 0.13f),
+                        Color(0xF20D1723),
+                        Color(0xF709111C)
+                    )
+                )
+            )
+            .border(1.dp, premiumBorderBrush(color), shape)
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = if (dense) 18.dp else 42.dp, y = if (dense) 18.dp else 48.dp)
+                .size(if (dense) 86.dp else 180.dp)
+                .border(1.dp, color.copy(alpha = 0.08f), CircleShape)
+        )
+        Text(
+            name.take(1),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = if (dense) 2.dp else 10.dp, y = if (dense) 8.dp else 24.dp)
+                .alpha(0.035f),
+            color = color,
+            fontWeight = FontWeight.Black,
+            fontSize = if (dense) 54.sp else 116.sp
+        )
+
+        if (dense) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp, vertical = 7.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .background(color.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
+                        .border(1.dp, color.copy(alpha = 0.56f), RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(17.dp),
+                        colorFilter = ColorFilter.tint(color)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 2.dp, y = 2.dp)
+                            .size(7.dp)
+                            .background(Color(0xFF0D1723), CircleShape)
+                            .border(1.dp, color.copy(alpha = 0.48f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(Modifier.size(2.5.dp).background(color, CircleShape))
+                    }
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        name,
+                        color = primaryText,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 8.sp,
+                        maxLines = 1
+                    )
+                    Text(
+                        handle,
+                        color = color,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 5.sp,
+                        maxLines = 1,
+                        modifier = Modifier.padding(top = 1.dp)
+                    )
+                    Text(
+                        eyebrow,
+                        color = secondaryText,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 3.5.sp,
+                        maxLines = 1,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        index,
+                        color = color,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 4.sp
+                    )
+                    Text("↗", color = color, fontWeight = FontWeight.Black, fontSize = 8.sp)
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(11.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .background(color.copy(alpha = 0.11f), RoundedCornerShape(15.dp))
+                                .border(1.dp, color.copy(alpha = 0.58f), RoundedCornerShape(15.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(icon),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                colorFilter = ColorFilter.tint(color)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .offset(x = 2.dp, y = 2.dp)
+                                    .size(9.dp)
+                                    .background(Color(0xFF0D1723), CircleShape)
+                                    .border(1.dp, color.copy(alpha = 0.50f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(Modifier.size(3.dp).background(color, CircleShape))
+                            }
+                        }
+                        Column {
+                            Text(
+                                name,
+                                color = primaryText,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 17.sp
+                            )
+                            Text(
+                                handle,
+                                color = color,
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 8.sp,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            "$index / PERFIL",
+                            color = color,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 6.sp
+                        )
+                        Text(
+                            eyebrow,
+                            color = secondaryText,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 5.sp,
+                            modifier = Modifier.padding(top = 3.dp)
+                        )
+                    }
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Box(
+                        Modifier
+                            .padding(top = 4.dp)
+                            .width(24.dp)
+                            .height(2.dp)
+                            .background(color, RoundedCornerShape(999.dp))
+                    )
+                    Text(
+                        description,
+                        color = secondaryText,
+                        fontSize = 8.sp,
+                        lineHeight = 11.sp,
+                        maxLines = 2
+                    )
+                }
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    tags.forEach { tag -> MonitorSocialTag(tag, color) }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(Modifier.size(5.dp).background(color, CircleShape))
+                        Text(
+                            "PERFIL PÚBLICO",
+                            color = secondaryText,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 5.sp
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .background(color.copy(alpha = 0.12f), RoundedCornerShape(8.dp))
+                            .border(1.dp, color.copy(alpha = 0.42f), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "VISITAR",
+                            color = color,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 6.sp
+                        )
+                        Text("↗", color = color, fontWeight = FontWeight.Black, fontSize = 9.sp)
+                    }
+                }
+            }
+            }
+        }
+    }
+
+@Composable
+private fun MonitorSocialTag(text: String, color: Color) {
+    Text(
+        text,
+        color = color.copy(alpha = 0.90f),
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Bold,
+        fontSize = 6.sp,
+        modifier = Modifier
+            .background(color.copy(alpha = 0.08f), RoundedCornerShape(999.dp))
+            .border(1.dp, color.copy(alpha = 0.22f), RoundedCornerShape(999.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    )
+}
+
+@Composable
+private fun MonitorOrbitConnectors(
+    placements: List<OrbitPlacement>,
+    nodeWidth: Dp,
+    nodeHeight: Dp,
+    hubX: Dp,
+    hubY: Dp,
+    hubSize: Dp,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier = modifier) {
+        val hubCenter = Offset(
+            x = hubX.toPx() + hubSize.toPx() / 2f,
+            y = hubY.toPx() + hubSize.toPx() / 2f
+        )
+        val orbitWidth = size.width * 0.58f
+        val orbitHeight = size.height * 0.86f
+        drawOval(
+            color = accent.copy(alpha = 0.42f),
+            topLeft = Offset((size.width - orbitWidth) / 2f, (size.height - orbitHeight) / 2f),
+            size = Size(orbitWidth, orbitHeight),
+            style = Stroke(width = 1.15.dp.toPx())
+        )
+        drawOval(
+            color = accent.copy(alpha = 0.18f),
+            topLeft = Offset((size.width - orbitWidth * 0.82f) / 2f, (size.height - orbitHeight * 0.82f) / 2f),
+            size = Size(orbitWidth * 0.82f, orbitHeight * 0.82f),
+            style = Stroke(width = 1.dp.toPx())
+        )
+        listOf(0.56f, 0.76f, 1f).forEachIndexed { index, fraction ->
+            drawCircle(
+                color = accent.copy(alpha = 0.10f + index * 0.05f),
+                radius = hubSize.toPx() * fraction,
+                center = hubCenter,
+                style = Stroke(width = 1.dp.toPx())
+            )
+        }
+        drawLine(
+            color = accent.copy(alpha = 0.24f),
+            start = Offset(size.width * 0.14f, hubCenter.y),
+            end = Offset(size.width * 0.86f, hubCenter.y),
+            strokeWidth = 1.dp.toPx()
+        )
+        listOf(
+            Offset(hubCenter.x, (size.height - orbitHeight) / 2f),
+            Offset(hubCenter.x + orbitWidth / 2f, hubCenter.y),
+            Offset(hubCenter.x, (size.height + orbitHeight) / 2f),
+            Offset(hubCenter.x - orbitWidth / 2f, hubCenter.y)
+        ).forEachIndexed { index, marker ->
+            drawCircle(
+                color = if (index == 1) amber else accent,
+                radius = 2.2.dp.toPx(),
+                center = marker
+            )
+        }
+    }
+}
+
+@Composable
+private fun MonitorOrbitHub(dense: Boolean, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.shadow(
+            if (dense) 12.dp else 28.dp,
+            CircleShape,
+            ambientColor = Color.Black,
+            spotColor = accent.copy(alpha = 0.55f)
+        ),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(Color(0xF20A121D), radius = size.minDimension * 0.48f)
+            drawCircle(accent.copy(alpha = 0.10f), radius = size.minDimension * 0.45f)
+            drawCircle(
+                color = Color.White.copy(alpha = 0.76f),
+                radius = size.minDimension * 0.47f,
+                style = Stroke(width = if (dense) 1.2.dp.toPx() else 2.dp.toPx())
+            )
+            drawCircle(
+                color = accent.copy(alpha = 0.72f),
+                radius = size.minDimension * 0.40f,
+                style = Stroke(width = if (dense) 1.dp.toPx() else 2.dp.toPx())
+            )
+        }
+        Text(
+            if (dense) "DN" else "DAVID\nNAVARRO",
+            color = primaryText,
+            fontWeight = FontWeight.Black,
+            fontSize = if (dense) 9.sp else 17.sp,
+            lineHeight = if (dense) 10.sp else 18.sp
+        )
+    }
+}
+
+@Composable
+private fun MonitorOrbitNode(
+    section: PortfolioSection,
+    dense: Boolean,
+    menuOnLeft: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val highlight = monitorSectionAccent(section)
+    val shape = RoundedCornerShape(999.dp)
+    val label = if (dense) {
+        when (section) {
+            PortfolioSection.CV -> "MI CV"
+            PortfolioSection.PROJECTS -> "PROY."
+            PortfolioSection.ABOUT -> "SOBRE"
+            PortfolioSection.EXPERIENCE -> "EXP."
+            PortfolioSection.CONTACT -> "EMAIL"
+            PortfolioSection.SOCIAL -> "REDES"
+        }
+    } else {
+        when (section) {
+            PortfolioSection.CV -> "MI CV"
+            PortfolioSection.PROJECTS -> "PROYECTOS"
+            PortfolioSection.ABOUT -> "SOBRE MÍ"
+            PortfolioSection.EXPERIENCE -> "EXPERIENCIA"
+            PortfolioSection.CONTACT -> "EMAIL"
+            PortfolioSection.SOCIAL -> "REDES"
+        }
+    }
+    Box(
+        modifier = modifier.clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (dense) 34.dp else 58.dp)
+                .shadow(12.dp, shape, ambientColor = Color.Black, spotColor = highlight.copy(alpha = 0.18f))
+                .clip(shape)
+                .background(Brush.horizontalGradient(listOf(Color(0xE8152738), Color(0xF208111B))))
+                .border(1.dp, highlight.copy(alpha = 0.34f), shape)
+        )
+        Text(
+            label,
+            color = primaryText,
+            fontWeight = FontWeight.Black,
+            fontSize = if (dense) 8.sp else 14.sp,
+            maxLines = 1,
+            modifier = Modifier
+                .align(if (menuOnLeft) Alignment.CenterStart else Alignment.CenterEnd)
+                .padding(
+                    start = if (menuOnLeft) (if (dense) 12.dp else 22.dp) else 0.dp,
+                    end = if (!menuOnLeft) (if (dense) 12.dp else 22.dp) else 0.dp
+                )
+        )
+        MonitorOrbitSymbol(
+            section = section,
+            color = highlight,
+            dense = dense,
+            modifier = Modifier.align(if (menuOnLeft) Alignment.CenterEnd else Alignment.CenterStart)
+        )
+    }
+}
+
+@Composable
+private fun MonitorOrbitNumber(number: String, color: Color, dense: Boolean) {
+    Box(
+        modifier = Modifier
+            .size(if (dense) 18.dp else 24.dp)
+            .background(color.copy(alpha = 0.08f), CircleShape)
+            .border(1.dp, color.copy(alpha = 0.30f), CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            number,
+            color = color,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Black,
+            fontSize = if (dense) 6.sp else 7.sp
+        )
+    }
+}
+
+@Composable
+private fun MonitorOrbitSymbol(section: PortfolioSection, color: Color, dense: Boolean, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .shadow(
+                if (dense) 14.dp else 26.dp,
+                CircleShape,
+                ambientColor = Color.Black,
+                spotColor = color.copy(alpha = 0.72f)
+            )
+            .size(if (dense) 44.dp else 82.dp)
+            .background(Brush.radialGradient(listOf(color.copy(alpha = 0.28f), Color(0xFF08121D))), CircleShape)
+            .border(if (dense) 1.dp else 2.dp, Color.White.copy(alpha = 0.52f), CircleShape)
+            .padding(if (dense) 4.dp else 7.dp)
+            .border(if (dense) 1.dp else 2.dp, color.copy(alpha = 0.82f), CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        MenuSymbol(section = section, compact = dense)
+    }
+}
+
+@Composable
+private fun MonitorOrbitLabel(label: String, color: Color, dense: Boolean, modifier: Modifier = Modifier) {
+    Text(
+        label,
+        color = primaryText,
+        fontWeight = FontWeight.Black,
+        fontSize = if (dense) 8.sp else 10.sp,
+        maxLines = 1,
+        modifier = modifier
+    )
+    Box(Modifier.size(if (dense) 3.dp else 4.dp).background(color.copy(alpha = 0.86f), CircleShape))
 }
 
 @Composable
@@ -1379,9 +2673,16 @@ private fun PortfolioDetailPanel(
     onBack: () -> Unit,
     compact: Boolean,
     maxHeight: Dp,
+    monitorDense: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val panelShape = RoundedCornerShape(if (compact) 24.dp else 22.dp)
+    val panelShape = RoundedCornerShape(
+        when {
+            monitorDense -> 10.dp
+            compact -> 24.dp
+            else -> 22.dp
+        }
+    )
     Column(
         modifier = modifier
             .heightIn(max = maxHeight)
@@ -1390,7 +2691,13 @@ private fun PortfolioDetailPanel(
             .background(premiumSurfaceBrush())
             .border(1.dp, premiumBorderBrush(), panelShape)
             .verticalScroll(rememberScrollState())
-            .padding(if (compact) 18.dp else 22.dp)
+            .padding(
+                when {
+                    monitorDense -> 8.dp
+                    compact -> 18.dp
+                    else -> 22.dp
+                }
+            )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1399,193 +2706,308 @@ private fun PortfolioDetailPanel(
         ) {
             Row(
                 modifier = Modifier
-                    .shadow(10.dp, RoundedCornerShape(11.dp), ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.22f))
-                    .clip(RoundedCornerShape(10.dp))
+                    .shadow(
+                        if (monitorDense) 5.dp else 10.dp,
+                        RoundedCornerShape(if (monitorDense) 6.dp else 11.dp),
+                        ambientColor = Color.Black,
+                        spotColor = accent.copy(alpha = 0.22f)
+                    )
+                    .clip(RoundedCornerShape(if (monitorDense) 6.dp else 10.dp))
                     .clickable(onClick = onBack)
                     .background(premiumInsetBrush())
-                    .border(1.dp, premiumBorderBrush(), RoundedCornerShape(10.dp))
-                    .padding(horizontal = 11.dp, vertical = 8.dp),
+                    .border(
+                        1.dp,
+                        premiumBorderBrush(),
+                        RoundedCornerShape(if (monitorDense) 6.dp else 10.dp)
+                    )
+                    .padding(
+                        horizontal = if (monitorDense) 6.dp else 11.dp,
+                        vertical = if (monitorDense) 4.dp else 8.dp
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(7.dp)
+                horizontalArrangement = Arrangement.spacedBy(if (monitorDense) 4.dp else 7.dp)
             ) {
-                Text("←", color = accent, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                Text("MENÚ", color = primaryText, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 9.sp)
+                Text(
+                    "←",
+                    color = accent,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = if (monitorDense) 8.sp else 12.sp
+                )
+                Text(
+                    "MENÚ",
+                    color = primaryText,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = if (monitorDense) 6.sp else 9.sp
+                )
             }
             Text(
                 "${section.number} / PORTFOLIO",
                 color = accent,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Bold,
-                fontSize = 9.sp,
-                letterSpacing = 0.8.sp
+                fontSize = if (monitorDense) 6.sp else 9.sp,
+                letterSpacing = if (monitorDense) 0.3.sp else 0.8.sp
             )
         }
         Text(
             section.label,
             color = primaryText,
             fontWeight = FontWeight.Black,
-            fontSize = if (compact) 27.sp else 31.sp,
-            modifier = Modifier.padding(top = 18.dp, bottom = 18.dp)
+            fontSize = when {
+                monitorDense -> 16.sp
+                compact -> 27.sp
+                else -> 31.sp
+            },
+            modifier = Modifier.padding(
+                top = if (monitorDense) 6.dp else 18.dp,
+                bottom = if (monitorDense) 7.dp else 18.dp
+            )
         )
-        SectionContent(section)
+        SectionContent(section, dense = monitorDense)
     }
 }
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-private fun SectionContent(section: PortfolioSection) {
+private fun SectionContent(section: PortfolioSection, dense: Boolean = false) {
     val uriHandler = LocalUriHandler.current
     when (section) {
         PortfolioSection.CV -> {
-            SectionLead("Mi formación, experiencia y tecnologías en un único documento.")
-            PrimaryAction("ABRIR CV") { uriHandler.openUri("/assets/cv/cv.pdf") }
+            SectionLead("Mi formación, experiencia y tecnologías en un único documento.", dense = dense)
+            PrimaryAction("ABRIR CV", dense = dense) { uriHandler.openUri("/assets/cv/cv.pdf") }
         }
         PortfolioSection.PROJECTS -> {
-            SectionLead("Proyectos Android creados para resolver problemas reales y explorar nuevas ideas.")
+            SectionLead("Proyectos Android creados para resolver problemas reales y explorar nuevas ideas.", dense = dense)
             ProjectItem(
                 title = "PermissionProtect",
                 description = "Control y aprendizaje sobre los permisos de las aplicaciones Android.",
                 tags = "Kotlin · Jetpack Compose",
+                dense = dense,
                 onClick = { uriHandler.openUri("https://play.google.com/store/apps/details?id=es.permissionprotect&hl=es") }
             )
             ProjectItem(
                 title = "Glassmorphism Compose",
                 description = "Librería de efectos glassmorphism con RenderEffect y soporte NDK.",
                 tags = "Compose · Kotlin · C++",
+                dense = dense,
                 onClick = { uriHandler.openUri("https://github.com/Deiivid/Glassmorphism-Compose") }
             )
             ProjectItem(
                 title = "Clean Architecture Compose",
                 description = "Proyecto multimódulo con separación de dominio, datos y presentación.",
                 tags = "Clean Architecture · Koin · Detekt",
+                dense = dense,
                 onClick = { uriHandler.openUri("https://github.com/Deiivid/Clean_Arquitecture_Compose") }
             )
         }
         PortfolioSection.ABOUT -> {
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(if (dense) 7.dp else 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val portraitShape = RoundedCornerShape(if (dense) 10.dp else 18.dp)
                 Image(
                     painter = painterResource(Res.drawable.image_david),
                     contentDescription = "David Navarro",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(82.dp)
-                        .shadow(14.dp, RoundedCornerShape(18.dp), ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.24f))
-                        .clip(RoundedCornerShape(18.dp))
-                        .border(1.dp, premiumBorderBrush(), RoundedCornerShape(18.dp))
+                        .size(if (dense) 42.dp else 82.dp)
+                        .shadow(
+                            if (dense) 7.dp else 14.dp,
+                            portraitShape,
+                            ambientColor = Color.Black,
+                            spotColor = accent.copy(alpha = 0.24f)
+                        )
+                        .clip(portraitShape)
+                        .border(1.dp, premiumBorderBrush(), portraitShape)
                 )
                 Column {
-                    Text("Android Developer", color = accent, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    Text("Kotlin · Compose · KMP", color = primaryText, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                    Text(
+                        "Android Developer",
+                        color = accent,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = if (dense) 7.sp else 12.sp
+                    )
+                    Text(
+                        "Kotlin · Compose · KMP",
+                        color = primaryText,
+                        fontWeight = FontWeight.Black,
+                        fontSize = if (dense) 9.sp else 16.sp
+                    )
                 }
             }
             SectionLead(
                 "Me apasiona crear aplicaciones modernas, mantenibles y rápidas, cuidando tanto la arquitectura como la experiencia de usuario.",
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = if (dense) 7.dp else 16.dp),
+                dense = dense
             )
-            TagCloud(listOf("Kotlin", "Jetpack Compose", "KMP", "Coroutines", "Flow", "Clean Architecture", "Testing", "CI/CD"))
+            TagCloud(
+                listOf("Kotlin", "Jetpack Compose", "KMP", "Coroutines", "Flow", "Clean Architecture", "Testing", "CI/CD"),
+                dense = dense
+            )
         }
         PortfolioSection.EXPERIENCE -> {
-            ExperienceItem("ACTUALMENTE", "Hiberus", "Android Developer para cliente del sector bancario · Jetpack Compose")
-            ExperienceItem("2024", "Especialización", "Clean Architecture, proyectos personales y desarrollo móvil avanzado")
-            ExperienceItem("2021 — 2023", "Desarrollo móvil", "Primeros pasos profesionales, liderazgo de proyectos y creación de una librería")
-            ExperienceItem("2021", "Hiberus Héroes y Heroínas", "Formación intensiva en desarrollo de aplicaciones")
-            ExperienceItem("2019 — 2021", "DAM", "Técnico Superior en Desarrollo de Aplicaciones Multiplataforma")
+            ExperienceItem("ACTUALMENTE", "Hiberus", "Android Developer para cliente del sector bancario · Jetpack Compose", dense)
+            ExperienceItem("2024", "Especialización", "Clean Architecture, proyectos personales y desarrollo móvil avanzado", dense)
+            ExperienceItem("2021 — 2023", "Desarrollo móvil", "Primeros pasos profesionales, liderazgo de proyectos y creación de una librería", dense)
+            ExperienceItem("2021", "Hiberus Héroes y Heroínas", "Formación intensiva en desarrollo de aplicaciones", dense)
+            ExperienceItem("2019 — 2021", "DAM", "Técnico Superior en Desarrollo de Aplicaciones Multiplataforma", dense)
         }
         PortfolioSection.CONTACT -> {
-            SectionLead("¿Tienes una idea, un proyecto o simplemente quieres saludar? Escríbeme.")
-            Text(contactEmail, color = primaryText, fontWeight = FontWeight.Black, fontSize = 15.sp)
-            PrimaryAction("ENVIAR EMAIL", modifier = Modifier.padding(top = 16.dp)) {
+            SectionLead("¿Tienes una idea, un proyecto o simplemente quieres saludar? Escríbeme.", dense = dense)
+            Text(contactEmail, color = primaryText, fontWeight = FontWeight.Black, fontSize = if (dense) 8.sp else 15.sp)
+            PrimaryAction(
+                "ENVIAR EMAIL",
+                modifier = Modifier.padding(top = if (dense) 7.dp else 16.dp),
+                dense = dense
+            ) {
                 uriHandler.openUri("mailto:$contactEmail?subject=Contacto%20desde%20tu%20portfolio")
             }
         }
         PortfolioSection.SOCIAL -> {
-            SectionLead("Código, artículos y todo lo que voy construyendo.")
-            SocialAction("GitHub", "@Deiivid", accent) { uriHandler.openUri("https://github.com/Deiivid") }
-            SocialAction("Medium", "@davidnavarrom3", amber) { uriHandler.openUri("https://medium.com/@davidnavarrom3") }
+            SectionLead("Código, artículos y todo lo que voy construyendo.", dense = dense)
+            SocialAction("GitHub", "@Deiivid", accent, dense) { uriHandler.openUri("https://github.com/Deiivid") }
+            SocialAction("Medium", "@davidnavarrom3", amber, dense) { uriHandler.openUri("https://medium.com/@davidnavarrom3") }
         }
     }
 }
 
 @Composable
-private fun SectionLead(text: String, modifier: Modifier = Modifier) {
+private fun SectionLead(text: String, modifier: Modifier = Modifier, dense: Boolean = false) {
     Text(
         text,
         color = secondaryText,
-        fontSize = 13.sp,
-        lineHeight = 19.sp,
-        modifier = modifier.padding(bottom = 16.dp)
+        fontSize = if (dense) 8.sp else 13.sp,
+        lineHeight = if (dense) 11.sp else 19.sp,
+        modifier = modifier.padding(bottom = if (dense) 7.dp else 16.dp)
     )
 }
 
 @Composable
-private fun PrimaryAction(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun PrimaryAction(text: String, modifier: Modifier = Modifier, dense: Boolean = false, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(containerColor = accent),
-        shape = RoundedCornerShape(12.dp),
-        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
+        shape = RoundedCornerShape(if (dense) 7.dp else 12.dp),
+        contentPadding = PaddingValues(
+            horizontal = if (dense) 10.dp else 18.dp,
+            vertical = if (dense) 6.dp else 12.dp
+        )
     ) {
-        Text(text, color = Color(0xFF06131A), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = 10.sp)
-    }
-}
-
-@Composable
-private fun ProjectItem(title: String, description: String, tags: String, onClick: () -> Unit) {
-    val itemShape = RoundedCornerShape(15.dp)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 9.dp)
-            .shadow(12.dp, itemShape, ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.12f))
-            .clip(itemShape)
-            .clickable(onClick = onClick)
-            .background(premiumInsetBrush())
-            .border(1.dp, premiumBorderBrush(), itemShape)
-            .padding(horizontal = 14.dp, vertical = 13.dp)
-    ) {
-        Text(title, color = primaryText, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-        Text(description, color = secondaryText, fontSize = 11.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 4.dp))
-        Text(tags, color = violet, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold, fontSize = 8.sp, modifier = Modifier.padding(top = 8.dp))
-    }
-}
-
-@Composable
-private fun ExperienceItem(period: String, title: String, description: String) {
-    val itemShape = RoundedCornerShape(15.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 11.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp)
-                .shadow(11.dp, itemShape, ambientColor = Color.Black, spotColor = warm.copy(alpha = 0.10f))
-                .clip(itemShape)
-                .background(premiumInsetBrush())
-                .border(1.dp, premiumBorderBrush(warm), itemShape)
-                .padding(start = 20.dp, top = 13.dp, end = 14.dp, bottom = 14.dp)
-        ) {
-            Text(period, color = warm, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 8.sp, letterSpacing = 0.7.sp)
-            Text(title, color = primaryText, fontWeight = FontWeight.Black, fontSize = 15.sp, modifier = Modifier.padding(top = 3.dp))
-            Text(description, color = secondaryText, fontSize = 11.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 4.dp))
-        }
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .shadow(9.dp, CircleShape, ambientColor = Color.Black, spotColor = warm.copy(alpha = 0.65f))
-                .size(13.dp)
-                .background(Color(0xFF18202A), CircleShape)
-                .border(2.dp, warm, CircleShape)
+        Text(
+            text,
+            color = Color(0xFF06131A),
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Black,
+            fontSize = if (dense) 7.sp else 10.sp
         )
     }
 }
 
 @Composable
-private fun TagCloud(tags: List<String>) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+private fun ProjectItem(title: String, description: String, tags: String, dense: Boolean = false, onClick: () -> Unit) {
+    val itemShape = RoundedCornerShape(if (dense) 8.dp else 15.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = if (dense) 5.dp else 9.dp)
+            .shadow(if (dense) 6.dp else 12.dp, itemShape, ambientColor = Color.Black, spotColor = accent.copy(alpha = 0.12f))
+            .clip(itemShape)
+            .clickable(onClick = onClick)
+            .background(premiumInsetBrush())
+            .border(1.dp, premiumBorderBrush(), itemShape)
+            .padding(horizontal = if (dense) 8.dp else 14.dp, vertical = if (dense) 6.dp else 13.dp)
+    ) {
+        Text(title, color = primaryText, fontWeight = FontWeight.Bold, fontSize = if (dense) 9.sp else 14.sp)
+        Text(
+            description,
+            color = secondaryText,
+            fontSize = if (dense) 7.sp else 11.sp,
+            lineHeight = if (dense) 9.sp else 16.sp,
+            modifier = Modifier.padding(top = if (dense) 2.dp else 4.dp)
+        )
+        Text(
+            tags,
+            color = violet,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = if (dense) 6.sp else 8.sp,
+            modifier = Modifier.padding(top = if (dense) 4.dp else 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun ExperienceItem(period: String, title: String, description: String, dense: Boolean = false) {
+    val itemShape = RoundedCornerShape(if (dense) 8.dp else 15.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = if (dense) 5.dp else 11.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = if (dense) 7.dp else 12.dp)
+                .shadow(if (dense) 6.dp else 11.dp, itemShape, ambientColor = Color.Black, spotColor = warm.copy(alpha = 0.10f))
+                .clip(itemShape)
+                .background(premiumInsetBrush())
+                .border(1.dp, premiumBorderBrush(warm), itemShape)
+                .padding(
+                    start = if (dense) 11.dp else 20.dp,
+                    top = if (dense) 6.dp else 13.dp,
+                    end = if (dense) 8.dp else 14.dp,
+                    bottom = if (dense) 7.dp else 14.dp
+                )
+        ) {
+            Text(
+                period,
+                color = warm,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+                fontSize = if (dense) 6.sp else 8.sp,
+                letterSpacing = if (dense) 0.3.sp else 0.7.sp
+            )
+            Text(
+                title,
+                color = primaryText,
+                fontWeight = FontWeight.Black,
+                fontSize = if (dense) 9.sp else 15.sp,
+                modifier = Modifier.padding(top = if (dense) 1.dp else 3.dp)
+            )
+            Text(
+                description,
+                color = secondaryText,
+                fontSize = if (dense) 7.sp else 11.sp,
+                lineHeight = if (dense) 9.sp else 16.sp,
+                modifier = Modifier.padding(top = if (dense) 2.dp else 4.dp)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .shadow(if (dense) 5.dp else 9.dp, CircleShape, ambientColor = Color.Black, spotColor = warm.copy(alpha = 0.65f))
+                .size(if (dense) 8.dp else 13.dp)
+                .background(Color(0xFF18202A), CircleShape)
+                .border(if (dense) 1.dp else 2.dp, warm, CircleShape)
+        )
+    }
+}
+
+@Composable
+private fun TagCloud(
+    tags: List<String>,
+    dense: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(if (dense) 4.dp else 5.dp),
+        verticalArrangement = Arrangement.spacedBy(if (dense) 4.dp else 5.dp)
+    ) {
         tags.forEach { tag ->
             val chipShape = RoundedCornerShape(999.dp)
             Text(
@@ -1593,37 +3015,43 @@ private fun TagCloud(tags: List<String>) {
                 color = mint,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 9.sp,
+                fontSize = if (dense) 7.sp else 8.sp,
                 modifier = Modifier
-                    .shadow(7.dp, chipShape, ambientColor = Color.Black, spotColor = mint.copy(alpha = 0.12f))
+                    .shadow(if (dense) 4.dp else 7.dp, chipShape, ambientColor = Color.Black, spotColor = mint.copy(alpha = 0.12f))
                     .background(premiumInsetBrush(), chipShape)
                     .border(1.dp, premiumBorderBrush(mint), chipShape)
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .padding(horizontal = if (dense) 7.dp else 8.dp, vertical = if (dense) 3.dp else 4.dp)
             )
         }
     }
 }
 
 @Composable
-private fun SocialAction(name: String, handle: String, color: Color, onClick: () -> Unit) {
-    val itemShape = RoundedCornerShape(15.dp)
+private fun SocialAction(name: String, handle: String, color: Color, dense: Boolean = false, onClick: () -> Unit) {
+    val itemShape = RoundedCornerShape(if (dense) 8.dp else 15.dp)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 9.dp)
-            .shadow(12.dp, itemShape, ambientColor = Color.Black, spotColor = color.copy(alpha = 0.12f))
+            .padding(bottom = if (dense) 5.dp else 9.dp)
+            .shadow(if (dense) 6.dp else 12.dp, itemShape, ambientColor = Color.Black, spotColor = color.copy(alpha = 0.12f))
             .clip(itemShape)
             .clickable(onClick = onClick)
             .background(premiumInsetBrush())
             .border(1.dp, premiumBorderBrush(color), itemShape)
-            .padding(13.dp),
+            .padding(if (dense) 7.dp else 13.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(name, color = primaryText, fontWeight = FontWeight.Black, fontSize = 14.sp)
-            Text(handle, color = color, fontFamily = FontFamily.Monospace, fontSize = 9.sp)
+            Text(name, color = primaryText, fontWeight = FontWeight.Black, fontSize = if (dense) 9.sp else 14.sp)
+            Text(handle, color = color, fontFamily = FontFamily.Monospace, fontSize = if (dense) 6.sp else 9.sp)
         }
-        Text("ABRIR  ↗", color = color, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Black, fontSize = 8.sp)
+        Text(
+            "ABRIR  ↗",
+            color = color,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Black,
+            fontSize = if (dense) 6.sp else 8.sp
+        )
     }
 }

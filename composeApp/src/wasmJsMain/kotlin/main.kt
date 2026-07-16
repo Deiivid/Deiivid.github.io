@@ -32,15 +32,22 @@ private fun PortfolioApp() {
             onDispose {}
         } else {
             var animationFrameId = 0
+            var revealFrameId = 0
             var firstFrameAt: Double? = null
             var lastAdvanceAt: Double? = null
             var lastMediaTime = 0.0
-            var lastUiProgress = -1f
+            var portfolioShown = false
 
             fun showPortfolio() {
+                if (portfolioShown) return
+                portfolioShown = true
                 introProgress = 1f
-                introVideo.style.opacity = "0"
-                introVideo.style.setProperty("pointer-events", "none")
+                revealFrameId = window.requestAnimationFrame {
+                    revealFrameId = window.requestAnimationFrame {
+                        introVideo.style.opacity = "0"
+                        introVideo.style.setProperty("pointer-events", "none")
+                    }
+                }
             }
 
             lateinit var updateProgress: (Double) -> Unit
@@ -56,31 +63,18 @@ private fun PortfolioApp() {
                     lastAdvanceAt = frameTime
                 }
 
-                val duration = introVideo.duration
-                if (duration.isFinite() && duration > 0.0) {
-                    val progress = (mediaTime / duration).toFloat().coerceIn(0f, 1f)
-                    val uiProgress = when {
-                        progress >= 0.97f -> 1f
-                        progress >= 0.90f -> 0.92f
-                        else -> 0f
-                    }
-                    if (uiProgress != lastUiProgress) {
-                        introProgress = uiProgress
-                        lastUiProgress = uiProgress
-                    }
-                    if (progress >= 0.995f) {
-                        introVideo.style.opacity = "0"
-                        introVideo.style.setProperty("pointer-events", "none")
-                    }
-                }
-
                 val elapsed = frameTime - (firstFrameAt ?: frameTime)
                 val withoutAdvance = frameTime - (lastAdvanceAt ?: frameTime)
                 val autoplayBlocked = elapsed >= 1_800.0 && mediaTime < 0.03 && introVideo.paused
                 val playbackStalled = withoutAdvance >= 4_500.0 && !introVideo.ended
                 val playbackFailed = introVideo.error != null
 
-                if (introVideo.ended || autoplayBlocked || playbackStalled || playbackFailed) {
+                if (
+                    introVideo.ended ||
+                    autoplayBlocked ||
+                    playbackStalled ||
+                    playbackFailed
+                ) {
                     showPortfolio()
                 } else {
                     animationFrameId = window.requestAnimationFrame(updateProgress)
@@ -93,6 +87,7 @@ private fun PortfolioApp() {
 
             onDispose {
                 window.cancelAnimationFrame(animationFrameId)
+                window.cancelAnimationFrame(revealFrameId)
             }
         }
     }
