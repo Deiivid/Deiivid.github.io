@@ -357,7 +357,6 @@ private fun TargetHero(
             Spacer(Modifier.height(17.dp * scale))
             TargetActionButton(
                 text = "Descargar CV",
-                primary = false,
                 scale = scale,
                 modifier = Modifier.width(270.dp * scale),
                 onClick = onCv
@@ -507,7 +506,6 @@ private fun HeroCircuitAnimation(modifier: Modifier = Modifier) {
 @Composable
 private fun TargetActionButton(
     text: String,
-    primary: Boolean,
     scale: Float,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
@@ -517,63 +515,38 @@ private fun TargetActionButton(
         modifier = modifier
             .height(58.dp * scale)
             .clip(shape)
-            .then(
-                if (primary) {
-                    Modifier.background(TargetCyan)
-                } else {
-                    Modifier
-                        .background(TargetNight.copy(alpha = 0.74f))
-                        .border(
-                            width = (1f * scale).coerceAtLeast(0.8f).dp,
-                            color = TargetWhite.copy(alpha = 0.22f),
-                            shape = shape
-                        )
-                }
+            .background(TargetNight.copy(alpha = 0.74f))
+            .border(
+                width = (1f * scale).coerceAtLeast(0.8f).dp,
+                color = TargetWhite.copy(alpha = 0.22f),
+                shape = shape
             )
             .clickable(onClick = onClick)
             .padding(horizontal = 0.dp)
     ) {
-        if (primary) {
-            Text(
-                text = text,
-                color = TargetNight,
-                fontWeight = FontWeight.Bold,
-                fontSize = (21f * scale).sp,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 58.dp * scale)
-            )
-            TargetArrowIcon(
-                scale = scale,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 43.dp * scale)
-            )
-        } else {
-            TargetDownloadIcon(
-                scale = scale,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 49.dp * scale)
-            )
-            Text(
-                text = text,
-                color = TargetAmber,
-                fontWeight = FontWeight.Bold,
-                fontSize = (20f * scale).sp,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 87.dp * scale)
-            )
-        }
+        TargetDownloadIcon(
+            scale = scale,
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 49.dp * scale)
+        )
+        Text(
+            text = text,
+            color = TargetAmber,
+            fontWeight = FontWeight.Bold,
+            fontSize = (20f * scale).sp,
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 87.dp * scale)
+        )
     }
 }
 
 @Composable
 private fun TargetArrowIcon(
     scale: Float,
-    modifier: Modifier = Modifier,
-    color: Color = TargetNight
+    color: Color,
+    modifier: Modifier = Modifier
 ) {
     Canvas(modifier = modifier.size(width = 24.dp * scale, height = 16.dp * scale)) {
         val stroke = (1.8f * scale).dp.toPx()

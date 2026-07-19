@@ -10,7 +10,7 @@ Reason:
 `.github/workflows/deploy.yml` builds `wasmJsBrowserDistribution` on every relevant push to `main` and deploys `composeApp/build/dist/wasmJs/productionExecutable` through GitHub Pages Actions.
 
 Impact:
-`docs/` remains available for project documentation and legacy static assets, but it is not the deployment source. Publishing does not require manually copying the generated application into that folder.
+`docs/` contains durable project documentation and the two images used by the repository README. It is not the deployment source, so generated JavaScript, Wasm, copied resources, and legacy site assets are not tracked there.
 
 ### 2. Repo-local `.codex/` is documentation, not an auto-installed Codex skill registry
 
@@ -43,6 +43,14 @@ The first viewport must explain who David is, what he builds, and where to see p
 
 Impact:
 The page opens immediately with the Android, Kotlin, KMP, and applied-AI positioning, two clear actions, David's portrait, and three factual project cards. The existing dark cyan-and-amber identity remains, but the former full-screen video and office navigation are no longer part of the runtime path. Large desktop viewports reproduce the approved presentation composition; smaller or shorter viewports keep the same content in a compact scrolling layout.
+
+### 6. Runtime resources stay reference-driven
+
+Reason:
+Compose Resources and `wasmJsMain/resources` are copied into the production bundle. Keeping unused experiments, legacy screenshots, or old intro videos increases repository and artifact size without affecting the current portfolio.
+
+Impact:
+Only files referenced by Kotlin, `index.html`, or a published URL remain in runtime resource folders. The production build is the validation source after any resource cleanup.
 
 ## Update Policy
 

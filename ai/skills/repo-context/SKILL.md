@@ -16,14 +16,14 @@ Use this skill when working anywhere in this repository and you need the minimum
 ## Repo Shape
 
 - `composeApp/`: app implementation
-- `docs/`: published output plus durable notes
+- `docs/`: durable notes and README-owned images; not deployment output
 - `ai/`: orchestration docs and reusable guidance
 - `.codex/`: repo guardrails and focused skills
 - `tools/mcp/`: local tooling and repo knowledge support
 
 ## Working Rules
 
-- Preserve the public visual identity.
+- Preserve the approved dark cyan-and-amber visual identity.
 - Prefer incremental changes over rewrites.
 - Keep business logic out of composables.
 - Extract repeated UI only when reuse is real.

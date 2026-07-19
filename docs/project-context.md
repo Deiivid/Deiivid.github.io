@@ -15,23 +15,26 @@ The project is meant to stay maintainable as a real product, not a one-off stati
 
 ## Feature Map
 
-- Header navigation
-- Hero section with profile and CTA links
-- Skills section
-- Timeline / experience section
-- Projects section
-- Interactive game / modal section
-- Contact section
-- Footer
+- Professional hero with profile, CV and contact actions
+- Animated Android, KMP and applied-AI identity system
+- Three linked project cards
+- Experience and about sections
+- Dedicated large-desktop composition plus responsive compact layout
 
 ## Source Map
 
 - `composeApp/src/commonMain/kotlin/App.kt`
-  Main UI composition.
+  App root and responsive composition.
+- `composeApp/src/commonMain/kotlin/DesktopPortfolio.kt`
+  Approved large-desktop composition and motion.
+- `composeApp/src/commonMain/composeResources/drawable/`
+  Images referenced through Compose Resources.
 - `composeApp/src/wasmJsMain/kotlin/main.kt`
   Browser entry point.
 - `composeApp/src/wasmJsMain/resources/`
-  App shell and published assets.
+  App shell and directly published files, including the CV.
+- `.github/workflows/deploy.yml`
+  Production build and GitHub Pages deployment.
 - `docs/migration/`
   Migration decisions and HTML-to-Compose mapping notes.
 - `ai/`
@@ -41,12 +44,13 @@ The project is meant to stay maintainable as a real product, not a one-off stati
 
 ## Rules
 
-- Preserve the current public visual identity.
+- Preserve the approved dark cyan-and-amber visual identity.
 - Prefer small, incremental changes.
 - Keep business logic out of composables.
 - Extract repeated UI only when the reuse is real.
 - Keep mobile behavior intentional.
 - Keep deployment mechanics separate from UI concerns.
+- Keep only referenced runtime resources; generated web bundles belong in `composeApp/build/`, not `docs/`.
 
 ## Git Rules
 

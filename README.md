@@ -88,7 +88,7 @@ If you want the deeper index, see [`ai/README.md`](ai/README.md).
 ## Highlights
 
 - Kotlin-first web portfolio instead of a traditional HTML-only stack
-- Responsive sections for hero, skills, timeline, projects, game, and contact
+- Responsive professional dashboard with hero, project proof, experience, about, and contact
 - GitHub Pages deployment flow for the published site
 - Project-local prompts, agent contracts, and workflow specs to keep migration work consistent
 - Clean separation between app code, migration docs, orchestration metadata, and local tooling
@@ -103,7 +103,7 @@ This repo is set up to support both product work and structured iteration:
 
 2. **Implementation**
    - Build and refine UI in `composeApp/`.
-   - Use `App.kt` as the main integration point and split sections only when it improves clarity.
+   - Use `App.kt` for the app root and responsive composition, and `DesktopPortfolio.kt` for the approved large-desktop presentation.
 
 3. **AI-assisted migration**
    - Use `.codex/prompts/` for repeatable migration and review workflows.
@@ -172,7 +172,9 @@ If you are changing deployment behavior, keep the publish target and artifact pa
 - `composeApp/src/wasmJsMain/kotlin/main.kt`
   Web entry point.
 - `composeApp/src/commonMain/kotlin/App.kt`
-  Main Compose UI implementation.
+  App root and responsive Compose UI.
+- `composeApp/src/commonMain/kotlin/DesktopPortfolio.kt`
+  Large-desktop presentation and animation.
 - `composeApp/src/wasmJsMain/resources/index.html`
   Shell document for the app.
 - `docs/migration/`
