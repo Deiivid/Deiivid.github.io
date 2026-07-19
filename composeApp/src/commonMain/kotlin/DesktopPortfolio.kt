@@ -596,8 +596,8 @@ private fun TargetAvailabilityPill(scale: Float) {
 
     Box(
         modifier = Modifier
-            .width(280.dp * scale)
-            .height(38.dp * scale)
+            .width(310.dp * scale)
+            .height(42.dp * scale)
     ) {
         Row(
             modifier = Modifier
@@ -624,8 +624,10 @@ private fun TargetAvailabilityPill(scale: Float) {
             Text(
                 text = "Disponible para nuevos retos",
                 color = TargetWhite.copy(alpha = 0.9f),
-                fontSize = (16f * scale).sp,
-                letterSpacing = (0.04f * scale).sp,
+                fontSize = (14f * scale).sp,
+                letterSpacing = (0.02f * scale).sp,
+                maxLines = 1,
+                softWrap = false,
                 modifier = Modifier.offset(y = 1.dp * scale)
             )
         }
