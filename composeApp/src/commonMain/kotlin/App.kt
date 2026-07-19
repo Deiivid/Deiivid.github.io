@@ -25,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,16 +49,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import davidweb_kmp.composeapp.generated.resources.Res
+import davidweb_kmp.composeapp.generated.resources.dm_mono_medium
+import davidweb_kmp.composeapp.generated.resources.dm_mono_regular
 import davidweb_kmp.composeapp.generated.resources.image_david
+import davidweb_kmp.composeapp.generated.resources.space_grotesk
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
 
 private val Night = Color(0xFF070A10)
@@ -69,6 +75,15 @@ private val Amber = Color(0xFFF2B879)
 private val White = Color(0xFFF4F7FB)
 private val Slate = Color(0xFF9AA7B8)
 private val Green = Color(0xFF72E6AE)
+
+@Composable
+internal fun portfolioSans() = FontFamily(Font(Res.font.space_grotesk))
+
+@Composable
+internal fun portfolioMono() = FontFamily(
+    Font(Res.font.dm_mono_regular, FontWeight.Normal),
+    Font(Res.font.dm_mono_medium, FontWeight.Medium)
+)
 
 private const val ContactEmail = "davidnavarrom3@gmail.com"
 private const val GitHubUrl = "https://github.com/Deiivid"
@@ -123,12 +138,15 @@ private val featuredProjects = listOf(
 
 @Composable
 fun App() {
+    val sans = portfolioSans()
     MaterialTheme {
         Surface(
             color = Night,
             modifier = Modifier.fillMaxSize()
         ) {
-            PortfolioDashboard()
+            ProvideTextStyle(TextStyle(fontFamily = sans)) {
+                PortfolioDashboard()
+            }
         }
     }
 }
@@ -248,7 +266,7 @@ private fun PortfolioHeader(
                     "SENIOR ANDROID DEVELOPER · KMP · AI ENGINEER"
                 },
                 color = Cyan,
-                fontFamily = FontFamily.Monospace,
+                fontFamily = portfolioMono(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = if (compact) 7.sp else 9.sp,
                 letterSpacing = if (narrow) 0.7.sp else 1.1.sp,
@@ -574,7 +592,7 @@ private fun SystemNode(label: String, detail: String, color: Color, narrow: Bool
             Text(
                 text = if (label == "IA") "AI" else "<> ",
                 color = color,
-                fontFamily = FontFamily.Monospace,
+                fontFamily = portfolioMono(),
                 fontWeight = FontWeight.Black,
                 fontSize = if (narrow) 7.sp else 8.sp
             )
@@ -672,7 +690,7 @@ private fun ExpertiseCard(
         Text(
             text = number,
             color = color,
-            fontFamily = FontFamily.Monospace,
+            fontFamily = portfolioMono(),
             fontWeight = FontWeight.Black,
             fontSize = 10.sp
         )
@@ -716,7 +734,7 @@ private fun ProjectsSection(
                 Text(
                     text = "PROYECTOS SELECCIONADOS",
                     color = Cyan,
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = portfolioMono(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 10.sp,
                     letterSpacing = 1.4.sp
@@ -802,7 +820,7 @@ private fun ProjectCard(
         Text(
             text = project.eyebrow,
             color = project.accent,
-            fontFamily = FontFamily.Monospace,
+            fontFamily = portfolioMono(),
             fontWeight = FontWeight.Bold,
             fontSize = 9.sp,
             letterSpacing = 1.sp
@@ -826,7 +844,7 @@ private fun ProjectCard(
         Text(
             text = project.stack,
             color = White.copy(alpha = 0.74f),
-            fontFamily = FontFamily.Monospace,
+            fontFamily = portfolioMono(),
             fontSize = 9.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -921,7 +939,7 @@ private fun GlassArtwork(accent: Color) {
         Text(
             text = "GLASS",
             color = accent,
-            fontFamily = FontFamily.Monospace,
+            fontFamily = portfolioMono(),
             fontWeight = FontWeight.Black,
             fontSize = 9.sp
         )
@@ -955,7 +973,7 @@ private fun ArchitectureLayer(label: String, accent: Color, widthFraction: Float
         Text(
             text = label,
             color = White.copy(alpha = 0.78f),
-            fontFamily = FontFamily.Monospace,
+            fontFamily = portfolioMono(),
             fontWeight = FontWeight.Bold,
             fontSize = 7.sp
         )

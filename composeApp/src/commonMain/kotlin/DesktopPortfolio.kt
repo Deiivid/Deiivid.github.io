@@ -220,7 +220,7 @@ private fun TargetHeader(
             Text(
                 text = "SENIOR ANDROID DEVELOPER · KMP · AI ENGINEER",
                 color = TargetCyan,
-                fontFamily = FontFamily.Monospace,
+                fontFamily = portfolioMono(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = (14f * scale).sp,
                 letterSpacing = (2f * scale).sp
@@ -925,7 +925,7 @@ private fun TargetDetailPanel(
         Text(
             text = eyebrow,
             color = accent,
-            fontFamily = FontFamily.Monospace,
+            fontFamily = portfolioMono(),
             fontWeight = FontWeight.Bold,
             fontSize = (11f * scale).sp,
             letterSpacing = (1.4f * scale).sp
@@ -957,7 +957,7 @@ private fun TargetDetailPanel(
                     Text(
                         text = label,
                         color = accent,
-                        fontFamily = FontFamily.Monospace,
+                        fontFamily = portfolioMono(),
                         fontWeight = FontWeight.Bold,
                         fontSize = (12f * scale).sp
                     )
