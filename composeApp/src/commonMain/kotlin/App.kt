@@ -404,7 +404,7 @@ private fun HeroCopy(
         )
 
         Text(
-            text = "Android, Kotlin Multiplatform e IA aplicada. Arquitectura, producto y entrega: de la idea a producción.",
+            text = "Android, Kotlin Multiplatform e IA aplicada. Arquitectura, producto y entrega de principio a fin.",
             color = Slate,
             fontSize = if (compact) 15.sp else 18.sp,
             lineHeight = if (compact) 22.sp else 27.sp,

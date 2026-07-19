@@ -346,7 +346,7 @@ private fun TargetHero(
                     }
                     append("\n")
                     withStyle(SpanStyle(letterSpacing = (0.65f * scale).sp)) {
-                        append("Arquitectura, producto y entrega: de la idea a producción.")
+                        append("Arquitectura, producto y entrega de principio a fin.")
                     }
                 },
                 color = TargetSlate,
