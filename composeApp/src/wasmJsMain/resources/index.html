@@ -1,17 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#080D1B"/>
   <meta name="color-scheme" content="dark"/>
-  <meta name="description" content="Portfolio interactivo de David Navarro, Android Developer especializado en Kotlin, Jetpack Compose y KMP."/>
-  <title>David Navarro · Android Developer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
-  <link rel="preload" as="video" href="./portfolio_intro_rear_continuous_v8.mp4" type="video/mp4"/>
-  <link rel="preload" as="image" href="./portfolio_intro_master_scene_v8.jpg"/>
+  <meta name="description" content="Portfolio de David Navarro, Mobile Engineer especializado en Android, Kotlin, Kotlin Multiplatform e IA aplicada."/>
+  <title>David Navarro · Mobile + AI Engineer</title>
   <style>
     html, body {
       width: 100%;
@@ -20,84 +15,6 @@
       padding: 0;
       background: #080D1B;
       overflow: hidden;
-      font-family: "Space Grotesk", sans-serif;
-    }
-
-    #portfolio-intro {
-      position: fixed;
-      inset: 0;
-      z-index: 2;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
-      background: #080D1B;
-      pointer-events: auto;
-      transition: opacity 90ms linear;
-      overflow: hidden;
-    }
-
-    .portfolio-intro-frame {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 1;
-      will-change: opacity, transform;
-      animation: intro-master-camera 8.2s cubic-bezier(.22,.61,.36,1) both;
-    }
-
-    .portfolio-intro-video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 1;
-      animation: intro-video-exit 8.2s linear both;
-    }
-
-    .portfolio-intro-chair-action {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      animation: intro-chair-grab 8.2s linear both;
-    }
-
-    .portfolio-intro-chair-pull {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      animation: intro-chair-pull 8.2s linear both;
-    }
-
-    @keyframes intro-master-camera {
-      0%, 72% { opacity: 0; transform: scale(1.045) translate3d(0, 1.2%, 0); }
-      80% { opacity: 1; transform: scale(1.018) translate3d(0, .35%, 0); }
-      100% { transform: scale(1) translate3d(0, 0, 0); }
-    }
-
-    @keyframes intro-video-exit {
-      0%, 48% { opacity: 1; }
-      58%, 100% { opacity: 0; }
-    }
-
-    @keyframes intro-chair-grab {
-      0%, 46% { opacity: 0; transform: scale(1.015); }
-      51%, 60% { opacity: 1; transform: scale(1.008); }
-      65%, 100% { opacity: 0; transform: scale(1); }
-    }
-
-    @keyframes intro-chair-pull {
-      0%, 59% { opacity: 0; transform: scale(1.012); }
-      64%, 73% { opacity: 1; transform: scale(1.004); }
-      78%, 100% { opacity: 0; transform: scale(1); }
     }
 
     #root {
@@ -116,14 +33,6 @@
   </style>
 </head>
 <body>
-<div id="portfolio-intro" aria-hidden="true">
-  <video class="portfolio-intro-video" autoplay muted playsinline preload="auto">
-    <source src="./portfolio_intro_rear_continuous_v8.mp4" type="video/mp4"/>
-  </video>
-  <img class="portfolio-intro-chair-action" src="./portfolio_intro_frame_02_chair_grab_photoreal_v9.png" alt=""/>
-  <img class="portfolio-intro-chair-pull" src="./portfolio_intro_frame_03_chair_pulled_photoreal_v9.png" alt=""/>
-  <img class="portfolio-intro-frame" src="./portfolio_intro_master_scene_v8.jpg" alt=""/>
-</div>
 <div id="root"></div>
 <script type="application/javascript" src="composeApp.js"></script>
 </body>

@@ -4,13 +4,13 @@ Track the non-obvious decisions made during the HTML to KMP migration.
 
 ## Current Decisions
 
-### 1. `docs/` remains the published output folder
+### 1. GitHub Actions publishes the generated Wasm application
 
 Reason:
-GitHub Pages currently consumes generated static output from `docs/`.
+`.github/workflows/deploy.yml` builds `wasmJsBrowserDistribution` on every relevant push to `main` and deploys `composeApp/build/dist/wasmJs/productionExecutable` through GitHub Pages Actions.
 
 Impact:
-Extra documentation under `docs/migration/` is acceptable, but build/publish scripts should avoid wiping these notes unless intentionally regenerated.
+`docs/` remains available for project documentation and legacy static assets, but it is not the deployment source. Publishing does not require manually copying the generated application into that folder.
 
 ### 2. Repo-local `.codex/` is documentation, not an auto-installed Codex skill registry
 
@@ -36,13 +36,13 @@ The repository now uses `AGENTS.md` for top-level operating rules, `docs/project
 Impact:
 Future edits should keep those layers aligned instead of duplicating the same rules in several places. Keep `ai/` readable and reusable, but avoid adding sensitive, local-only, or machine-specific data there.
 
-### 5. The portfolio uses a cinematic 2.5D office as its primary navigation
+### 5. The portfolio opens directly as a concise professional dashboard
 
 Reason:
-The portfolio content is presented as an animated workspace: the character walks to the desk, starts typing, and reveals the main navigation around him.
+The first viewport must explain who David is, what he builds, and where to see proof of his work without waiting for an intro or learning a custom navigation model.
 
 Impact:
-CV, projects, profile, experience, email, and social links remain accessible as regular Compose UI controls. The office always fills the browser viewport without a card wrapper. The first-person entrance is a 4.8-second, 60 fps H.264 continuous camera sequence built from one stable rear view. It advances behind the chair with restrained walking motion, lets the chair back fully occlude the lens, and emerges into the seated perspective before holding a pixel-matched last frame for the Compose handoff. The only perspective change happens during that complete physical occlusion; the sequence contains no dissolves, interpolated scene cuts, or whole-frame focus pulses. David's wireless low-profile Aurora Lily58—with two clearly separated 29-key halves, white MBK-style keycaps, thin matte plates, contact shadows, and no connecting cable—is visible in the seated view; the workstation also includes a Mac Mini and an Android development phone. The seated frame is kept as a high-resolution 3344×1882 asset so the desk materials, hands, and keyboard stay crisp on Retina displays. The six controls then appear as responsive orbital navigation inside the physical ultrawide monitor. Selecting a node retracts the other five and expands that section from its own position; all text, icons, actions, and content remain native Compose UI. The Luffy, Goku, and Naruto collectible trio is a static desk prop centered directly below the monitor; its position and scale never change during the intro or the portfolio view. The city window remains unobstructed and David is not rendered again in third person.
+The page opens immediately with the Android, Kotlin, KMP, and applied-AI positioning, two clear actions, David's portrait, and three factual project cards. The existing dark cyan-and-amber identity remains, but the former full-screen video and office navigation are no longer part of the runtime path. Large desktop viewports reproduce the approved presentation composition; smaller or shorter viewports keep the same content in a compact scrolling layout.
 
 ## Update Policy
 
