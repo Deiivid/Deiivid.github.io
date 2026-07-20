@@ -38,7 +38,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
@@ -83,16 +83,6 @@ private const val TargetPortfolio = "https://github.com/Deiivid/Glassmorphism-Co
 internal fun TargetDesktopPortfolio() {
     val uriHandler = LocalUriHandler.current
     val scrollState = rememberScrollState()
-    val ambientTransition = rememberInfiniteTransition(label = "ambient-background")
-    val ambientDrift by ambientTransition.animateFloat(
-        initialValue = -1f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 18_000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "ambient-drift"
-    )
 
     BoxWithConstraints(
         modifier = Modifier
@@ -111,15 +101,9 @@ internal fun TargetDesktopPortfolio() {
             contentDescription = null,
             contentScale = ContentScale.Crop,
             alpha = 0.5f,
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    scaleX = 1.05f
-                    scaleY = 1.05f
-                    translationX = ambientDrift * 18.dp.toPx()
-                    translationY = -ambientDrift * 10.dp.toPx()
-                }
+            modifier = Modifier.fillMaxSize()
         )
+        TargetAmbientCircuitOverlay(modifier = Modifier.fillMaxSize())
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -184,6 +168,344 @@ internal fun TargetDesktopPortfolio() {
                 }
             )
         }
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+internal fun TargetMobilePortfolio() {
+    val uriHandler = LocalUriHandler.current
+    val scrollState = rememberScrollState()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(TargetNight)
+    ) {
+        Image(
+            painter = painterResource(Res.drawable.monitor_dashboard_ambient_v2),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            alpha = 0.18f,
+            modifier = Modifier.fillMaxSize()
+        )
+        TargetAmbientCircuitOverlay(modifier = Modifier.fillMaxSize())
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(TargetNight.copy(alpha = 0.24f), TargetNight, Color(0xFF02050A))
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(horizontal = 18.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp)
+        ) {
+            TargetMobileHeader(
+                onContact = {
+                    uriHandler.openUri("mailto:$TargetEmail?subject=Contacto%20desde%20tu%20portfolio")
+                }
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text(
+                    text = "Creo apps móviles\nque resuelven\nproblemas reales.",
+                    color = TargetWhite,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 42.sp,
+                    lineHeight = 46.sp,
+                    letterSpacing = 0.sp
+                )
+                Text(
+                    text = "Android, Kotlin Multiplatform e IA aplicada.\nArquitectura, producto y entrega de principio a fin.",
+                    color = TargetSlate,
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(224.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .border(1.dp, TargetCyan.copy(alpha = 0.38f), RoundedCornerShape(24.dp))
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.portfolio_hero_target),
+                    contentDescription = "David Navarro y especialidades Android, KMP e IA",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            TargetActionButton(
+                text = "Descargar CV",
+                scale = 1f,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { uriHandler.openUri(TargetCv) }
+            )
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                TargetAvailabilityPill(scale = 1f)
+            }
+
+            TargetMobileProjects(
+                onNeveraChef = { uriHandler.openUri(TargetNeveraChef) },
+                onPermissionProtect = { uriHandler.openUri(TargetPermissionProtect) },
+                onPortfolio = { uriHandler.openUri(TargetPortfolio) }
+            )
+
+            TargetMobileDetailPanel(
+                eyebrow = "EXPERIENCIA",
+                title = "Desarrollador Android desde 2021",
+                body = "Seguridad, IA, arquitectura y desarrollo Android y KMP en productos reales.",
+                accent = TargetCyan,
+                actionLabel = "Ver CV",
+                onAction = { uriHandler.openUri(TargetCv) }
+            )
+            TargetMobileDetailPanel(
+                eyebrow = "SOBRE MÍ",
+                title = "Me importa el porqué, no solo el código",
+                body = "Transformo necesidades complejas en soluciones simples, seguras y mantenibles.",
+                accent = TargetAmber,
+                actionLabel = "Hablemos",
+                onAction = {
+                    uriHandler.openUri("mailto:$TargetEmail?subject=Contacto%20desde%20tu%20portfolio")
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun TargetAmbientCircuitOverlay(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "ambient-circuit-motion")
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 8_000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "ambient-circuit-progress"
+    )
+
+    Canvas(modifier = modifier) {
+        fun drawFlowingWave(
+            baseY: Float,
+            amplitude: Float,
+            wavelength: Float,
+            phase: Float,
+            alpha: Float,
+            width: Float
+        ) {
+            val path = Path()
+            val steps = 96
+            repeat(steps + 1) { step ->
+                val x = size.width * step / steps
+                val y = baseY + sin((x / wavelength + progress + phase) * 2f * PI.toFloat()) * amplitude
+                if (step == 0) path.moveTo(x, y) else path.lineTo(x, y)
+            }
+
+            drawPath(
+                path = path,
+                color = TargetCyan.copy(alpha = alpha),
+                style = Stroke(width = width)
+            )
+        }
+
+        val waveWidth = 1.dp.toPx()
+        val softWaveWidth = 22.dp.toPx()
+
+        // Luz ambiental continua: se desliza como una onda por el fondo, sin tocar las tarjetas.
+        drawFlowingWave(
+            baseY = size.height * 0.19f,
+            amplitude = size.height * 0.065f,
+            wavelength = size.width * 0.72f,
+            phase = 0.02f,
+            alpha = 0.035f,
+            width = softWaveWidth
+        )
+        drawFlowingWave(
+            baseY = size.height * 0.19f,
+            amplitude = size.height * 0.065f,
+            wavelength = size.width * 0.72f,
+            phase = 0.02f,
+            alpha = 0.14f,
+            width = waveWidth
+        )
+        drawFlowingWave(
+            baseY = size.height * 0.76f,
+            amplitude = size.height * 0.085f,
+            wavelength = size.width * 0.58f,
+            phase = 0.48f,
+            alpha = 0.03f,
+            width = softWaveWidth
+        )
+        drawFlowingWave(
+            baseY = size.height * 0.76f,
+            amplitude = size.height * 0.085f,
+            wavelength = size.width * 0.58f,
+            phase = 0.48f,
+            alpha = 0.12f,
+            width = waveWidth
+        )
+
+        // Dos pulsos exteriores para dar profundidad, manteniendo el centro limpio.
+        listOf(
+            Offset(size.width * 0.04f, size.height * 0.18f),
+            Offset(size.width * 0.96f, size.height * 0.8f)
+        ).forEachIndexed { index, center ->
+            val wave = (progress + index * 0.5f) % 1f
+            drawCircle(
+                color = TargetCyan.copy(alpha = (1f - wave) * 0.12f),
+                radius = size.height * (0.06f + wave * 0.15f),
+                center = center,
+                style = Stroke(width = waveWidth)
+            )
+        }
+
+        // Puntos de luz que recorren las dos olas principales.
+        repeat(5) { index ->
+            val normalizedX = (progress + index * 0.21f) % 1f
+            val x = normalizedX * size.width
+            val y = size.height * 0.76f + sin((x / (size.width * 0.58f) + progress + 0.48f) * 2f * PI.toFloat()) * size.height * 0.085f
+            drawCircle(TargetCyan.copy(alpha = 0.42f), radius = 2.dp.toPx(), center = Offset(x, y))
+        }
+    }
+}
+
+@Composable
+private fun TargetMobileHeader(onContact: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(
+                text = "DAVID NAVARRO",
+                color = TargetWhite,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 15.sp,
+                letterSpacing = 0.7.sp
+            )
+            Text(
+                text = "ANDROID · KMP · AI",
+                color = TargetCyan,
+                fontFamily = portfolioMono(),
+                fontWeight = FontWeight.Bold,
+                fontSize = 9.sp,
+                letterSpacing = 1.1.sp
+            )
+        }
+        TargetContactButton(scale = 0.72f, onClick = onContact)
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun TargetMobileProjects(
+    onNeveraChef: () -> Unit,
+    onPermissionProtect: () -> Unit,
+    onPortfolio: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = "PROYECTOS DESTACADOS",
+            color = TargetCyan,
+            fontFamily = portfolioMono(),
+            fontWeight = FontWeight.Bold,
+            fontSize = 11.sp,
+            letterSpacing = 1.2.sp
+        )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val cardWidth = maxWidth
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                TargetProjectImage(
+                    resource = Res.drawable.portfolio_card_neverachef,
+                    description = "Abrir NeveraChefAI",
+                    width = cardWidth,
+                    height = 174.dp,
+                    scale = 0.8f,
+                    onClick = onNeveraChef
+                )
+                TargetProjectImage(
+                    resource = Res.drawable.portfolio_card_permission,
+                    description = "Abrir Permission Protect",
+                    width = cardWidth,
+                    height = 174.dp,
+                    scale = 0.8f,
+                    onClick = onPermissionProtect
+                )
+                TargetProjectImage(
+                    resource = Res.drawable.portfolio_card_kmp,
+                    description = "Abrir Glassmorphism Compose",
+                    width = cardWidth,
+                    height = 174.dp,
+                    scale = 0.8f,
+                    titleOverride = "Glassmorphism Compose",
+                    subtitleOverride = "Librería visual Compose",
+                    onClick = onPortfolio
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TargetMobileDetailPanel(
+    eyebrow: String,
+    title: String,
+    body: String,
+    accent: Color,
+    actionLabel: String,
+    onAction: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(TargetPanel)
+            .border(1.dp, accent.copy(alpha = 0.32f), RoundedCornerShape(20.dp))
+            .padding(22.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = eyebrow,
+            color = accent,
+            fontFamily = portfolioMono(),
+            fontWeight = FontWeight.Bold,
+            fontSize = 10.sp,
+            letterSpacing = 1.1.sp
+        )
+        Text(
+            text = title,
+            color = TargetWhite,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 23.sp,
+            lineHeight = 28.sp
+        )
+        Text(
+            text = body,
+            color = TargetSlate,
+            fontSize = 15.sp,
+            lineHeight = 22.sp
+        )
+        Text(
+            text = actionLabel,
+            color = accent,
+            fontFamily = portfolioMono(),
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            modifier = Modifier.clickable(onClick = onAction)
+        )
     }
 }
 
@@ -296,7 +618,10 @@ private fun TargetHero(
                                 0f to TargetNight,
                                 0.06f to TargetNight.copy(alpha = 0.88f),
                                 0.15f to TargetNight.copy(alpha = 0.34f),
-                                0.25f to Color.Transparent
+                                0.25f to Color.Transparent,
+                                0.68f to Color.Transparent,
+                                0.9f to TargetNight.copy(alpha = 0.58f),
+                                1f to TargetNight.copy(alpha = 0.94f)
                             )
                         )
                     )

@@ -174,6 +174,11 @@ private fun PortfolioDashboard() {
             return@BoxWithConstraints
         }
 
+        if (maxWidth < 520.dp) {
+            TargetMobilePortfolio()
+            return@BoxWithConstraints
+        }
+
         val compact = maxWidth < 1100.dp
         val narrow = maxWidth < 520.dp
         val short = maxHeight < 780.dp
